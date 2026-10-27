@@ -5,7 +5,7 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
 
 ## Phase 1: Shell (no Docker needed)
 
-- [ ] **Task 1: Repo and tooling baseline** (Medium, scaffold)
+- [x] **Task 1: Repo and tooling baseline** (Medium, scaffold)
   - Description: `git init`, Next.js + TypeScript (strict) via pnpm, Tailwind, ESLint, Prettier, Vitest + Testing Library, `.gitignore`, `.editorconfig`, `pnpm check` script, commit hook. Versions pinned in lockfile.
   - Acceptance:
     - [ ] `pnpm install && pnpm dev` serves a blank page
@@ -16,7 +16,7 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Dependencies: none
   - Files: repo root config, `src/app/`, `package.json`
 
-- [ ] **Task 2: Design direction decision** (Small, human gate)
+- [x] **Task 2: Design direction decision** (Small, human gate). Decided: neutral, minimal, editorial (Vogue-style), see ADR-004.
   - Description: Build a throwaway preview showing three style options (warm and playful, clean and minimal, bold and colourful) on the same sample screens (rota card, balance summary, checklist). You pick one.
   - Acceptance:
     - [ ] Three options viewable on phone width and desktop
@@ -25,7 +25,7 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Dependencies: Task 1
   - Files: `docs/adr/004-design-direction.md`, a preview page (removed afterwards)
 
-- [ ] **Task 3: Design tokens, motion tokens, UI primitives** (Medium)
+- [x] **Task 3: Design tokens, motion tokens, UI primitives** (Medium)
   - Description: Colour, type, spacing, radius, shadow tokens (light and dark), `src/lib/motion.ts` easing/duration tokens, primitives (Button, Card, Input, Checkbox, Sheet, Toast, Avatar) built on accessible headless components, and a dev-only `/design` showcase page.
   - Acceptance:
     - [ ] Tokens drive all primitives; dark mode works via `prefers-color-scheme`

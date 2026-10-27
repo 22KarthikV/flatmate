@@ -31,9 +31,9 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 
 ### Phase 1: Shell (no Docker needed)
 
-- [ ] Task 1: Repo and tooling baseline
-- [ ] Task 2: Design direction decision
-- [ ] Task 3: Design tokens, motion tokens, UI primitives
+- [x] Task 1: Repo and tooling baseline
+- [x] Task 2: Design direction decision
+- [x] Task 3: Design tokens, motion tokens, UI primitives
 - [ ] Task 4: App shell, navigation, motion and scoped smooth scroll
 - [ ] Task 5: PWA
 

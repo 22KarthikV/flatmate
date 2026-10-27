@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --paper: #faf8f5;
+  --surface: #ffffff;
+  --ink: #111111;
+  --muted: #6b6762;
+  --line: #e4e0da;
+  --positive: #2f6b4f;
+  --negative: #8a2a2a;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* flatmate tones (avatars, calendar marks) */
+  --mate-1: #3d3a36;
+  --mate-2: #8c7b6b;
+  --mate-3: #6f7f72;
+  --mate-4: #a4574a;
+  --mate-5: #5b6b7c;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #0e0e0e;
+    --surface: #161514;
+    --ink: #f3f0ea;
+    --muted: #a39e96;
+    --line: #2a2826;
+    --positive: #7fb89a;
+    --negative: #d9857f;
   }
 }
 
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-mate-1: var(--mate-1);
+  --color-mate-2: var(--mate-2);
+  --color-mate-3: var(--mate-3);
+  --color-mate-4: var(--mate-4);
+  --color-mate-5: var(--mate-5);
+  --font-display: var(--font-bodoni), "Didot", "Bodoni 72", Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+@utility label-caps {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
