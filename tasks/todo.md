@@ -35,7 +35,7 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Dependencies: Task 2
   - Files: `src/styles/`, `src/lib/motion.ts`, `src/components/ui/*`, `src/app/design/page.tsx`
 
-- [ ] **Task 4: App shell, navigation, motion and scoped smooth scroll** (Medium)
+- [x] **Task 4: App shell, navigation, motion and scoped smooth scroll** (Medium)
   - Description: Signed-in layout with bottom nav (mobile) and side nav (desktop), placeholder routes for each module, public layout for landing/sign-in. Lazy-loaded GSAP setup with route/entrance transitions. Lenis only on public pages and desktop. A few curated React Bits components (copied in) with `THIRD_PARTY_NOTICES.md`.
   - Acceptance:
     - [ ] Navigation works at 360px with 44px touch targets and no horizontal scroll
