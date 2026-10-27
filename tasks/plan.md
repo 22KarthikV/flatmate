@@ -30,6 +30,7 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 ## Task list
 
 ### Phase 1: Shell (no Docker needed)
+
 - [ ] Task 1: Repo and tooling baseline
 - [ ] Task 2: Design direction decision
 - [ ] Task 3: Design tokens, motion tokens, UI primitives
@@ -37,46 +38,54 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 - [ ] Task 5: PWA
 
 ### Checkpoint A: Shell
+
 - [ ] Installs and builds, all tests green, shell looks right at 360px and desktop, reviewed by you
 
 ### Phase 2: Platform quality
+
 - [ ] Task 6: Typed env, logger, error boundary
 - [ ] Task 7: Playwright smoke tests
 - [ ] Task 8: CI pipeline and budgets
 
 ### Checkpoint B: CI
+
 - [ ] A pull request runs lint, typecheck, unit, E2E, build and bundle check, and a failing check blocks merge
 
 ### Phase 3: Backend (needs Docker)
+
 - [ ] Task 9: Supabase local stack, clients, baseline migration, pgTAP harness
 - [ ] Task 10: `job_runs` table and `/api/health` DB check
 - [ ] Task 11: Scheduler spike (`pg_cron` to Edge Function)
 
 ### Checkpoint C: Backend
+
 - [ ] `supabase db reset` rebuilds from migrations only, DB tests green, heartbeat is idempotent
 
 ### Phase 4: Ship
+
 - [ ] Task 12: Deploy to Vercel and hosted Supabase, device and Lighthouse checks
 - [ ] Task 13: Documentation and ADRs
 
 ### Checkpoint: Foundation complete
+
 - [ ] Every success criterion in the spec is met
 - [ ] Ready for review, then `identity` spec
 
 ## Risks and mitigations
 
-| Risk | Impact | Mitigation |
-|---|---|---|
-| `pg_cron` not available or limited on Supabase free tier | High | Task 11 verifies first. Fallback: GitHub Actions scheduled workflow calling an Edge Function, or an external free cron pinging the function. Decision recorded in ADR-002. |
-| Serwist (PWA service worker) may not work with the Next.js default bundler | Med | Task 5 checks compatibility first. Fallback: a small hand-written service worker registered from the app. |
-| iOS PWA quirks (push needs Home Screen install, storage eviction, OAuth redirects in standalone mode) | Med | Install guidance in task 5. Real iPhone check in task 12. OAuth specifics are tested in `identity`. |
-| Animation hurting performance on mid-range phones | Med | Lazy loading, 40 KB budget in CI, 60 fps device check, reduced-motion support. Heavy effects dropped. |
-| Docker Desktop on Windows needs WSL2/virtualisation | Med | Phase 1 and 2 don't need it. Install guide in README. |
-| Supabase free project pauses after a week idle | Low (once used daily) | Heartbeat job keeps it active. Noted in ADR-002. |
-| React Bits components pull in extra heavy dependencies | Low | Each component's dependencies reviewed before adding (Ask-first rule). |
-| Reference style unknown | Low | Task 2 presents three options. |
+| Risk                                                                                                  | Impact                | Mitigation                                                                                                                                                                 |
+| ----------------------------------------------------------------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pg_cron` not available or limited on Supabase free tier                                              | High                  | Task 11 verifies first. Fallback: GitHub Actions scheduled workflow calling an Edge Function, or an external free cron pinging the function. Decision recorded in ADR-002. |
+| Serwist (PWA service worker) may not work with the Next.js default bundler                            | Med                   | Task 5 checks compatibility first. Fallback: a small hand-written service worker registered from the app.                                                                  |
+| iOS PWA quirks (push needs Home Screen install, storage eviction, OAuth redirects in standalone mode) | Med                   | Install guidance in task 5. Real iPhone check in task 12. OAuth specifics are tested in `identity`.                                                                        |
+| Animation hurting performance on mid-range phones                                                     | Med                   | Lazy loading, 40 KB budget in CI, 60 fps device check, reduced-motion support. Heavy effects dropped.                                                                      |
+| Docker Desktop on Windows needs WSL2/virtualisation                                                   | Med                   | Phase 1 and 2 don't need it. Install guide in README.                                                                                                                      |
+| Supabase free project pauses after a week idle                                                        | Low (once used daily) | Heartbeat job keeps it active. Noted in ADR-002.                                                                                                                           |
+| React Bits components pull in extra heavy dependencies                                                | Low                   | Each component's dependencies reviewed before adding (Ask-first rule).                                                                                                     |
+| Reference style unknown                                                                               | Low                   | Task 2 presents three options.                                                                                                                                             |
 
 ## Open questions
+
 1. GitHub repo (needed by task 8) and the hosted Supabase project (needed by task 12): who creates them, and which GitHub account?
 2. Apps or sites whose look you like. Your last message ended after "look I like:" with nothing listed. Add them any time before task 2, or I'll go with three neutral options.
 3. Project name and URL: keep "FlatMate" and the free `*.vercel.app` address?

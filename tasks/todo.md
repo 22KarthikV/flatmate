@@ -57,6 +57,7 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Files: `public/manifest.webmanifest`, `public/icons/*`, `src/app/sw.ts` (or equivalent), `src/app/offline/page.tsx`
 
 ### Checkpoint A: Shell
+
 - [ ] `pnpm check` passes
 - [ ] Shell looks right at 360px and desktop in light and dark
 - [ ] Review with you before continuing
@@ -93,6 +94,7 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Files: `.github/workflows/ci.yml`, `scripts/check-bundle-size.ts`, `lighthouserc.json`
 
 ### Checkpoint B: CI
+
 - [ ] Passing PR merges, failing PR blocked
 - [ ] Review with you before continuing
 
@@ -130,6 +132,7 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Files: `supabase/functions/heartbeat/index.ts`, `supabase/migrations/*_heartbeat_cron.sql`, `docs/adr/002-scheduling.md`
 
 ### Checkpoint C: Backend
+
 - [ ] `supabase db reset` rebuilds with migrations only
 - [ ] DB tests and app tests green
 - [ ] Review with you before continuing
@@ -157,5 +160,6 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Files: `README.md`, `CONTRIBUTING.md`, `docs/adr/*`
 
 ### Checkpoint: Foundation complete
+
 - [ ] All spec success criteria met
 - [ ] Ready for review; next module is `identity` (spec first)
