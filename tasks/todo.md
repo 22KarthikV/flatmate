@@ -46,7 +46,7 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Dependencies: Task 3
   - Files: `src/app/(app)/layout.tsx`, `src/app/(public)/layout.tsx`, `src/components/fx/*`, `src/lib/gsap.ts`, `THIRD_PARTY_NOTICES.md`
 
-- [ ] **Task 5: PWA** (Small to Medium)
+- [x] **Task 5: PWA** (Small to Medium). Serwist skipped: hand-written `public/sw.js` (offline fallback and immutable-asset caching only).
   - Description: Web App Manifest, icons (including maskable), service worker with offline fallback page, install guidance for iOS (Share, Add to Home Screen) and Android install prompt. First confirm the service-worker plugin works with the chosen Next.js bundler; otherwise use a small hand-written worker.
   - Acceptance:
     - [ ] Manifest valid; app installable on Android Chrome
