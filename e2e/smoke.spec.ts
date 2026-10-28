@@ -28,12 +28,14 @@ test.describe("landing page", () => {
     expect(errors).toEqual([]);
   });
 
-  test("Get started opens the app", async ({ page }) => {
+  test("Get started opens the sign-in page", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("link", { name: "Get started" }).click();
 
-    await expect(page).toHaveURL(/\/dashboard$/);
-    await expect(page.getByRole("heading", { level: 1, name: "Home" })).toBeVisible();
+    await expect(page).toHaveURL(/\/sign-in$/);
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Sign in to FlatMate" }),
+    ).toBeVisible();
   });
 });
 
