@@ -13,20 +13,21 @@ A free, installable web app that makes shared flat life easier: fair cleaning ro
 
 ## 2. Decisions log
 
-| #   | Decision                                                                                                            |
-| --- | ------------------------------------------------------------------------------------------------------------------- |
-| D1  | PWA, single codebase. No native apps.                                                                               |
-| D2  | Auth: Google OAuth through Supabase Auth. No passwords stored by us.                                                |
-| D3  | Rota is strict rotation. Nobody is permanently assigned to a chore.                                                 |
-| D4  | Week runs Sunday to Saturday.                                                                                       |
-| D5  | Availability is entered per person, per day, one week in advance.                                                   |
-| D6  | Roles: owner, admin, member. Admins can add other admins.                                                           |
-| D7  | Rent is collected by a designated collector (an admin). Due day is configured by the admin (6th in the first flat). |
-| D8  | Gas, electricity, Wi-Fi and council tax recur monthly, amounts can vary by month.                                   |
-| D9  | Events are confirmed by majority vote.                                                                              |
-| D10 | The app tracks debts only. No payment processing. People pay outside the app.                                       |
-| D11 | Money is stored as integer pence.                                                                                   |
-| D12 | Free to run for the first household. Scaling to thousands of users may need a paid tier (see section 7).            |
+| #   | Decision                                                                                                                                                                                       |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | PWA, single codebase. No native apps.                                                                                                                                                          |
+| D2  | Auth: Google OAuth through Supabase Auth. No passwords stored by us.                                                                                                                           |
+| D3  | Rota is strict rotation. Nobody is permanently assigned to a chore.                                                                                                                            |
+| D4  | Week runs Sunday to Saturday.                                                                                                                                                                  |
+| D5  | Availability is entered per person, per day, one week in advance.                                                                                                                              |
+| D6  | Roles: owner, admin, member. Admins can add other admins.                                                                                                                                      |
+| D7  | Rent is collected by a designated collector (an admin). Due day is configured by the admin (6th in the first flat).                                                                            |
+| D8  | Gas, electricity, Wi-Fi and council tax recur monthly, amounts can vary by month.                                                                                                              |
+| D9  | Events are confirmed by majority vote.                                                                                                                                                         |
+| D10 | The app tracks debts only. No payment processing. People pay outside the app.                                                                                                                  |
+| D11 | Money is stored as integer pence.                                                                                                                                                              |
+| D12 | Free to run for the first household. Scaling to thousands of users may need a paid tier (see section 7).                                                                                       |
+| D13 | When a flatmate leaves or deletes their account, upcoming chores and shares are rebuilt automatically for the remaining flatmates, effort-weighted and equal (see DESIGN-rota-rebalancing.md). |
 
 ## 3. Assumptions (correct me)
 
