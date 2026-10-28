@@ -111,12 +111,12 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Dependencies: Task 6, Docker installed
   - Files: `supabase/config.toml`, `supabase/migrations/*`, `supabase/tests/*`, `src/lib/supabase/*`
 
-- [ ] **Task 10: `job_runs` table and `/api/health` DB check** (Small)
+- [x] **Task 10: `job_runs` table and `/api/health` DB check** (Small). Health probe is a `public.health_ping()` RPC (constant `true`), so no table access is exposed.
   - Description: `job_runs` table (job name, idempotency key unique, status, timestamps) with RLS enabled and no access for anon/authenticated roles. Health endpoint checks the DB.
   - Acceptance:
-    - [ ] pgTAP: anon and authenticated cannot read or write `job_runs`
-    - [ ] Unique `(job_name, idempotency_key)` enforced
-    - [ ] `/api/health` is 200 when the DB is up and 503 when it is down (tested)
+    - [x] pgTAP: anon and authenticated cannot read or write `job_runs`
+    - [x] Unique `(job_name, idempotency_key)` enforced
+    - [x] `/api/health` is 200 when the DB is up and 503 when it is down (tested)
   - Verify: `pnpm supabase test db && pnpm test`
   - Dependencies: Task 9
   - Files: `supabase/migrations/*_job_runs.sql`, `supabase/tests/job_runs.test.sql`, `src/app/api/health/route.ts`
