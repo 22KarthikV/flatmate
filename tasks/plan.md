@@ -39,7 +39,7 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 
 ### Checkpoint A: Shell
 
-- [ ] Installs and builds, all tests green, shell looks right at 360px and desktop, reviewed by you
+- [x] Installs and builds, all tests green, shell looks right at 360px and desktop, reviewed by you
 
 ### Phase 2: Platform quality
 
@@ -63,13 +63,13 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 
 ### Phase 4: Ship
 
-- [ ] Task 12: Deploy to Vercel and hosted Supabase, device and Lighthouse checks
+- [x] Task 12: Deploy to Vercel and hosted Supabase, device and Lighthouse checks
 - [x] Task 13: Documentation and ADRs
 
 ### Checkpoint: Foundation complete
 
-- [ ] Every success criterion in the spec is met
-- [ ] Ready for review, then `identity` spec
+- [x] Every success criterion in the spec is met
+- [x] Ready for review, then `identity` spec
 
 ## Risks and mitigations
 

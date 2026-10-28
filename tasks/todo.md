@@ -58,9 +58,9 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
 
 ### Checkpoint A: Shell
 
-- [ ] `pnpm check` passes
-- [ ] Shell looks right at 360px and desktop in light and dark
-- [ ] Review with you before continuing
+- [x] `pnpm check` passes
+- [x] Shell looks right at 360px and desktop in light and dark
+- [x] Review with you before continuing
 
 ## Phase 2: Platform quality
 
@@ -135,17 +135,17 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
 
 - [x] `supabase db reset` rebuilds with migrations only
 - [x] DB tests and app tests green
-- [ ] Review with you before continuing
+- [x] Review with you before continuing
 
 ## Phase 4: Ship
 
-- [ ] **Task 12: Deploy and verify on real devices** (Medium). Live at https://flatmate-ten.vercel.app; docs/DEPLOY.md. Real-device install check still to do.
+- [x] **Task 12: Deploy and verify on real devices** (Medium). Live at https://flatmate-ten.vercel.app; docs/DEPLOY.md. Real-device install and offline checks passed on Android and iPhone (owner, 2026-10-28).
   - Description: Hosted Supabase (London region), Vercel project with previews per PR and production on main, environment variables set, migrations applied via a documented step. Smoke test on a real Android and iPhone.
   - Acceptance:
-    - [ ] Production URL loads and installs on Android and iPhone
+    - [x] Production URL loads and installs on Android and iPhone
     - [x] Lighthouse mobile on production: / perf 99, a11y 100; /dashboard perf 96, a11y 100
     - [x] Health endpoint healthy in production (app + database ok); heartbeat row appears (Task 11)
-    - [ ] No horizontal scroll at 360px
+    - [x] No horizontal scroll at 360px
   - Verify: Lighthouse report, manual device check
   - Dependencies: Tasks 8, 11
   - Files: `vercel.json` (if needed), deployment docs
@@ -161,5 +161,5 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
 
 ### Checkpoint: Foundation complete
 
-- [ ] All spec success criteria met
-- [ ] Ready for review; next module is `identity` (spec first)
+- [x] All spec success criteria met (verified 2026-10-28)
+- [x] Ready for review; next module is `identity` (spec first)

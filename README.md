@@ -91,4 +91,4 @@ e2e/                Playwright tests
 - **Docker errors on `db:start`**: Docker Desktop is not running yet. Wait for "Engine running".
 - **Port already in use**: stop the other process, or `pnpm db:stop` and start again.
 
-Third-party code and licences: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Licence: all rights reserved (see [LICENSE](LICENSE)). Third-party code and licences: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
