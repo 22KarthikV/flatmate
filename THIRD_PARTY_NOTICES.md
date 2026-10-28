@@ -23,13 +23,19 @@ FlatMate is an application and does not sell or redistribute these components.
 
 ## Installed as dependencies
 
-| Package               | Licence                                                                                               |
-| --------------------- | ----------------------------------------------------------------------------------------------------- |
-| GSAP (`gsap`)         | GreenSock standard "no charge" licence (https://gsap.com/standard-license/). Free for commercial use. |
-| Lenis (`lenis`)       | MIT, (c) darkroom.engineering                                                                         |
-| Radix UI (`radix-ui`) | MIT, (c) WorkOS                                                                                       |
-| Next.js, React        | MIT                                                                                                   |
-| Tailwind CSS          | MIT                                                                                                   |
+| Package                                                        | Licence                                                                                               |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| GSAP (`gsap`)                                                  | GreenSock standard "no charge" licence (https://gsap.com/standard-license/). Free for commercial use. |
+| Lenis (`lenis`)                                                | MIT, (c) darkroom.engineering                                                                         |
+| Radix UI (`radix-ui`)                                          | MIT, (c) WorkOS                                                                                       |
+| Next.js, React                                                 | MIT                                                                                                   |
+| Tailwind CSS                                                   | MIT                                                                                                   |
+| Supabase JS and SSR (`@supabase/supabase-js`, `@supabase/ssr`) | MIT                                                                                                   |
+| Zod (`zod`)                                                    | MIT                                                                                                   |
+
+### Development and test tooling
+
+Vitest, Testing Library, Playwright, ESLint, Prettier, Husky, lint-staged, Lighthouse CI and the Supabase CLI are used for development and CI only and are not shipped to users. They are MIT or Apache-2.0 licensed.
 
 ## Fonts (self-hosted by `next/font`)
 
