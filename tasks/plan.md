@@ -43,7 +43,7 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 
 ### Phase 2: Platform quality
 
-- [ ] Task 6: Typed env, logger, error boundary
+- [x] Task 6: Typed env, logger, error boundary
 - [ ] Task 7: Playwright smoke tests
 - [ ] Task 8: CI pipeline and budgets
 

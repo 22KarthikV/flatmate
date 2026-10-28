@@ -64,7 +64,7 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
 
 ## Phase 2: Platform quality
 
-- [ ] **Task 6: Typed env, logger, error boundary** (Small)
+- [x] **Task 6: Typed env, logger, error boundary** (Small)
   - Description: `src/lib/env.ts` (Zod-validated), `src/lib/logger.ts` (structured), root error boundary and not-found page, `/api/health` (app-only for now).
   - Acceptance:
     - [ ] Missing or invalid env vars throw a clear error at startup (tests first)
