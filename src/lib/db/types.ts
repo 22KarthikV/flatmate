@@ -60,11 +60,43 @@ export type Database = {
         };
         Relationships: [];
       };
+      profiles: {
+        Row: {
+          avatar_url: string | null;
+          created_at: string;
+          deleted_at: string | null;
+          display_name: string;
+          id: string;
+          updated_at: string;
+          user_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          avatar_url?: string | null;
+          created_at?: string;
+          deleted_at?: string | null;
+          display_name: string;
+          id?: string;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          avatar_url?: string | null;
+          created_at?: string;
+          deleted_at?: string | null;
+          display_name?: string;
+          id?: string;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
+      anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
     };
