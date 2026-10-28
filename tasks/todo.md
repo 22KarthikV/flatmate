@@ -150,11 +150,11 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Dependencies: Tasks 8, 11
   - Files: `vercel.json` (if needed), deployment docs
 
-- [ ] **Task 13: Documentation and ADRs** (Small)
+- [x] **Task 13: Documentation and ADRs** (Small). A fresh clone installed and built following the README steps.
   - Description: README (10-minute setup incl. Docker install on Windows), CONTRIBUTING (module lifecycle, definition of done), ADR-001 stack, ADR-002 scheduling, ADR-003 multi-tenancy and RLS, `THIRD_PARTY_NOTICES.md` finalised.
   - Acceptance:
-    - [ ] A fresh clone follows the README to a running app without help
-    - [ ] ADRs 001 to 004 merged
+    - [x] A fresh clone follows the README to a running app without help
+    - [x] ADRs 001 to 004 merged
   - Verify: Walk through the README from a clean clone
   - Dependencies: Task 12
   - Files: `README.md`, `CONTRIBUTING.md`, `docs/adr/*`
