@@ -95,18 +95,18 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
 
 ### Checkpoint B: CI
 
-- [ ] Passing PR merges (this docs PR is the proof), failing PR blocked (done, PR #1)
-- [ ] Review with you before continuing
+- [x] Passing PR merges (PR #2), failing PR blocked (PR #1)
+- [x] Review with you before continuing
 
 ## Phase 3: Backend (needs Docker Desktop)
 
-- [ ] **Task 9: Supabase local stack, clients, baseline migration, pgTAP** (Medium)
-  - Description: `supabase init`, local stack, browser/server/middleware clients, baseline migration (extensions, `set_updated_at()`, shared enums), `seed.sql`, `db:types` script, one passing pgTAP test.
+- [x] **Task 9: Supabase local stack, clients, baseline migration, pgTAP** (Medium)
+  - Description: `supabase init`, local stack, browser/server/proxy clients (Next 16 renamed middleware to `proxy.ts`), baseline migration (`set_updated_at()`; extensions and enums arrive with the modules that first need them), `seed.sql`, `db:types` script, one passing pgTAP test, and a CI database job.
   - Acceptance:
-    - [ ] `pnpm supabase start` and `pnpm supabase db reset` succeed from scratch
-    - [ ] `pnpm supabase test db` passes (trigger test)
-    - [ ] Generated types compile
-    - [ ] Service-role key is never imported in browser code (lint rule or test)
+    - [x] `pnpm supabase start` and `pnpm supabase db reset` succeed from scratch
+    - [x] `pnpm supabase test db` passes (trigger test, 5 assertions)
+    - [x] Generated types compile
+    - [x] Service-role key is never imported in browser code (guard test scans `src/`)
   - Verify: `pnpm supabase db reset && pnpm supabase test db && pnpm typecheck`
   - Dependencies: Task 6, Docker installed
   - Files: `supabase/config.toml`, `supabase/migrations/*`, `supabase/tests/*`, `src/lib/supabase/*`

@@ -1,0 +1,2 @@
+-- Local-only fixtures, applied by `supabase db reset`. Never runs against hosted projects.
+-- Each module adds its own sample data here (a demo household, five flatmates, chores).

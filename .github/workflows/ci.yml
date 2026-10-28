@@ -35,6 +35,29 @@ jobs:
       - run: pnpm build
       - run: pnpm check:bundle
 
+  database:
+    name: Database (migrations, pgTAP, types)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Only the services the checks need: skips Studio, image proxy, mail, logs and analytics.
+      - run: pnpm exec supabase start -x studio,imgproxy,mailpit,logflare,vector,supavisor
+      - name: Rebuild the database from migrations only
+        run: pnpm exec supabase db reset
+      - name: Database tests (pgTAP)
+        run: pnpm exec supabase test db
+      - name: Generated types are up to date
+        run: |
+          pnpm db:types
+          git diff --exit-code src/lib/db/types.ts
+
   e2e:
     name: End-to-end (Chromium and WebKit)
     runs-on: ubuntu-latest
