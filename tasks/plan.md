@@ -64,7 +64,7 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 ### Phase 4: Ship
 
 - [ ] Task 12: Deploy to Vercel and hosted Supabase, device and Lighthouse checks
-- [ ] Task 13: Documentation and ADRs
+- [x] Task 13: Documentation and ADRs
 
 ### Checkpoint: Foundation complete
 
