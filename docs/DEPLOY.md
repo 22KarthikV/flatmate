@@ -24,7 +24,7 @@ pnpm exec supabase link --project-ref <project-ref>
 pnpm exec supabase db push
 ```
 
-If migrations were applied through the dashboard or an MCP tool, their versions differ from the files; run `supabase migration repair` before `db push`.
+If migrations were applied through the dashboard or an MCP tool, their versions differ from the files; run `supabase migration repair` before `db push`. (The foundation migrations were aligned on 2026-10-28 by updating `supabase_migrations.schema_migrations` to the file versions.)
 
 ## Per-environment scheduler secrets
 
