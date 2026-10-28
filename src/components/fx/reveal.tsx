@@ -1,5 +1,6 @@
 "use client";
 
+import { gsap } from "gsap"; // DELIBERATE BREAK for the branch-protection proof: static import
 import { useEffect, useState, type ComponentType } from "react";
 
 import { useReducedMotion } from "@/lib/use-reduced-motion";
@@ -13,6 +14,7 @@ import type { AnimatedContentProps } from "./animated-content";
  */
 export function Reveal({ children, className, ...props }: AnimatedContentProps) {
   const reduced = useReducedMotion();
+  void gsap.version;
   const [Animated, setAnimated] = useState<ComponentType<AnimatedContentProps> | null>(null);
 
   useEffect(() => {
