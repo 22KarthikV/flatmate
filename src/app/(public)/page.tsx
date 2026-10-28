@@ -38,7 +38,7 @@ export default function Home() {
         </p>
         <div className="animate-page-in pt-2">
           <Link
-            href="/dashboard"
+            href="/sign-in"
             className="label-caps bg-ink text-paper inline-flex min-h-11 items-center px-6 hover:opacity-85"
           >
             Get started

@@ -15,6 +15,6 @@ describe("Landing page", () => {
     render(<Home />);
 
     expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(4);
-    expect(screen.getByRole("link", { name: "Get started" })).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByRole("link", { name: "Get started" })).toHaveAttribute("href", "/sign-in");
   });
 });

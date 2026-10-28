@@ -6,7 +6,9 @@
     "/money": 200,
     "/events": 200,
     "/more": 200,
-    "/offline": 195
+    "/offline": 195,
+    "/sign-in": 195,
+    "/auth/error": 195
   },
   "lazyMotionKb": 60
 }
