@@ -22,11 +22,11 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-identity.md](../docs/SPEC-identity
   - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types`
   - Dependencies: none
 
-- [ ] **Task 3: Safe redirect and route guard** (Small)
+- [x] **Task 3: Safe redirect and route guard** (Small). Wired into proxy.ts behind AUTH_GUARD=on (off by default) because E2E and Lighthouse open signed-in pages anonymously today; Task 8 turns it on and adds the layout-level second check.
   - Description: `safe-redirect.ts` and the guard decision used by `proxy.ts` / the `(app)` layout. Signed-out visitors to `(app)` routes go to `/sign-in?next=...`; signed-in visitors to `/sign-in` go on.
   - Acceptance:
-    - [ ] Unit tests: rejects `//evil.com`, `https://evil.com`, `/\evil`, `javascript:` and encoded variants; accepts `/dashboard?x=1`
-    - [ ] Guard uses `getClaims()`; Supabase being down does not leak page content
+    - [x] Unit tests: rejects `//evil.com`, `https://evil.com`, `/\evil`, `javascript:` and encoded variants; accepts `/dashboard?x=1`
+    - [x] Guard uses `getClaims()`; Supabase being down does not leak page content
   - Verify: `pnpm test`
   - Dependencies: none
 
@@ -64,7 +64,7 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-identity.md](../docs/SPEC-identity
   - Dependencies: none
 
 - [ ] **Task 8: E2E, hosted verification, device checks** (Medium)
-  - Description: Playwright flows from the spec using the local email test user; hosted sign-in on production; real-device checks.
+  - Description: Playwright flows from the spec using the local email test user (existing E2E specs and Lighthouse switch to a signed-in session); turn on AUTH_GUARD by default (CI and Vercel); add the layout-level second check in the (app) layout; hosted sign-in on production; real-device checks.
   - Acceptance:
     - [ ] All E2E flows pass in CI
     - [ ] Production sign-in, session persistence and deletion verified
