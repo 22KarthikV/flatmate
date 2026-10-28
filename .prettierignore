@@ -3,3 +3,6 @@ node_modules
 coverage
 pnpm-lock.yaml
 supabase/migrations
+.lighthouseci
+playwright-report
+test-results

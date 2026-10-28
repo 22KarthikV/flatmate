@@ -1,0 +1,12 @@
+{
+  "initialKb": {
+    "/": 195,
+    "/dashboard": 200,
+    "/rota": 200,
+    "/money": 200,
+    "/events": 200,
+    "/more": 200,
+    "/offline": 195
+  },
+  "lazyMotionKb": 60
+}
