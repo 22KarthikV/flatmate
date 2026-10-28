@@ -45,7 +45,7 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 
 - [x] Task 6: Typed env, logger, error boundary
 - [x] Task 7: Playwright smoke tests
-- [ ] Task 8: CI pipeline and budgets
+- [x] Task 8: CI pipeline and budgets
 
 ### Checkpoint B: CI
 

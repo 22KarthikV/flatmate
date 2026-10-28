@@ -83,19 +83,19 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Dependencies: Tasks 4, 5, 6
   - Files: `playwright.config.ts`, `e2e/*.spec.ts`
 
-- [ ] **Task 8: CI pipeline and budgets** (Medium)
+- [x] **Task 8: CI pipeline and budgets** (Medium)
   - Description: GitHub Actions running lint, typecheck, unit tests, build, Playwright, a bundle-size check (motion adds at most 40 KB gzipped to initial JS) and Lighthouse CI on the shell. Branch protection requires green checks. Needs the GitHub repo.
   - Acceptance:
-    - [ ] A PR with a failing check cannot merge
-    - [ ] Exceeding the bundle budget fails CI (proved with a deliberate test PR)
-    - [ ] CI runtime under ~10 minutes
+    - [x] A PR with a failing check cannot merge (PR #1: GitHub reported `BLOCKED` and refused a merge without `--admin`)
+    - [x] Exceeding the bundle budget fails CI (PR #1: landing page initial JS 205 KB vs 195 KB budget, and GSAP in the initial load; only the `check:bundle` step failed)
+    - [x] CI runtime under ~10 minutes (slowest job 3m18s)
   - Verify: open a test PR with a passing and a failing change
   - Dependencies: Task 7, GitHub repo
   - Files: `.github/workflows/ci.yml`, `scripts/check-bundle-size.ts`, `lighthouserc.json`
 
 ### Checkpoint B: CI
 
-- [ ] Passing PR merges, failing PR blocked
+- [ ] Passing PR merges (this docs PR is the proof), failing PR blocked (done, PR #1)
 - [ ] Review with you before continuing
 
 ## Phase 3: Backend (needs Docker Desktop)
