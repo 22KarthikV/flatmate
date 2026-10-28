@@ -2,23 +2,23 @@
 
 Plan: [plan.md](plan.md). Spec: [../docs/SPEC-identity.md](../docs/SPEC-identity.md). Tests come first for any logic (TDD).
 
-- [ ] **Task 1: Google Cloud client and Supabase Google provider** (Small, human gate)
+- [x] **Task 1: Google Cloud client and Supabase Google provider** (Small, human gate). Consent screen stays in Testing mode (Google cannot publish without a verifiable domain); your Gmail is a test user. Add flatmates as test users until a custom domain exists.
   - Description: Create the Google Cloud project and Web OAuth client, configure the consent screen (production, scopes `openid email profile`), add redirect URIs (Supabase callback for hosted and local), set the Supabase redirect allow-list (production, previews, localhost), enable the Google provider in `supabase/config.toml` for local, and in the hosted dashboard (owner pastes the secret).
   - Acceptance:
-    - [ ] Hosted Supabase Google provider enabled with the client ID; secret entered by the owner
-    - [ ] Redirect allow-list covers production, Vercel previews and localhost
-    - [ ] `supabase/config.toml` has the Google provider reading `env(...)` values; `.env.example` documents them
-    - [ ] Email sign-in enabled locally only, disabled on hosted
+    - [x] Hosted Supabase Google provider enabled with the client ID; secret entered by the owner
+    - [x] Redirect allow-list covers production, Vercel previews and localhost
+    - [x] `supabase/config.toml` has the Google provider reading `env(...)` values; `.env.example` documents them
+    - [x] Email sign-in enabled locally only, disabled on hosted
   - Verify: Supabase authorize URL redirects to Google's consent screen
   - Dependencies: none
 
-- [ ] **Task 2: `profiles` table, trigger, RLS, pgTAP** (Medium)
+- [x] **Task 2: `profiles` table, trigger, RLS, pgTAP** (Medium). 22 pgTAP assertions. Hosted migration to be applied after merge.
   - Description: Migration per the spec (own uuid, `user_id` set null on delete, name 1 to 50, https avatar, `deleted_at`), signup trigger from OAuth metadata, RLS (self select and update of `display_name` only), anonymise function. Tests first.
   - Acceptance:
-    - [ ] pgTAP: trigger maps name and avatar, falls back to email local part, truncates, rejects non-https avatar
-    - [ ] pgTAP: user A cannot read, update or delete user B; `anon` has nothing; protected columns cannot be changed
-    - [ ] pgTAP: deleting the auth user keeps the profile with `user_id` null; anonymise sets "Deleted user"
-    - [ ] Types regenerated, `pnpm db:test` green
+    - [x] pgTAP: trigger maps name and avatar, falls back to email local part, truncates, rejects non-https avatar
+    - [x] pgTAP: user A cannot read, update or delete user B; `anon` has nothing; protected columns cannot be changed
+    - [x] pgTAP: deleting the auth user keeps the profile with `user_id` null; anonymise sets "Deleted user"
+    - [x] Types regenerated, `pnpm db:test` green
   - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types`
   - Dependencies: none
 

@@ -24,8 +24,8 @@ Google sign-in, profiles, route protection, account page (rename, sign out, dele
 
 ## Task list
 
-- [ ] Task 1: Google Cloud client and Supabase Google provider
-- [ ] Task 2: `profiles` table, trigger, RLS, pgTAP
+- [x] Task 1: Google Cloud client and Supabase Google provider
+- [x] Task 2: `profiles` table, trigger, RLS, pgTAP
 - [ ] Task 3: Safe redirect and route guard (pure logic, tests first)
 - [ ] Task 4: Callback, sign-in and error pages (+ early iPhone check)
 - [ ] Task 5: Account page: rename, sign out, sign out everywhere
