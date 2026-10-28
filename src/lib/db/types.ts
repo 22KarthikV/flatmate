@@ -66,6 +66,7 @@ export type Database = {
     };
     Functions: {
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
+      verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
     };
     Enums: {
       [_ in never]: never;
