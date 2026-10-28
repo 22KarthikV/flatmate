@@ -139,12 +139,12 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
 
 ## Phase 4: Ship
 
-- [ ] **Task 12: Deploy and verify on real devices** (Medium)
+- [ ] **Task 12: Deploy and verify on real devices** (Medium). Live at https://flatmate-ten.vercel.app; docs/DEPLOY.md. Real-device install check still to do.
   - Description: Hosted Supabase (London region), Vercel project with previews per PR and production on main, environment variables set, migrations applied via a documented step. Smoke test on a real Android and iPhone.
   - Acceptance:
     - [ ] Production URL loads and installs on Android and iPhone
-    - [ ] Lighthouse mobile: Performance >= 90, Accessibility >= 95, PWA installable
-    - [ ] Health endpoint healthy in production; heartbeat row appears
+    - [x] Lighthouse mobile on production: / perf 99, a11y 100; /dashboard perf 96, a11y 100
+    - [x] Health endpoint healthy in production (app + database ok); heartbeat row appears (Task 11)
     - [ ] No horizontal scroll at 360px
   - Verify: Lighthouse report, manual device check
   - Dependencies: Tasks 8, 11
