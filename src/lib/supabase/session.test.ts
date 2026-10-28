@@ -45,9 +45,10 @@ describe("hasAuthCookie", () => {
 
 describe("updateSession", () => {
   it("does nothing for anonymous visitors: no client, no network", async () => {
-    const response = await updateSession(requestWith());
+    const { response, signedIn } = await updateSession(requestWith());
 
     expect(response.status).toBe(200);
+    expect(signedIn).toBe(false);
     expect(supabase.createServerClient).not.toHaveBeenCalled();
     expect(supabase.getClaims).not.toHaveBeenCalled();
   });
@@ -68,7 +69,7 @@ describe("updateSession", () => {
       return { data: null, error: null };
     });
 
-    const response = await updateSession(requestWith("sb-abcdef-auth-token=old"));
+    const { response } = await updateSession(requestWith("sb-abcdef-auth-token=old"));
 
     expect(response.cookies.get("sb-abcdef-auth-token")?.value).toBe("fresh");
     expect(response.headers.get("cache-control")).toBe("private, no-store");
@@ -77,8 +78,19 @@ describe("updateSession", () => {
   it("does not take the site down when Supabase is unreachable", async () => {
     supabase.getClaims.mockRejectedValue(new Error("network down"));
 
-    const response = await updateSession(requestWith("sb-abcdef-auth-token=old"));
+    const { response, signedIn } = await updateSession(requestWith("sb-abcdef-auth-token=old"));
 
     expect(response.status).toBe(200);
+    expect(signedIn).toBe(false);
+  });
+
+  it("reports signed in only when the claims verify", async () => {
+    supabase.getClaims.mockResolvedValue({ data: { claims: { sub: "user-1" } }, error: null });
+    expect((await updateSession(requestWith("sb-abcdef-auth-token=ok"))).signedIn).toBe(true);
+  });
+
+  it("does not count an unverifiable cookie as signed in", async () => {
+    supabase.getClaims.mockResolvedValue({ data: null, error: new Error("invalid jwt") });
+    expect((await updateSession(requestWith("sb-abcdef-auth-token=forged"))).signedIn).toBe(false);
   });
 });

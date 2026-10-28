@@ -11,16 +11,23 @@ export function hasAuthCookie(cookies: readonly { name: string }[]): boolean {
   return cookies.some((cookie) => /^sb-.+-auth-token(\.\d+)?$/.test(cookie.name));
 }
 
+export interface SessionResult {
+  response: NextResponse;
+  /** True only when the session verified (`getClaims()`), never just because a cookie exists. */
+  signedIn: boolean;
+}
+
 /**
- * Keeps a signed-in user's session fresh. Run from `proxy.ts` on every page request.
+ * Keeps a signed-in user's session fresh and reports whether the visitor is signed in.
+ * Run from `proxy.ts` on every page request.
  *
  * Anonymous visitors (no auth cookie) cost nothing: no client is created and no network call
- * is made. A failure to reach Supabase never takes the site down; the request carries on and
- * the next one retries.
+ * is made. A failure to reach Supabase never takes the site down; the request carries on, the
+ * visitor counts as signed out (fail closed), and the next request retries.
  */
-export async function updateSession(request: NextRequest): Promise<NextResponse> {
+export async function updateSession(request: NextRequest): Promise<SessionResult> {
   let response = NextResponse.next({ request });
-  if (!hasAuthCookie(request.cookies.getAll())) return response;
+  if (!hasAuthCookie(request.cookies.getAll())) return { response, signedIn: false };
 
   const { url, publishableKey } = getSupabaseConfig();
 
@@ -39,12 +46,14 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     },
   });
 
+  let signedIn = false;
   try {
     // Must run before the response is produced so a refreshed token can be written to cookies.
-    await supabase.auth.getClaims();
+    const { data } = await supabase.auth.getClaims();
+    signedIn = Boolean(data?.claims?.sub);
   } catch (error) {
     logger.warn("auth.session_refresh_failed", { error });
   }
 
-  return response;
+  return { response, signedIn };
 }
