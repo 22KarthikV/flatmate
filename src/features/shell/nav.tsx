@@ -70,7 +70,7 @@ export function SideNav() {
       aria-label="Main"
       className="border-line sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r px-6 py-8 md:flex"
     >
-      <Link href="/dashboard" className="font-display text-3xl">
+      <Link href="/dashboard" className="font-display inline-flex min-h-11 items-center text-3xl">
         FlatMate
       </Link>
       <ul className="mt-10 flex flex-col">

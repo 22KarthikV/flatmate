@@ -74,7 +74,7 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Dependencies: Task 1
   - Files: `src/lib/env.ts`, `src/lib/logger.ts`, `src/app/error.tsx`, `src/app/api/health/route.ts`, tests
 
-- [ ] **Task 7: Playwright smoke tests** (Small)
+- [x] **Task 7: Playwright smoke tests** (Small). 84 passing, 9 intentionally skipped (WebKit service worker, browser-independent health checks run once).
   - Description: Playwright for Chromium and WebKit with a mobile viewport. Tests: home loads, navigation works, manifest valid, service worker registers, `/api/health` is 200, reduced-motion respected.
   - Acceptance:
     - [ ] `pnpm test:e2e` passes locally on Windows
