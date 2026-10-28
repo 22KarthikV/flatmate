@@ -54,7 +54,7 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 ### Phase 3: Backend (needs Docker)
 
 - [x] Task 9: Supabase local stack, clients, baseline migration, pgTAP harness
-- [ ] Task 10: `job_runs` table and `/api/health` DB check
+- [x] Task 10: `job_runs` table and `/api/health` DB check
 - [ ] Task 11: Scheduler spike (`pg_cron` to Edge Function)
 
 ### Checkpoint C: Backend

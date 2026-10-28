@@ -15,6 +15,7 @@ test.describe("/api/health", () => {
     const body = await response.json();
     expect(body.status).toBe("ok");
     expect(body.checks.app).toEqual({ status: "ok" });
+    expect(body.checks.database).toEqual({ status: "ok" });
   });
 
   test("is evaluated on every request", async ({ request }) => {
