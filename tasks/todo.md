@@ -121,20 +121,20 @@ Commands are defined in the spec. Tests come first for any logic (TDD).
   - Dependencies: Task 9
   - Files: `supabase/migrations/*_job_runs.sql`, `supabase/tests/job_runs.test.sql`, `src/app/api/health/route.ts`
 
-- [ ] **Task 11: Scheduler spike** (Medium, highest risk)
+- [x] **Task 11: Scheduler spike** (Medium, highest risk). Proven on the hosted project 2026-10-28: pg_cron fired, one job_runs row, repeat returned created:false.
   - Description: First verify `pg_cron` and `pg_net` on the hosted free tier. Build a `heartbeat` Edge Function called by `pg_cron`, writing a `job_runs` row with an idempotency key. Document how later modules register jobs.
   - Acceptance:
-    - [ ] Heartbeat runs on schedule on a hosted project and writes a row
-    - [ ] Triggering twice with the same key creates one row (tested)
-    - [ ] Fallback documented if `pg_cron` is unavailable
+    - [x] Heartbeat runs on schedule on a hosted project and writes a row
+    - [x] Triggering twice with the same key creates one row (tested)
+    - [x] Fallback documented if `pg_cron` is unavailable
   - Verify: `pnpm supabase functions serve` plus a test; check `job_runs` on the hosted project
   - Dependencies: Task 10, a hosted Supabase project
   - Files: `supabase/functions/heartbeat/index.ts`, `supabase/migrations/*_heartbeat_cron.sql`, `docs/adr/002-scheduling.md`
 
 ### Checkpoint C: Backend
 
-- [ ] `supabase db reset` rebuilds with migrations only
-- [ ] DB tests and app tests green
+- [x] `supabase db reset` rebuilds with migrations only
+- [x] DB tests and app tests green
 - [ ] Review with you before continuing
 
 ## Phase 4: Ship

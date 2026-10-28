@@ -1,6 +1,6 @@
 # ADR-002: Scheduling with pg_cron, pg_net and Edge Functions
 
-Status: accepted (hosted proof pending, see Verification)
+Status: accepted
 Date: 2026-10-28
 
 ## Context
@@ -32,7 +32,7 @@ Local setup: `pnpm exec supabase functions serve --no-verify-jwt`, then create t
 - pgTAP covers registration, the unconfigured no-op, secret verification and role access.
 - Vitest covers the handler (auth, idempotency, error hiding).
 - Locally: two `invoke_edge_function('heartbeat')` calls produced one `job_runs` row; the second response reported `created: false`.
-- Hosted: see the task log in `tasks/todo.md`.
+- Hosted (2026-10-28): pg_cron fired every minute on a temporary schedule; the first call created the `job_runs` row, the second returned `created: false`; one row total. Schedule then restored to hourly.
 
 ## Alternatives considered
 

@@ -55,11 +55,11 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 
 - [x] Task 9: Supabase local stack, clients, baseline migration, pgTAP harness
 - [x] Task 10: `job_runs` table and `/api/health` DB check
-- [ ] Task 11: Scheduler spike (`pg_cron` to Edge Function)
+- [x] Task 11: Scheduler spike (`pg_cron` to Edge Function)
 
 ### Checkpoint C: Backend
 
-- [ ] `supabase db reset` rebuilds from migrations only, DB tests green, heartbeat is idempotent
+- [x] `supabase db reset` rebuilds from migrations only, DB tests green, heartbeat is idempotent
 
 ### Phase 4: Ship
 

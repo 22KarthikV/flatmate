@@ -11,7 +11,7 @@
 -- Later modules register jobs with private.register_edge_job(...) in their own migration.
 
 create extension if not exists pg_cron;
-create extension if not exists pg_net;
+create extension if not exists pg_net with schema extensions;
 create extension if not exists supabase_vault with schema vault;
 
 create schema if not exists private;
