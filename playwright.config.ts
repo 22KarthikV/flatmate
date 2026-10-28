@@ -23,7 +23,7 @@ export default defineConfig({
   ],
   webServer: {
     command: `pnpm exec next build && pnpm exec next start -p ${PORT}`,
-    url: `http://localhost:${PORT}/api/health`,
+    url: `http://localhost:${PORT}/offline`, // not /api/health, which also needs the database
     timeout: 240_000,
     reuseExistingServer: !process.env.CI,
   },
