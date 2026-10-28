@@ -49,11 +49,11 @@ Deliver the shared platform every FlatMate module plugs into: a deployed, instal
 
 ### Checkpoint B: CI
 
-- [ ] A pull request runs lint, typecheck, unit, E2E, build and bundle check, and a failing check blocks merge
+- [x] A pull request runs lint, typecheck, unit, E2E, build and bundle check, and a failing check blocks merge
 
 ### Phase 3: Backend (needs Docker)
 
-- [ ] Task 9: Supabase local stack, clients, baseline migration, pgTAP harness
+- [x] Task 9: Supabase local stack, clients, baseline migration, pgTAP harness
 - [ ] Task 10: `job_runs` table and `/api/health` DB check
 - [ ] Task 11: Scheduler spike (`pg_cron` to Edge Function)
 
