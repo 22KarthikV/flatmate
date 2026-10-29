@@ -1,7 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 import { seedNotification } from "./support/database";
-import { addSessionCookies, createFlat, newTestUser, signUpAndIn } from "./support/session";
+import {
+  addSessionCookies,
+  createFlat,
+  joinFlat,
+  newTestUser,
+  signUpAndIn,
+} from "./support/session";
 
 // The notification setup talks to the local database container, so these run once, on desktop.
 test.skip(({ isMobile }) => isMobile, "inbox flows are covered on desktop");
@@ -90,5 +96,49 @@ test.describe("the inbox and the bell", () => {
       );
       expect(overflow).toBeLessThanOrEqual(0);
     }
+  });
+});
+
+test.describe("household events", () => {
+  test("a join tells the others, not the joiner; a promotion tells the person promoted", async ({
+    browser,
+    baseURL,
+  }) => {
+    const a = await signUpAndIn(newTestUser("evt-a"));
+    await createFlat(a.supabase, "Events flat");
+    const b = await signUpAndIn(newTestUser("evt-b"));
+    await joinFlat(a.supabase, b.supabase);
+    const bName = b.user.email.split("@")[0];
+
+    const aContext = await browser.newContext({ baseURL });
+    await addSessionCookies(aContext, a.jar, baseURL!);
+    const aPage = await aContext.newPage();
+    const bContext = await browser.newContext({ baseURL });
+    await addSessionCookies(bContext, b.jar, baseURL!);
+    const bPage = await bContext.newPage();
+
+    // A hears that B joined.
+    await aPage.goto("/notifications");
+    await expect(
+      aPage.getByRole("button", { name: new RegExp(`${bName} joined Events flat`) }),
+    ).toBeVisible();
+
+    // B is told nothing about their own join.
+    await bPage.goto("/notifications");
+    await expect(bPage.getByText("Nothing here yet.")).toBeVisible();
+
+    // A makes B an admin on the flat page; B's inbox shows it, A's does not.
+    await aPage.goto("/more/flat");
+    const row = aPage.getByText("Members · 2").locator("..").getByRole("listitem");
+    await row.filter({ hasText: bName }).getByRole("button", { name: "Make admin" }).click();
+    await expect(row.filter({ hasText: bName }).getByText("Admin")).toBeVisible();
+
+    await bPage.goto("/notifications");
+    await expect(bPage.getByRole("button", { name: /You are now an admin/ })).toBeVisible();
+
+    await aPage.goto("/notifications");
+    await expect(aPage.getByRole("button", { name: /You are now an admin/ })).toHaveCount(0);
+
+    await Promise.all([aContext.close(), bContext.close()]);
   });
 });
