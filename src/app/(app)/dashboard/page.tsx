@@ -2,7 +2,10 @@ import { Suspense } from "react";
 
 import { Card, CardLabel } from "@/components/ui/card";
 import { CreateFlatForm } from "@/features/household/create-flat-form";
+import { getMembers } from "@/features/household/members";
 import { getMembership } from "@/features/household/membership";
+import { SetupChecklist } from "@/features/household/setup-checklist";
+import { buildChecklist } from "@/features/household/setup-steps";
 import { OpenInviteForm } from "@/features/household/open-invite-form";
 
 export const metadata = { title: "Home | FlatMate" };
@@ -38,8 +41,12 @@ async function HomeContent() {
     );
   }
 
+  const members = await getMembers();
+  const checklist = buildChecklist(membership.role, { memberCount: members.length });
+
   return (
     <>
+      <SetupChecklist checklist={checklist} />
       <Card>
         <CardLabel>Your flat</CardLabel>
         <h2 className="font-display mt-3 text-3xl">{membership.householdName}</h2>

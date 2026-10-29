@@ -88,11 +88,11 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
   - Dependencies: Task 6
   - Files: migration, tests, `delete-account/*`, `delete-account-form.tsx`
 
-- [ ] **Task 8: Setup checklist and step registry** (Small)
+- [x] **Task 8: Setup checklist and step registry** (Small). Later modules add their step to `SETUP_STEPS` in `setup-steps.ts`. The member note is unit-tested; in E2E it cannot appear yet (one step, which a second member completes).
   - Description: `setup-steps.ts` registry and `setup-checklist.tsx` on Home for admins and the owner; first step "Invite your flatmates" (done at two or more members); members see the waiting note. Hides when every step is done.
   - Acceptance:
-    - [ ] Unit: ordering, done and hidden logic, role visibility, and a test that another module can register a step
-    - [ ] E2E: checklist shows for the owner, ticks after B joins, members see the note
+    - [x] Unit: ordering, done and hidden logic, role visibility, and a test that another module can register a step
+    - [x] E2E: checklist shows for the owner, ticks after B joins, members see the note
   - Verify: `pnpm test`, `pnpm test:e2e`
   - Dependencies: Task 4
   - Files: `setup-steps.ts`, `setup-checklist.tsx`, dashboard, tests
