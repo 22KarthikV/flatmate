@@ -16,6 +16,13 @@ Deno.serve((request) =>
       const { data, error } = await admin.auth.getUser(accessToken);
       return error ? null : (data.user?.id ?? null);
     },
+    async endMemberships(userId) {
+      const { data, error } = await admin.rpc("end_memberships_for_account", {
+        p_user_id: userId,
+      });
+      if (error) throw error;
+      return data === "owner_must_transfer" ? "owner_must_transfer" : "ok";
+    },
     async anonymiseProfile(userId) {
       const { error } = await admin.rpc("anonymise_profile", { p_user_id: userId });
       if (error) throw error;

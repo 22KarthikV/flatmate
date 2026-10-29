@@ -4,6 +4,12 @@
 export interface DeleteAccountDeps {
   /** The user id behind a session token, or null when the token is not a live session. */
   getUserId(accessToken: string): Promise<string | null>;
+  /**
+   * Takes the person out of their flat (closing it if they are the only one). Answers
+   * "owner_must_transfer" and changes nothing when they own a flat that others still live in.
+   * Safe to repeat.
+   */
+  endMemberships(userId: string): Promise<"ok" | "owner_must_transfer">;
   /** Replaces the person's name and photo with a neutral placeholder and unlinks the row. Safe to repeat. */
   anonymiseProfile(userId: string): Promise<void>;
   /** Removes the sign-in record, which ends every session. */
@@ -25,8 +31,9 @@ function bearerToken(request: Request): string | null {
 
 /**
  * Deletes the caller's own account. The person is identified only by their session token, never by
- * anything in the request body. The profile is anonymised first so shared history survives; if
- * deleting the sign-in then fails the whole call can simply be retried.
+ * anything in the request body. Their flat membership ends first (an owner of a flat with other
+ * people in it is refused with 409 and nothing changes), then the profile is anonymised so shared
+ * history survives; if deleting the sign-in then fails the whole call can simply be retried.
  */
 export async function handleDeleteAccount(
   request: Request,
@@ -40,6 +47,11 @@ export async function handleDeleteAccount(
   try {
     const userId = await deps.getUserId(token);
     if (!userId) return json({ ok: false, error: "unauthorized" }, 401);
+
+    // Before anything is anonymised: the flat lookup needs the profile still linked to the person.
+    if ((await deps.endMemberships(userId)) === "owner_must_transfer") {
+      return json({ ok: false, error: "owner_must_transfer" }, 409);
+    }
 
     await deps.anonymiseProfile(userId);
     await deps.deleteAuthUser(userId);

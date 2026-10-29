@@ -116,6 +116,14 @@ export async function deleteAccount(
       signal: AbortSignal.timeout(15_000),
     });
     deleted = response.ok;
+    if (response.status === 409) {
+      // Nothing was changed: they own a flat other people still live in.
+      return {
+        status: "error",
+        message:
+          "You’re the owner of a flat with other people in it. Hand it over to someone else first (More, then Your flat), then delete your account.",
+      };
+    }
     if (!deleted) logger.error("account.delete_failed", { status: response.status });
   } catch (error) {
     logger.error("account.delete_unreachable", { error });
