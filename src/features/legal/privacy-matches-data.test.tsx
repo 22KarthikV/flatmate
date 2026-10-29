@@ -30,6 +30,55 @@ describe("privacy notice", () => {
     ]);
   });
 
+  it("covers every column of the household tables as they stand today", () => {
+    expect(columnsOf("households")).toEqual([
+      "closed_at",
+      "created_at",
+      "created_by",
+      "id",
+      "name",
+      "timezone",
+      "updated_at",
+    ]);
+    expect(columnsOf("memberships")).toEqual([
+      "household_id",
+      "id",
+      "joined_at",
+      "left_at",
+      "left_reason",
+      "profile_id",
+      "role",
+    ]);
+    expect(columnsOf("invites")).toEqual([
+      "created_at",
+      "created_by",
+      "expires_at",
+      "household_id",
+      "id",
+      "revoked_at",
+      "token_hash",
+    ]);
+  });
+
+  it("explains the flat data, who sees it and what happens when someone leaves", () => {
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+
+    for (const phrase of [
+      "What we store about your flat",
+      "membership",
+      "owner, admin or member",
+      "when and why you left",
+      "invite link",
+      "scrambled fingerprint",
+      "can see your display name, photo and role",
+      "If you owned a flat with no one else in it",
+      "hand it over first",
+    ]) {
+      expect(text, `the notice should mention "${phrase}"`).toContain(phrase);
+    }
+  });
+
   it("names what is stored, who processes it, and how to leave", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";

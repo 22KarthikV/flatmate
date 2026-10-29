@@ -6,9 +6,11 @@
 import { spawnSync } from "node:child_process";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 
-import { newTestUser, signUpAndIn } from "../e2e/support/session.ts";
+import { createFlat, newTestUser, signUpAndIn } from "../e2e/support/session.ts";
 
-const { jar } = await signUpAndIn(newTestUser("lighthouse"));
+const { jar, supabase } = await signUpAndIn(newTestUser("lighthouse"));
+// A flat, so the signed-in pages are audited as people will really see them.
+await createFlat(supabase, "Lighthouse flat");
 const cookie = [...jar].map(([name, { value }]) => `${name}=${value}`).join("; ");
 
 const config = JSON.parse(readFileSync("lighthouserc.app.json", "utf8"));

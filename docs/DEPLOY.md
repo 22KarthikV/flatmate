@@ -24,7 +24,9 @@ pnpm exec supabase link --project-ref <project-ref>
 pnpm exec supabase db push
 ```
 
-If migrations were applied through the dashboard or an MCP tool, their versions differ from the files; run `supabase migration repair` before `db push`. (The foundation migrations were aligned on 2026-10-28 by updating `supabase_migrations.schema_migrations` to the file versions.)
+If migrations were applied through the dashboard or an MCP tool, their versions differ from the files; run `supabase migration repair` before `db push`. (The foundation migrations were aligned on 2026-10-28, and the five household migrations on 2026-10-29, by updating `supabase_migrations.schema_migrations` to the file versions.)
+
+Order matters when a change touches both the database and an Edge Function: apply the migrations first, then deploy the function (`delete-account` calls `end_memberships_for_account`). Application code that reads new tables is deployed by Vercel from `main`, so apply migrations before merging, or expect the new screens to show "no flat" until you do.
 
 ## Per-environment scheduler secrets
 

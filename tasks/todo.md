@@ -9,6 +9,7 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
 - [ ] Delete an account on the live site with a real Google account
 - [ ] Add each flatmate's Gmail as a Google test user; set `NEXT_PUBLIC_CONTACT_EMAIL` in Vercel
 - [ ] Re-time the Account page on a phone after the London region change
+- [ ] Two real phones on production: share the invite link from the share sheet, second phone joins (Safari and the installed app), roles, removal, leave and rejoin behave. Needs both flatmates' Gmail addresses added as Google test users first.
 
 ---
 
@@ -97,13 +98,13 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
   - Dependencies: Task 4
   - Files: `setup-steps.ts`, `setup-checklist.tsx`, dashboard, tests
 
-- [ ] **Task 9: Privacy notice, full E2E, hosted rollout, device checks** (Medium)
+- [x] **Task 9: Privacy notice, full E2E, hosted rollout, device checks** (Medium). Done except the two-phone check, which only the owner can do. Hosted rollout 29 Oct 2026: the five household migrations were applied to project `flatmate` and aligned to the repo versions, then `delete-account` v2 was deployed (migrations first, as required). Supabase advisors: only the intended signed-in-callable functions (11 WARN) plus the earlier `job_runs` INFO.
   - Description: Privacy page names the new data (membership, role, join and leave times, invite hashes) with a test tied to the generated types, as for `profiles`. Apply the migrations to hosted and deploy `delete-account`; compare migration versions to the repo; advisors check. Real-device check with two phones.
   - Acceptance:
-    - [ ] Privacy test fails if any household table gains a column the notice does not cover
-    - [ ] Hosted migrations match the repo; Supabase advisors show nothing new beyond intended notes
+    - [x] Privacy test fails if any household table gains a column the notice does not cover
+    - [x] Hosted migrations match the repo; Supabase advisors show nothing new beyond intended notes
     - [ ] Two real phones: share the link through the share sheet, second phone joins (Safari and installed app), roles and removal behave
-    - [ ] Lighthouse targets hold on `/dashboard` and `/more/flat`
+    - [x] Lighthouse targets hold on `/dashboard` and `/more/flat`
   - Verify: CI, hosted checks, manual
   - Dependencies: Tasks 1 to 8
 
