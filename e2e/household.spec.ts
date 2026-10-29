@@ -394,3 +394,59 @@ test.describe("deleting an account that belongs to a flat", () => {
     await context.close();
   });
 });
+
+test.describe("the setup checklist", () => {
+  test.beforeEach(() => {
+    test.skip(
+      test.info().project.name !== "desktop-chrome",
+      "several people in the shared database",
+    );
+  });
+
+  test("guides the owner to invite flatmates, ticks itself off, then goes away", async ({
+    browser,
+    baseURL,
+  }) => {
+    const owner = await signUpAndIn(newTestUser("setup"));
+    await createFlat(owner.supabase, "Setup Flat");
+
+    const context = await browser.newContext({ baseURL });
+    await addSessionCookies(context, owner.jar, baseURL!);
+    const page = await context.newPage();
+    await page.goto("/dashboard");
+
+    await expect(page.getByText("Set up your flat")).toBeVisible();
+    await expect(page.getByText("Invite your flatmates")).toBeVisible();
+    await page.getByRole("link", { name: "Do this now" }).click();
+    await expect(page).toHaveURL(/\/more\/flat$/);
+
+    // Someone joins; Home no longer asks.
+    const joiner = await signUpAndIn(newTestUser("setupjoin"));
+    await joinFlat(owner.supabase, joiner.supabase);
+    await page.goto("/dashboard");
+    await expect(page.getByRole("heading", { level: 2, name: "Setup Flat" })).toBeVisible();
+    await expect(page.getByText("Set up your flat")).toHaveCount(0);
+    await context.close();
+  });
+
+  test("a member of a flat that already has company sees no set-up prompts", async ({
+    browser,
+    baseURL,
+  }) => {
+    // The member note only appears while a step is open; with one step that is when the owner is
+    // alone, so a joined member sees nothing. The note itself is covered by unit tests.
+    const owner = await signUpAndIn(newTestUser("setupnote"));
+    await createFlat(owner.supabase, "Note Flat");
+    const member = await signUpAndIn(newTestUser("setupmember"));
+    await joinFlat(owner.supabase, member.supabase);
+
+    const context = await browser.newContext({ baseURL });
+    await addSessionCookies(context, member.jar, baseURL!);
+    const page = await context.newPage();
+    await page.goto("/dashboard");
+    await expect(page.getByRole("heading", { level: 2, name: "Note Flat" })).toBeVisible();
+    await expect(page.getByText("Set up your flat")).toHaveCount(0);
+    await expect(page.getByText(/still setting the flat up/)).toHaveCount(0);
+    await context.close();
+  });
+});

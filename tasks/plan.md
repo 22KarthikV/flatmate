@@ -35,7 +35,7 @@ Create a flat, invite flatmates with one shareable link, manage roles, leave or 
 - [x] Task 5: Members list, roles and removal (incl. flatmate profile visibility)
 - [x] Task 6: Leave, transfer ownership, close the flat
 - [x] Task 7: Account deletion interaction
-- [ ] Task 8: Setup checklist and step registry
+- [x] Task 8: Setup checklist and step registry
 - [ ] Task 9: Privacy notice, full E2E, hosted rollout, device checks
 
 ### Checkpoint: Household complete
