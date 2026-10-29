@@ -19,15 +19,21 @@ function withSession(signedIn: boolean) {
 beforeEach(() => session.updateSession.mockReset());
 afterEach(() => vi.unstubAllEnvs());
 
-describe("proxy with the guard off (default)", () => {
+describe("proxy with AUTH_GUARD=off", () => {
+  beforeEach(() => vi.stubEnv("AUTH_GUARD", "off"));
+
   it("never redirects, even signed out on a protected page", async () => {
     const response = withSession(false);
     expect(await proxy(request("/dashboard"))).toBe(response);
   });
 });
 
-describe("proxy with AUTH_GUARD=on", () => {
-  beforeEach(() => vi.stubEnv("AUTH_GUARD", "on"));
+describe("proxy with the guard on (the default)", () => {
+  it("is on when the setting is missing", async () => {
+    withSession(false);
+    const result = await proxy(request("/dashboard"));
+    expect(result.status).toBe(307);
+  });
 
   it("sends a signed-out visitor to sign in, with next, and no caching", async () => {
     withSession(false);

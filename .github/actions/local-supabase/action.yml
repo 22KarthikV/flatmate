@@ -1,0 +1,17 @@
+name: Local Supabase
+description: Starts the local Supabase stack and points the app at it (NEXT_PUBLIC_* in GITHUB_ENV).
+runs:
+  using: composite
+  steps:
+    # Only the services the app needs: skips Studio, image proxy, mail, logs and analytics.
+    - run: pnpm exec supabase start -x studio,imgproxy,mailpit,logflare,vector,supavisor
+      shell: bash
+    - name: Point the app at the local Supabase
+      shell: bash
+      run: |
+        pnpm exec supabase status -o env | grep -E '^(API_URL|PUBLISHABLE_KEY)=' | tr -d '"' > supabase.env
+        {
+          echo "NEXT_PUBLIC_SUPABASE_URL=$(grep '^API_URL=' supabase.env | cut -d= -f2-)"
+          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(grep '^PUBLISHABLE_KEY=' supabase.env | cut -d= -f2-)"
+        } >> "$GITHUB_ENV"
+        rm supabase.env

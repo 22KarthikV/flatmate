@@ -38,7 +38,7 @@ function localSupabase(): { url: string; key: string } {
   return { url, key };
 }
 
-type CookieJar = Map<string, { value: string; options: Record<string, unknown> }>;
+export type CookieJar = Map<string, { value: string; options: Record<string, unknown> }>;
 
 function clientWithJar(jar: CookieJar) {
   const { url, key } = localSupabase();
