@@ -34,7 +34,7 @@ One way for any module to tell a person something: a notification row written in
 - [x] Task 2: Inbox page and bell
 - [x] Task 3: Household events create notifications
 - [x] Task 4: Live bell (no navigation needed)
-- [ ] Task 5: Preferences and snooze
+- [x] Task 5: Preferences and snooze
 - [ ] Task 6: Push on the device (service worker, subscribe, settings card, library choice)
 - [ ] Task 7: `deliver-push` worker, outbox drain, retention
 - [ ] Task 8: Account deletion, privacy notice, hosted rollout, phone checks

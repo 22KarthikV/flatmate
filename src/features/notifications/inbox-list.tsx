@@ -1,9 +1,14 @@
 import { Card, CardLabel } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 
-import { markAllRead, openNotification } from "./actions";
+import { markAllRead, openNotification, snoozeNotification } from "./actions";
 import { formatTime, groupByDay } from "./format";
 import type { InboxItem } from "./inbox";
+import { SNOOZE_LABELS, availableSnoozeChoices } from "./schemas";
+
+function isSnoozed(item: InboxItem, now: Date): boolean {
+  return item.snoozedUntil !== null && new Date(item.snoozedUntil) > now;
+}
 
 interface InboxListProps {
   items: InboxItem[];
@@ -61,12 +66,33 @@ export function InboxList({ items, unread, now }: InboxListProps) {
                     </span>
                     <span className="flex shrink-0 flex-col items-end gap-1 text-sm">
                       <span>{formatTime(item.createdAt)}</span>
-                      {item.readAt ? null : (
+                      {isSnoozed(item, now) ? (
+                        <span className="text-xs">
+                          Snoozed until {formatTime(item.snoozedUntil!)}
+                        </span>
+                      ) : item.readAt ? null : (
                         <span className="label-caps text-ink text-[0.625rem]">Unread</span>
                       )}
                     </span>
                   </button>
                 </form>
+                {item.snoozable && !item.readAt && !isSnoozed(item, now) ? (
+                  <form action={snoozeNotification} className="flex flex-wrap gap-x-4 pb-3">
+                    <input type="hidden" name="id" value={item.id} />
+                    {availableSnoozeChoices(now).map((choice) => (
+                      <button
+                        key={choice}
+                        type="submit"
+                        name="choice"
+                        value={choice}
+                        aria-label={`Snooze: ${SNOOZE_LABELS[choice]}`}
+                        className="label-caps min-h-11 underline underline-offset-4"
+                      >
+                        {SNOOZE_LABELS[choice]}
+                      </button>
+                    ))}
+                  </form>
+                ) : null}
               </li>
             ))}
           </ul>

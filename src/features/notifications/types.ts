@@ -48,6 +48,19 @@ export function getNotificationType(type: string): NotificationTypeInfo | undefi
   return NOTIFICATION_TYPES.find((entry) => entry.type === type);
 }
 
+export interface SavedPreference {
+  in_app: boolean;
+  push: boolean;
+}
+
+/** A saved choice wins; otherwise the type's own defaults apply. */
+export function resolvePreference(
+  info: NotificationTypeInfo,
+  saved: SavedPreference | null | undefined,
+): { inApp: boolean; push: boolean } {
+  return { inApp: saved?.in_app ?? info.defaultInApp, push: saved?.push ?? info.defaultPush };
+}
+
 export function isNotificationType(value: unknown): value is NotificationType {
   return typeof value === "string" && getNotificationType(value) !== undefined;
 }

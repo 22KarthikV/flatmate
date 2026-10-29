@@ -22,6 +22,15 @@ export default function MorePage() {
         </span>
       </Link>
       <Link
+        href="/more/notifications"
+        className="border-line flex min-h-14 items-center justify-between border px-6"
+      >
+        <span className="label-caps">Notifications</span>
+        <span aria-hidden className="text-muted">
+          &rarr;
+        </span>
+      </Link>
+      <Link
         href="/more/account"
         className="border-line flex min-h-14 items-center justify-between border px-6"
       >

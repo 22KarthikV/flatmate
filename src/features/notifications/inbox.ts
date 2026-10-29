@@ -12,6 +12,9 @@ export interface InboxItem {
   href: string;
   createdAt: string;
   readAt: string | null;
+  snoozedUntil: string | null;
+  /** From the type's registry row in the database, so a new type needs no code here. */
+  snoozable: boolean;
 }
 
 const INBOX_LIMIT = 50;
@@ -23,7 +26,9 @@ export async function getInbox(): Promise<InboxItem[]> {
 
   const { data } = await supabase
     .from("notifications")
-    .select("id, type, title, body, href, created_at, read_at")
+    .select(
+      "id, type, title, body, href, created_at, read_at, snoozed_until, notification_types(snoozable)",
+    )
     .order("created_at", { ascending: false })
     .limit(INBOX_LIMIT);
 
@@ -35,6 +40,8 @@ export async function getInbox(): Promise<InboxItem[]> {
     href: row.href,
     createdAt: row.created_at,
     readAt: row.read_at,
+    snoozedUntil: row.snoozed_until,
+    snoozable: row.notification_types?.snoozable ?? false,
   }));
 }
 
