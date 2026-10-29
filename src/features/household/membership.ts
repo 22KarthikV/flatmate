@@ -10,6 +10,8 @@ export interface Membership {
   householdId: string;
   householdName: string;
   role: HouseholdRole;
+  /** The signed-in person's own profile id. */
+  profileId: string;
 }
 
 /**
@@ -23,11 +25,16 @@ export const getMembership = cache(async (): Promise<Membership | null> => {
 
   const { data, error } = await supabase
     .from("memberships")
-    .select("role, household:households(id, name), profile:profiles!inner(user_id)")
+    .select("role, household:households(id, name), profile:profiles!inner(id, user_id)")
     .eq("profile.user_id", claims.sub)
     .is("left_at", null)
     .maybeSingle();
 
   if (error || !data?.household) return null;
-  return { householdId: data.household.id, householdName: data.household.name, role: data.role };
+  return {
+    householdId: data.household.id,
+    householdName: data.household.name,
+    role: data.role,
+    profileId: data.profile.id,
+  };
 });

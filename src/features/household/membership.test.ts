@@ -46,7 +46,7 @@ describe("getMembership", () => {
     const supabase = fakeSupabase();
     mocks.getSession.mockResolvedValue({ supabase, claims: { sub: "u1" } });
     mocks.query.mockResolvedValue({
-      data: { role: "admin", household: { id: "h1", name: "Flat 12" } },
+      data: { role: "admin", household: { id: "h1", name: "Flat 12" }, profile: { id: "p1" } },
       error: null,
     });
 
@@ -54,6 +54,7 @@ describe("getMembership", () => {
       householdId: "h1",
       householdName: "Flat 12",
       role: "admin",
+      profileId: "p1",
     });
     expect(supabase.from).toHaveBeenCalledWith("memberships");
     expect(supabase.chain.eq).toHaveBeenCalledWith("profile.user_id", "u1");

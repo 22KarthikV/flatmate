@@ -23,7 +23,15 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
-import { createHousehold, createInvite, joinHousehold, openInvite, revokeInvite } from "./actions";
+import {
+  createHousehold,
+  createInvite,
+  joinHousehold,
+  openInvite,
+  removeMember,
+  revokeInvite,
+  setMemberRole,
+} from "./actions";
 
 const form = (name: string) => {
   const data = new FormData();
@@ -167,5 +175,46 @@ describe("openInvite", () => {
       status: "error",
       message: "That doesn’t look like an invite link.",
     });
+  });
+});
+
+describe("setMemberRole and removeMember", () => {
+  const PROFILE = "11111111-2222-3333-4444-555555555555";
+  const form = (fields: Record<string, string>) => {
+    const data = new FormData();
+    for (const [key, value] of Object.entries(fields)) data.set(key, value);
+    return data;
+  };
+
+  it("changes a role through the database function", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null });
+    const result = await setMemberRole(
+      { status: "idle" },
+      form({ profileId: PROFILE, role: "admin" }),
+    );
+    expect(mocks.rpc).toHaveBeenCalledWith("set_member_role", {
+      p_profile_id: PROFILE,
+      p_role: "admin",
+    });
+    expect(result).toEqual({ status: "idle" });
+  });
+
+  it("never sends a bad id or a role other than admin or member", async () => {
+    await setMemberRole({ status: "idle" }, form({ profileId: "x", role: "admin" }));
+    await setMemberRole({ status: "idle" }, form({ profileId: PROFILE, role: "owner" }));
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it("explains a refusal in plain words", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "42501", message: "not_allowed" } });
+    const result = await removeMember({ status: "idle" }, form({ profileId: PROFILE }));
+    expect(result).toEqual({ status: "error", message: "You can’t do that in this flat." });
+  });
+
+  it("removes a member and refreshes the flat page", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null });
+    await removeMember({ status: "idle" }, form({ profileId: PROFILE }));
+    expect(mocks.rpc).toHaveBeenCalledWith("remove_member", { p_profile_id: PROFILE });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/more/flat");
   });
 });

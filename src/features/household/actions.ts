@@ -129,3 +129,65 @@ export async function openInvite(_previous: SimpleState, formData: FormData): Pr
 }
 
 const INVALID_INVITE = "This invite link isn’t valid any more. Ask your flatmate for a new one.";
+
+const PROFILE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const MEMBER_ERRORS: Record<string, string> = {
+  not_allowed: "You can’t do that in this flat.",
+  owner_is_fixed: "The owner’s role can’t be changed.",
+  not_a_member: "That person is no longer in the flat.",
+};
+
+function memberError(error: { code?: string; message: string }): SimpleState {
+  return {
+    status: "error",
+    message: MEMBER_ERRORS[error.message] ?? "Something went wrong. Please try again.",
+  };
+}
+
+/** Promotes a member to admin or demotes an admin to member. */
+export async function setMemberRole(
+  _previous: SimpleState,
+  formData: FormData,
+): Promise<SimpleState> {
+  const profileId = formData.get("profileId");
+  const role = formData.get("role");
+  if (typeof profileId !== "string" || !PROFILE_ID.test(profileId)) {
+    return { status: "error", message: "Something went wrong. Please try again." };
+  }
+  if (role !== "admin" && role !== "member") {
+    return { status: "error", message: "Something went wrong. Please try again." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("set_member_role", {
+    p_profile_id: profileId,
+    p_role: role,
+  });
+  if (error) {
+    logger.error("household.set_role_failed", { error });
+    return memberError(error);
+  }
+  revalidatePath("/more/flat");
+  return { status: "idle" };
+}
+
+/** Removes someone from the flat. */
+export async function removeMember(
+  _previous: SimpleState,
+  formData: FormData,
+): Promise<SimpleState> {
+  const profileId = formData.get("profileId");
+  if (typeof profileId !== "string" || !PROFILE_ID.test(profileId)) {
+    return { status: "error", message: "Something went wrong. Please try again." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("remove_member", { p_profile_id: profileId });
+  if (error) {
+    logger.error("household.remove_failed", { error });
+    return memberError(error);
+  }
+  revalidatePath("/more/flat");
+  return { status: "idle" };
+}

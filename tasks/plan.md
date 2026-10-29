@@ -32,7 +32,7 @@ Create a flat, invite flatmates with one shareable link, manage roles, leave or 
 - [x] Task 2: Create a flat from Home (UI, `getMembership`, no-flat screens)
 - [x] Task 3: Invite functions (create, revoke, preview, join) with tests
 - [x] Task 4: Invite card and join flow (two-person E2E)
-- [ ] Task 5: Members list, roles and removal (incl. flatmate profile visibility)
+- [x] Task 5: Members list, roles and removal (incl. flatmate profile visibility)
 - [ ] Task 6: Leave, transfer ownership, close the flat
 - [ ] Task 7: Account deletion interaction
 - [ ] Task 8: Setup checklist and step registry

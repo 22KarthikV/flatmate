@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { Card, CardLabel } from "@/components/ui/card";
 import { getMembership } from "@/features/household/membership";
 import { InviteCard } from "@/features/household/invite-card";
+import { MembersCard } from "@/features/household/members-card";
+import { getMembers } from "@/features/household/members";
 import { getLiveInviteExpiry } from "@/features/household/live-invite";
 
 export const metadata = { title: "Your flat | FlatMate" };
@@ -28,7 +30,10 @@ async function FlatContent() {
   }
 
   const canInvite = membership.role === "owner" || membership.role === "admin";
-  const activeUntil = canInvite ? await getLiveInviteExpiry() : null;
+  const [members, activeUntil] = await Promise.all([
+    getMembers(),
+    canInvite ? getLiveInviteExpiry() : Promise.resolve(null),
+  ]);
 
   return (
     <>
@@ -37,6 +42,11 @@ async function FlatContent() {
         <h2 className="font-display mt-3 text-3xl">{membership.householdName}</h2>
         <p className="text-muted mt-2 text-sm">You are {ROLE_LABEL[membership.role]}.</p>
       </Card>
+      <MembersCard
+        members={members}
+        viewerProfileId={membership.profileId}
+        viewerRole={membership.role}
+      />
       {canInvite ? <InviteCard activeUntil={activeUntil} /> : null}
     </>
   );
