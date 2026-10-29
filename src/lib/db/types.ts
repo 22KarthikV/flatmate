@@ -23,6 +23,45 @@ export type Database = {
   };
   public: {
     Tables: {
+      households: {
+        Row: {
+          closed_at: string | null;
+          created_at: string;
+          created_by: string;
+          id: string;
+          name: string;
+          timezone: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          closed_at?: string | null;
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          name: string;
+          timezone?: string;
+          updated_at?: string;
+        };
+        Update: {
+          closed_at?: string | null;
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          name?: string;
+          timezone?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "households_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       job_runs: {
         Row: {
           created_at: string;
@@ -59,6 +98,52 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      memberships: {
+        Row: {
+          household_id: string;
+          id: string;
+          joined_at: string;
+          left_at: string | null;
+          left_reason: string | null;
+          profile_id: string;
+          role: Database["public"]["Enums"]["household_role"];
+        };
+        ComputedFields: never;
+        Insert: {
+          household_id: string;
+          id?: string;
+          joined_at?: string;
+          left_at?: string | null;
+          left_reason?: string | null;
+          profile_id: string;
+          role?: Database["public"]["Enums"]["household_role"];
+        };
+        Update: {
+          household_id?: string;
+          id?: string;
+          joined_at?: string;
+          left_at?: string | null;
+          left_reason?: string | null;
+          profile_id?: string;
+          role?: Database["public"]["Enums"]["household_role"];
+        };
+        Relationships: [
+          {
+            foreignKeyName: "memberships_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "memberships_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       profiles: {
         Row: {
@@ -97,11 +182,13 @@ export type Database = {
     };
     Functions: {
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
+      create_household: { Args: { p_name: string }; Returns: string };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
+      rename_household: { Args: { p_name: string }; Returns: undefined };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
     };
     Enums: {
-      [_ in never]: never;
+      household_role: "owner" | "admin" | "member";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -215,6 +302,8 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      household_role: ["owner", "admin", "member"],
+    },
   },
 } as const;
