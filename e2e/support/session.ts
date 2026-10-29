@@ -89,6 +89,17 @@ export async function createFlat(
   if (error) throw error;
 }
 
+/** Puts `joiner` into `host`'s flat the same way the app does: the host's link, the joiner's join. */
+export async function joinFlat(
+  host: Awaited<ReturnType<typeof signUpAndIn>>["supabase"],
+  joiner: Awaited<ReturnType<typeof signUpAndIn>>["supabase"],
+) {
+  const { data: token, error } = await host.rpc("create_invite");
+  if (error) throw error;
+  const joined = await joiner.rpc("join_household", { p_token: token });
+  if (joined.error) throw joined.error;
+}
+
 /** A second, independent session for an existing user (another "device"). */
 export async function signInAgain(user: TestUser) {
   const jar: CookieJar = new Map();

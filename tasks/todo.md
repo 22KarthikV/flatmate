@@ -57,13 +57,13 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
   - Dependencies: Tasks 2, 3
   - Files: `invite-card.tsx`, `join-panel.tsx`, `invite-link.ts`, join page, `/more/flat`, E2E
 
-- [ ] **Task 5: Members list, roles and removal** (Medium)
+- [x] **Task 5: Members list, roles and removal** (Medium). 26 pgTAP assertions. Flatmate profile visibility covers people who were ever in your current flat (so history can still name them), and only while you are a member.
   - Description: `set_member_role`, `remove_member`, and the `profiles` select policy that lets flatmates see each other (name and photo only). Members list shows what each role may do; admins promote, demote and remove. pgTAP first.
   - Acceptance:
-    - [ ] pgTAP: members see flatmates' profiles and nobody else's; nothing changes for `anon`; deleted users still show as "Deleted user"
-    - [ ] pgTAP: a member cannot call admin functions; admins cannot remove admins; nobody can demote or remove the owner; `left_reason` is `removed`
-    - [ ] Unit: the role-to-actions table the UI uses
-    - [ ] E2E: A promotes B to admin, demotes, removes; the removed person lands on the create-or-join screen
+    - [x] pgTAP: members see flatmates' profiles and nobody else's; nothing changes for `anon`; deleted users still show as "Deleted user"
+    - [x] pgTAP: a member cannot call admin functions; admins cannot remove admins; nobody can demote or remove the owner; `left_reason` is `removed`
+    - [x] Unit: the role-to-actions table the UI uses
+    - [x] E2E: A promotes B to admin, demotes, removes; the removed person lands on the create-or-join screen
   - Verify: `pnpm db:test`, `pnpm test`, `pnpm test:e2e`
   - Dependencies: Task 4
   - Files: migration, tests, `members-list.tsx`, actions, types

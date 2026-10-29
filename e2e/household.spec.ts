@@ -1,6 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-import { addSessionCookies, createFlat, newTestUser, signUpAndIn } from "./support/session";
+import {
+  addSessionCookies,
+  createFlat,
+  joinFlat,
+  newTestUser,
+  signUpAndIn,
+} from "./support/session";
 
 test.describe("a person with no flat", () => {
   test("sees the create-flat screen on Home without sideways scroll", async ({
@@ -166,5 +172,81 @@ test.describe("invite links", () => {
     await expect(thirdPage.getByText("That doesn’t look like an invite link.")).toBeVisible();
 
     await Promise.all([hostContext.close(), joinerContext.close(), thirdContext.close()]);
+  });
+});
+
+test.describe("members and roles", () => {
+  test.beforeEach(() => {
+    test.skip(
+      test.info().project.name !== "desktop-chrome",
+      "several people in the shared database",
+    );
+  });
+
+  test("the owner promotes, demotes and removes; the removed person starts over", async ({
+    browser,
+    baseURL,
+  }) => {
+    const owner = await signUpAndIn(newTestUser("owner"));
+    await createFlat(owner.supabase, "Roles Flat");
+    const ben = await signUpAndIn(newTestUser("ben"));
+    const cat = await signUpAndIn(newTestUser("cat"));
+    await joinFlat(owner.supabase, ben.supabase);
+    await joinFlat(owner.supabase, cat.supabase);
+
+    const ownerContext = await browser.newContext({ baseURL });
+    await addSessionCookies(ownerContext, owner.jar, baseURL!);
+    const page = await ownerContext.newPage();
+    await page.goto("/more/flat");
+
+    await expect(page.getByText("Members · 3")).toBeVisible();
+    const rows = page.getByText("Members · 3").locator("..").getByRole("listitem");
+    const benName = ben.user.email.split("@")[0];
+    const catName = cat.user.email.split("@")[0];
+    const benRow = rows.filter({ hasText: benName });
+    const catRow = rows.filter({ hasText: catName });
+
+    // The owner has no controls on themselves.
+    await expect(rows.filter({ hasText: "(you)" }).getByRole("button")).toHaveCount(0);
+
+    await benRow.getByRole("button", { name: "Make admin" }).click();
+    await expect(benRow.getByText("Admin")).toBeVisible();
+    await benRow.getByRole("button", { name: "Make member" }).click();
+    await expect(benRow.getByText("Member")).toBeVisible();
+
+    await catRow.getByRole("button", { name: "Remove" }).click();
+    await catRow.getByRole("button", { name: `Remove ${catName}` }).click();
+    await expect(page.getByText("Members · 2")).toBeVisible();
+    await expect(page.getByText(catName)).toHaveCount(0);
+
+    // The removed person is back to the start: create or join.
+    const catContext = await browser.newContext({ baseURL });
+    await addSessionCookies(catContext, cat.jar, baseURL!);
+    const catPage = await catContext.newPage();
+    await catPage.goto("/dashboard");
+    await expect(catPage.getByRole("heading", { name: "Create your flat" })).toBeVisible();
+    await catPage.goto("/rota");
+    await expect(
+      catPage.getByRole("heading", { level: 1, name: "Set up your flat first" }),
+    ).toBeVisible();
+
+    await Promise.all([ownerContext.close(), catContext.close()]);
+  });
+
+  test("a plain member sees the list but no controls", async ({ browser, baseURL }) => {
+    const owner = await signUpAndIn(newTestUser("owner2"));
+    await createFlat(owner.supabase, "Quiet Flat");
+    const dee = await signUpAndIn(newTestUser("dee"));
+    await joinFlat(owner.supabase, dee.supabase);
+
+    const context = await browser.newContext({ baseURL });
+    await addSessionCookies(context, dee.jar, baseURL!);
+    const page = await context.newPage();
+    await page.goto("/more/flat");
+
+    await expect(page.getByText("Members · 2")).toBeVisible();
+    await expect(page.getByText("Members · 2").locator("..").getByRole("listitem")).toHaveCount(2);
+    await expect(page.getByRole("button", { name: /Make|Remove/ })).toHaveCount(0);
+    await context.close();
   });
 });

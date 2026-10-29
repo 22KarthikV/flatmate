@@ -240,8 +240,13 @@ export type Database = {
           member_count: number;
         }[];
       };
+      remove_member: { Args: { p_profile_id: string }; Returns: undefined };
       rename_household: { Args: { p_name: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
+      set_member_role: {
+        Args: { p_profile_id: string; p_role: Database["public"]["Enums"]["household_role"] };
+        Returns: undefined;
+      };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
     };
     Enums: {

@@ -15,6 +15,7 @@ describe("RequireFlat", () => {
       householdId: "h",
       householdName: "F",
       role: "member",
+      profileId: "p",
     });
     const element = await RequireFlat({ children: <p>The rota</p> });
     expect(renderToStaticMarkup(element)).toBe("<p>The rota</p>");
