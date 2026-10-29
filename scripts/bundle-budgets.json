@@ -8,7 +8,8 @@
     "/more": 200,
     "/offline": 195,
     "/sign-in": 195,
-    "/auth/error": 195
+    "/auth/error": 195,
+    "/more/account": 200
   },
   "lazyMotionKb": 60
 }
