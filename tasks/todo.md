@@ -23,13 +23,13 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
   - Dependencies: none
   - Files: migration, `households.test.sql`, `src/lib/db/types.ts`
 
-- [ ] **Task 2: Create a flat from Home** (Medium)
+- [x] **Task 2: Create a flat from Home** (Medium). Home for a flatless person also says how invites work; the paste-a-link field arrives with Task 4. The E2E signed-in fixture now gives its user a flat.
   - Description: `getMembership()` (cached per request, uses the shared session), zod schemas, `createHousehold` action, `create-flat-form`, Home shows "Create your flat" or the plain flat view, and `no-flat` screens on Rota, Money and Events. Account keeps working without a flat.
   - Acceptance:
-    - [ ] Unit: schemas (name rules), `getMembership` for none, owner, member
-    - [ ] A new user creates a flat and Home shows its name; reload keeps it
-    - [ ] Without a flat, Rota, Money and Events show the no-flat screen; `/more/account` still opens
-    - [ ] E2E (desktop-chrome): create a flat; no-flat tabs; layout has no sideways scroll on mobile projects
+    - [x] Unit: schemas (name rules), `getMembership` for none, owner, member
+    - [x] A new user creates a flat and Home shows its name; reload keeps it
+    - [x] Without a flat, Rota, Money and Events show the no-flat screen; `/more/account` still opens
+    - [x] E2E (desktop-chrome): create a flat; no-flat tabs; layout has no sideways scroll on mobile projects
   - Verify: `pnpm test`, `pnpm test:e2e`
   - Dependencies: Task 1
   - Files: `src/features/household/*`, dashboard and tab pages, `e2e/household.spec.ts`

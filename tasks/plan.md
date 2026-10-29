@@ -29,7 +29,7 @@ Create a flat, invite flatmates with one shareable link, manage roles, leave or 
 ## Task list
 
 - [x] Task 1: Flat and membership tables, helpers, `create_household`, isolation tests
-- [ ] Task 2: Create a flat from Home (UI, `getMembership`, no-flat screens)
+- [x] Task 2: Create a flat from Home (UI, `getMembership`, no-flat screens)
 - [ ] Task 3: Invite functions (create, revoke, preview, join) with tests
 - [ ] Task 4: Invite card and join flow (two-person E2E)
 - [ ] Task 5: Members list, roles and removal (incl. flatmate profile visibility)
