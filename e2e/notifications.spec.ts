@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { seedNotification } from "./support/database";
+import { ensureSnoozableType, seedNotification } from "./support/database";
 import {
   addSessionCookies,
   createFlat,
@@ -96,6 +96,71 @@ test.describe("the inbox and the bell", () => {
       );
       expect(overflow).toBeLessThanOrEqual(0);
     }
+  });
+});
+
+test.describe("preferences and snooze", () => {
+  test("turning a type off stops the next one reaching the inbox, and the choice sticks", async ({
+    browser,
+    baseURL,
+  }) => {
+    const a = await signUpAndIn(newTestUser("pref-a"));
+    await createFlat(a.supabase, "Pref flat");
+
+    const context = await browser.newContext({ baseURL });
+    await addSessionCookies(context, a.jar, baseURL!);
+    const page = await context.newPage();
+    await page.goto("/more");
+    // (The bell is also called Notifications, so pick the More entry by where it goes.)
+    await page.locator('a[href="/more/notifications"]').click();
+    await expect(page).toHaveURL(/\/more\/notifications$/);
+
+    const form = page.getByRole("form", { name: "Someone joins the flat" });
+    await expect(form.getByLabel("In the app")).toBeChecked();
+    await form.getByLabel("In the app").uncheck();
+    await Promise.all([
+      page.waitForResponse((response) => response.request().method() === "POST"),
+      form.getByRole("button", { name: "Save" }).click(),
+    ]);
+
+    await page.reload();
+    await expect(form.getByLabel("In the app")).not.toBeChecked();
+    // Other types are untouched.
+    await expect(
+      page.getByRole("form", { name: "Your role changes" }).getByLabel("In the app"),
+    ).toBeChecked();
+
+    // B joins: nothing reaches A's inbox.
+    const b = await signUpAndIn(newTestUser("pref-b"));
+    await joinFlat(a.supabase, b.supabase);
+    await page.goto("/notifications");
+    await expect(page.getByText("Nothing here yet.")).toBeVisible();
+    await context.close();
+  });
+
+  test("snoozing a reminder takes it off the badge until it comes back", async ({
+    context,
+    page,
+    baseURL,
+  }) => {
+    ensureSnoozableType("e2e_reminder");
+    const user = newTestUser("snooze");
+    const { jar, supabase } = await signUpAndIn(user);
+    await createFlat(supabase, "Snooze flat");
+    await addSessionCookies(context, jar, baseURL!);
+    seedNotification(user.email, {
+      title: "Take the bins out",
+      type: "e2e_reminder",
+      dedupeKey: "e2e:snooze:1",
+    });
+
+    await page.goto("/notifications");
+    await expect(page.getByRole("link", { name: "Notifications, 1 unread" })).toBeVisible();
+    await page.getByRole("button", { name: "Snooze: In an hour" }).click();
+
+    await expect(page.getByText(/Snoozed until \d\d:\d\d/)).toBeVisible();
+    await expect(page.getByRole("link", { name: "Notifications", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Snooze/ })).toHaveCount(0);
   });
 });
 

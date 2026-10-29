@@ -56,12 +56,12 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-not
   - Dependencies: Task 3
   - Files: `src/features/notifications/live-inbox.tsx` and test, `(app)/layout.tsx`
 
-- [ ] **Task 5: Preferences and snooze** (Medium)
+- [x] **Task 5: Preferences and snooze** (Medium)
   - Description: `/more/notifications` with per-type in-app and push toggles (saved rows override code defaults), a link from More, `savePreference` action, `snooze` on snoozable types (one hour, this evening, tomorrow morning) hiding the row from the unread count until the snooze ends. The in-app toggle off means no inbox row for that type.
   - Acceptance:
-    - [ ] Unit: preference resolution (saved overrides default); snooze choice to timestamp in Europe/London; schemas
-    - [ ] pgTAP: owner-only writes to preferences; snooze only on the caller's own snoozable row
-    - [ ] E2E: turn a type off and the next event does not reach the inbox; snoozing hides a test reminder from the badge
+    - [x] Unit: preference resolution (saved overrides default); snooze choice to timestamp in Europe/London; schemas
+    - [x] pgTAP: owner-only writes to preferences; snooze only on the caller's own snoozable row (already covered in `notifications.test.sql` from Task 1; no new database work)
+    - [x] E2E: turn a type off and the next event does not reach the inbox; snoozing hides a test reminder from the badge
   - Verify: `pnpm test`, `pnpm db:test`, `pnpm test:e2e`
   - Dependencies: Tasks 1, 2 (3 for the E2E)
   - Files: `src/features/notifications/{preferences-form,actions,schemas}.ts*`, `src/app/(app)/more/notifications/page.tsx`, `src/app/(app)/more/page.tsx`

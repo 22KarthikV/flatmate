@@ -12,6 +12,7 @@
     "/auth/error": 195,
     "/more/account": 200,
     "/more/flat": 200,
+    "/more/notifications": 200,
     "/join/[token]": 195,
     "/privacy": 195,
     "/terms": 195

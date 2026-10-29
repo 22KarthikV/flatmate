@@ -19,6 +19,15 @@ function literal(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
 }
 
+/** Adds a reminder-style type that can be snoozed (none of the launch types can). Local only. */
+export function ensureSnoozableType(type: string): void {
+  runLocalSql(`
+    insert into public.notification_types (type, default_in_app, default_push, snoozable)
+    values (${literal(type)}, true, false, true)
+    on conflict (type) do nothing
+  `);
+}
+
 /** Creates a notification for the person with this email, in the flat they are in. */
 export function seedNotification(
   email: string,
