@@ -45,14 +45,14 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
   - Dependencies: Task 1
   - Files: migration, `invites.test.sql`, types
 
-- [ ] **Task 4: Invite card and join flow** (Medium)
+- [x] **Task 4: Invite card and join flow** (Medium). `/join/[token]` lives in its own `(invite)` layout (no tab bar: a dynamic route cannot prerender the tab bar). The link is shown only when created because the database keeps just a hash; admins see "working until" and can make a new one.
   - Description: `/more/flat` page with the invite card (create, copy, share sheet, expiry, revoke, regenerate); `/join/[token]` shows "Join _Flat_?" and joins via a server action; "Got an invite link?" paste field on Home. Link shape built by a pure `invite-link.ts`.
   - Acceptance:
-    - [ ] Unit: link builder and token-shape validation
-    - [ ] A plain GET of `/join/<token>` changes nothing (tested); tapping Join adds the member
-    - [ ] Signed-out visitor to a join link is sent to sign in and brought back (existing guard)
-    - [ ] Neutral message for bad, expired and revoked links; "leave your current flat first" message when already in one
-    - [ ] E2E: user A creates the link; user B (second context) joins; B appears for A; A revokes and a third user sees the neutral message
+    - [x] Unit: link builder and token-shape validation
+    - [x] A plain GET of `/join/<token>` changes nothing (tested); tapping Join adds the member
+    - [x] Signed-out visitor to a join link is sent to sign in and brought back (existing guard)
+    - [x] Neutral message for bad, expired and revoked links; "leave your current flat first" message when already in one
+    - [x] E2E: user A creates the link; user B (second context) joins; B appears for A; A revokes and a third user sees the neutral message
   - Verify: `pnpm test`, `pnpm test:e2e`
   - Dependencies: Tasks 2, 3
   - Files: `invite-card.tsx`, `join-panel.tsx`, `invite-link.ts`, join page, `/more/flat`, E2E

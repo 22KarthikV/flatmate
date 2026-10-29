@@ -1,12 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { originFromHeaders } from "@/features/identity/origin";
 import { logger } from "@/lib/logger";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-import type { CreateFlatState } from "./constants";
+import type { CreateFlatState, CreateInviteState, SimpleState } from "./constants";
+import { buildInviteLink, extractInviteToken, isInviteToken } from "./invite-link";
 import { parseHouseholdName } from "./schemas";
 
 /**
@@ -38,3 +41,91 @@ export async function createHousehold(
   revalidatePath("/", "layout");
   return { status: "created" };
 }
+
+/**
+ * Makes a new invite link (replacing any old one). The token exists in clear text only in this
+ * response; the database keeps a hash, so the link cannot be shown again later.
+ */
+export async function createInvite(
+  _previous: CreateInviteState,
+  _formData: FormData,
+): Promise<CreateInviteState> {
+  void _formData;
+  const origin = originFromHeaders(await headers());
+  if (!origin) return { status: "error", message: "We couldn’t make a link. Please try again." };
+
+  const supabase = await createSupabaseServerClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  if (!claims?.claims.sub) redirect("/sign-in?next=%2Fmore%2Fflat");
+
+  const { data: token, error } = await supabase.rpc("create_invite");
+  if (error || typeof token !== "string") {
+    if (error?.code === "42501") {
+      return { status: "error", message: "Only the owner and admins can invite people." };
+    }
+    logger.error("household.invite_create_failed", { error });
+    return { status: "error", message: "We couldn’t make a link. Please try again." };
+  }
+
+  revalidatePath("/more/flat");
+  return { status: "created", url: buildInviteLink(origin, token) };
+}
+
+/** Switches the current invite link off. */
+export async function revokeInvite(
+  _previous: SimpleState,
+  _formData: FormData,
+): Promise<SimpleState> {
+  void _formData;
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("revoke_invite");
+  if (error) {
+    logger.error("household.invite_revoke_failed", { error });
+    return { status: "error", message: "We couldn’t switch the link off. Please try again." };
+  }
+  revalidatePath("/more/flat");
+  return { status: "idle" };
+}
+
+/** Joins the flat behind an invite. Only ever reached by a form POST, never by opening the link. */
+export async function joinHousehold(
+  _previous: SimpleState,
+  formData: FormData,
+): Promise<SimpleState> {
+  const token = formData.get("token");
+  if (!isInviteToken(token)) return { status: "error", message: INVALID_INVITE };
+
+  const supabase = await createSupabaseServerClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  if (!claims?.claims.sub) redirect("/sign-in");
+
+  const { error } = await supabase.rpc("join_household", { p_token: token });
+  if (error) {
+    if (error.code === "P0001") {
+      if (error.message === "already_in_household") {
+        return {
+          status: "error",
+          message: "You are already in a flat. Leave it before joining another.",
+        };
+      }
+      if (error.message === "household_full") {
+        return { status: "error", message: "This flat is full." };
+      }
+      if (error.message === "invalid_invite") return { status: "error", message: INVALID_INVITE };
+    }
+    logger.error("household.join_failed", { error });
+    return { status: "error", message: "We couldn’t add you. Please try again." };
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/dashboard");
+}
+
+/** Takes a pasted link (or bare token) and opens its join page. */
+export async function openInvite(_previous: SimpleState, formData: FormData): Promise<SimpleState> {
+  const token = extractInviteToken(formData.get("link"));
+  if (!token) return { status: "error", message: "That doesn’t look like an invite link." };
+  redirect(`/join/${token}`);
+}
+
+const INVALID_INVITE = "This invite link isn’t valid any more. Ask your flatmate for a new one.";

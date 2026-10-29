@@ -13,6 +13,15 @@ export default function MorePage() {
       module="extras"
     >
       <Link
+        href="/more/flat"
+        className="border-line flex min-h-14 items-center justify-between border px-6"
+      >
+        <span className="label-caps">Your flat</span>
+        <span aria-hidden className="text-muted">
+          &rarr;
+        </span>
+      </Link>
+      <Link
         href="/more/account"
         className="border-line flex min-h-14 items-center justify-between border px-6"
       >

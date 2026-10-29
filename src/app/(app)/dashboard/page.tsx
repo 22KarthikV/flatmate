@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Card, CardLabel } from "@/components/ui/card";
 import { CreateFlatForm } from "@/features/household/create-flat-form";
 import { getMembership } from "@/features/household/membership";
+import { OpenInviteForm } from "@/features/household/open-invite-form";
 
 export const metadata = { title: "Home | FlatMate" };
 
@@ -27,9 +28,11 @@ async function HomeContent() {
         <Card>
           <CardLabel>Got an invite?</CardLabel>
           <p className="mt-3 max-w-md text-sm">
-            Open the link your flatmate sent you. You&rsquo;ll sign in with Google and can join from
-            there.
+            Open the link your flatmate sent you, or paste it below.
           </p>
+          <div className="mt-4">
+            <OpenInviteForm />
+          </div>
         </Card>
       </>
     );
