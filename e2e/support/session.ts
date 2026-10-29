@@ -80,6 +80,15 @@ export async function signUpAndIn(user: TestUser = newTestUser()) {
   return { user, supabase, jar };
 }
 
+/** Creates a flat for a signed-in test user (the same database function the app calls). */
+export async function createFlat(
+  supabase: Awaited<ReturnType<typeof signUpAndIn>>["supabase"],
+  name = "Test flat",
+) {
+  const { error } = await supabase.rpc("create_household", { p_name: name });
+  if (error) throw error;
+}
+
 /** A second, independent session for an existing user (another "device"). */
 export async function signInAgain(user: TestUser) {
   const jar: CookieJar = new Map();
