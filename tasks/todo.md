@@ -39,11 +39,11 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-identity.md](../docs/SPEC-identity
   - Verify: manual on devices, `pnpm test`, Lighthouse on `/sign-in`
   - Dependencies: Tasks 1, 2, 3
 
-- [ ] **Task 5: Account page** (Small)
+- [x] **Task 5: Account page** (Small). Sign out everywhere is tested at the session level: the other device's refresh fails. Its current access token stays valid until it expires (up to an hour), as the page tells people.
   - Description: `/more/account`: profile, rename (zod, 1 to 50), sign out, sign out everywhere.
   - Acceptance:
-    - [ ] Rename persists and validates; errors are inline
-    - [ ] Sign out everywhere invalidates a second session (tested)
+    - [x] Rename persists and validates; errors are inline
+    - [x] Sign out everywhere invalidates a second session (tested)
   - Verify: `pnpm test`, E2E in Task 8
   - Dependencies: Task 4
 
