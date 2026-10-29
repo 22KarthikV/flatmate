@@ -228,10 +228,12 @@ export type Database = {
     };
     Functions: {
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
+      close_household: { Args: Record<PropertyKey, never>; Returns: undefined };
       create_household: { Args: { p_name: string }; Returns: string };
       create_invite: { Args: Record<PropertyKey, never>; Returns: string };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
       join_household: { Args: { p_token: string }; Returns: string };
+      leave_household: { Args: Record<PropertyKey, never>; Returns: undefined };
       preview_invite: {
         Args: { p_token: string };
         Returns: {
@@ -247,6 +249,7 @@ export type Database = {
         Args: { p_profile_id: string; p_role: Database["public"]["Enums"]["household_role"] };
         Returns: undefined;
       };
+      transfer_ownership: { Args: { p_profile_id: string }; Returns: undefined };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
     };
     Enums: {

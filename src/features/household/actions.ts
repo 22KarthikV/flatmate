@@ -191,3 +191,71 @@ export async function removeMember(
   revalidatePath("/more/flat");
   return { status: "idle" };
 }
+
+const LEAVE_ERRORS: Record<string, string> = {
+  owner_must_transfer: "Hand the flat to someone else before you leave.",
+  owner_must_close: "You are the only one here. Close the flat instead.",
+  cannot_leave: "You can’t leave yet. Settle up with your flatmates first.",
+  flat_not_empty: "Other people are still in the flat.",
+  not_a_member: "That person is no longer in the flat.",
+  use_leave: "Choose someone else.",
+  not_allowed: "You can’t do that in this flat.",
+};
+
+function leaveError(error: { message: string }): SimpleState {
+  return {
+    status: "error",
+    message: LEAVE_ERRORS[error.message] ?? "Something went wrong. Please try again.",
+  };
+}
+
+/** Leaves the flat, then back to Home where the person can create or join another. */
+export async function leaveHousehold(
+  _previous: SimpleState,
+  _formData: FormData,
+): Promise<SimpleState> {
+  void _formData;
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("leave_household");
+  if (error) {
+    logger.error("household.leave_failed", { error });
+    return leaveError(error);
+  }
+  revalidatePath("/", "layout");
+  redirect("/dashboard");
+}
+
+/** The owner hands the flat to another member and becomes an admin. */
+export async function transferOwnership(
+  _previous: SimpleState,
+  formData: FormData,
+): Promise<SimpleState> {
+  const profileId = formData.get("profileId");
+  if (typeof profileId !== "string" || !PROFILE_ID.test(profileId)) {
+    return { status: "error", message: "Choose who should take over." };
+  }
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("transfer_ownership", { p_profile_id: profileId });
+  if (error) {
+    logger.error("household.transfer_failed", { error });
+    return leaveError(error);
+  }
+  revalidatePath("/", "layout");
+  return { status: "idle" };
+}
+
+/** Closes a flat the owner is alone in. */
+export async function closeHousehold(
+  _previous: SimpleState,
+  _formData: FormData,
+): Promise<SimpleState> {
+  void _formData;
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("close_household");
+  if (error) {
+    logger.error("household.close_failed", { error });
+    return leaveError(error);
+  }
+  revalidatePath("/", "layout");
+  redirect("/dashboard");
+}

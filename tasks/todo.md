@@ -68,12 +68,12 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
   - Dependencies: Task 4
   - Files: migration, tests, `members-list.tsx`, actions, types
 
-- [ ] **Task 6: Leave, transfer ownership, close the flat** (Medium)
+- [x] **Task 6: Leave, transfer ownership, close the flat** (Medium). 30 pgTAP assertions. Each function takes the flat lock before reading who is in it. The two-simultaneous-transfers case is guarded by that lock plus the one-owner unique index; it was not exercised with two live sessions (unlike the member cap in Task 3).
   - Description: `leave_household`, `transfer_ownership` (old owner becomes admin), `close_household` (sole member only), and the `private.can_leave` hook (returns true until `ledger`). Confirmation dialogs in `/more/flat`.
   - Acceptance:
-    - [ ] pgTAP: owner cannot leave while others remain; transfer swaps owner and keeps exactly one; two simultaneous transfers cannot create two owners
-    - [ ] pgTAP: leaving sets `left_at`/`left_reason`; a closed flat cannot be joined or read; rejoining makes a new row; `can_leave` is called by leave
-    - [ ] E2E: member leaves and rejoins with a fresh link; owner transfers then leaves; a sole member closes the flat
+    - [x] pgTAP: owner cannot leave while others remain; transfer swaps owner and keeps exactly one; two simultaneous transfers cannot create two owners
+    - [x] pgTAP: leaving sets `left_at`/`left_reason`; a closed flat cannot be joined or read; rejoining makes a new row; `can_leave` is called by leave
+    - [x] E2E: member leaves and rejoins with a fresh link; owner transfers then leaves; a sole member closes the flat
   - Verify: `pnpm db:test`, `pnpm test:e2e`
   - Dependencies: Task 5
   - Files: migration, tests, `/more/flat` dialogs, actions
