@@ -1,10 +1,8 @@
 "use client";
 
-import type { RealtimeChannel } from "@supabase/supabase-js";
+import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 /** How often to check in even if no message arrives, for example after a phone woke from sleep. */
 const BACKSTOP_MS = 60_000;
@@ -24,6 +22,7 @@ export function LiveFlat({ householdId }: { householdId: string }) {
 
   useEffect(() => {
     let cancelled = false;
+    let supabase: SupabaseClient | undefined;
     let channel: RealtimeChannel | undefined;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -35,8 +34,12 @@ export function LiveFlat({ householdId }: { householdId: string }) {
       if (document.visibilityState === "visible") refresh();
     };
 
-    const supabase = createSupabaseBrowserClient();
     void (async () => {
+      // Loaded after the page is up, so the Supabase client (about 60 KB) is not part of the
+      // initial download of every screen (see scripts/bundle-budgets.json).
+      const { createSupabaseBrowserClient } = await import("@/lib/supabase/browser");
+      if (cancelled) return;
+      supabase = createSupabaseBrowserClient();
       // Realtime checks row access as whoever it is told you are, so hand it your session first.
       // (This is only the access token for the connection; the server still decides what you see.)
       const { data } = await supabase.auth.getSession();
@@ -60,7 +63,7 @@ export function LiveFlat({ householdId }: { householdId: string }) {
       clearTimeout(timer);
       clearInterval(interval);
       document.removeEventListener("visibilitychange", refreshIfVisible);
-      if (channel) void supabase.removeChannel(channel);
+      if (supabase && channel) void supabase.removeChannel(channel);
     };
   }, [householdId, router]);
 
