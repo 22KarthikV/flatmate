@@ -1,47 +1,56 @@
-# Implementation Plan: identity
+# Implementation Plan: household
 
-Spec: [docs/SPEC-identity.md](../docs/SPEC-identity.md) (approved 2026-10-28). Task list: [tasks/todo.md](todo.md). The foundation plan is archived in [tasks/archive](archive/).
+Spec: [docs/SPEC-household.md](../docs/SPEC-household.md) (approved 2026-10-29; open questions settled on the defaults: cap 20, old owner becomes admin, name only, closed flats kept). Task list: [tasks/todo.md](todo.md). The foundation and identity plans are archived in [tasks/archive](archive/).
 
 ## Overview
 
-Google sign-in, profiles, route protection, account page (rename, sign out, delete), privacy and terms pages.
+Create a flat, invite flatmates with one shareable link, manage roles, leave or remove people, and guide the admin with a setup checklist. This module is the tenant boundary for everything after it.
 
 ## Architecture decisions
 
-- **Database first, then flow, then screens.** The profile table and its RLS tests come first (everything else depends on them), then the redirect and guard logic (pure, test-first), then the sign-in round trip, then the account UI.
-- **Google setup is its own early task** because it is the riskiest external dependency (consent screen, redirect URIs, iOS standalone behaviour). The iPhone check happens as soon as the callback exists, not at the end.
-- **Secrets stay out of my reach.** I create the Google OAuth client; the owner pastes the client secret into the Supabase dashboard (and into the gitignored `.env.local` for local sign-in).
-- **Local tests use email sign-in, production does not.** E2E signs a test user in through the local stack and injects the session cookies.
+- **Vertical slices, database first inside each slice.** Every task ships one complete path (functions and pgTAP, then the action and screen, then E2E) so the app is usable after each merge. No task is "all the tables".
+- **The database enforces the rules.** All writes go through `security definer` functions that derive the caller from `auth.uid()`. Tables have no write policies. The pgTAP suite is the main safety net and grows with each slice.
+- **One migration file per slice**, so each can be reviewed and applied to hosted on its own. Types are regenerated each time (CI fails if stale).
+- **Keep the app layout session-only.** Flatless people must still reach Account. Pages that need a flat call the cached `getMembership()` and show the `no-flat` screen otherwise.
+- **Joining is a POST.** `/join/<token>` previews; a server action joins.
+- **Hosted rollout is a task, not an afterthought:** the migrations and the `delete-account` function are applied to the hosted project at the end, with a real two-person check.
 
 ```
-1 Google + Supabase provider setup ─┐
-2 profiles migration + pgTAP ───────┤
-3 safe-redirect + route guard ──────┼─ 4 callback + sign-in + error pages ─ 5 account page
-                                    │                                     └ 6 delete-account function
-7 privacy + terms pages (independent)
-                  all ─ 8 E2E, hosted + device checks
+1 flat + roles data model, create_household, isolation tests
+        ├─ 2 create-flat UI, getMembership, no-flat screens
+        │       ├─ 3 invite functions ── 4 join flow + invite card
+        │       │                            ├─ 5 members list, roles, remove
+        │       │                            │        └─ 6 leave, transfer, close
+        │       │                            │               └─ 7 account deletion interaction
+        │       └─ 8 setup checklist + step registry (needs 4 for its first step)
+        └─ all ─ 9 privacy update, full E2E, hosted rollout, device checks
 ```
 
 ## Task list
 
-- [x] Task 1: Google Cloud client and Supabase Google provider
-- [x] Task 2: `profiles` table, trigger, RLS, pgTAP
-- [x] Task 3: Safe redirect and route guard (pure logic, tests first)
-- [ ] Task 4: Callback, sign-in and error pages (+ early iPhone check)
-- [x] Task 5: Account page: rename, sign out, sign out everywhere
-- [x] Task 6: `delete-account` Edge Function and flow
-- [x] Task 7: Privacy and terms pages
-- [ ] Task 8: E2E suite, hosted verification, device checks
+- [ ] Task 1: Flat and membership tables, helpers, `create_household`, isolation tests
+- [ ] Task 2: Create a flat from Home (UI, `getMembership`, no-flat screens)
+- [ ] Task 3: Invite functions (create, revoke, preview, join) with tests
+- [ ] Task 4: Invite card and join flow (two-person E2E)
+- [ ] Task 5: Members list, roles and removal (incl. flatmate profile visibility)
+- [ ] Task 6: Leave, transfer ownership, close the flat
+- [ ] Task 7: Account deletion interaction
+- [ ] Task 8: Setup checklist and step registry
+- [ ] Task 9: Privacy notice, full E2E, hosted rollout, device checks
 
-### Checkpoint: Identity complete
+### Checkpoint: Household complete
 
 - [ ] Every success criterion in the spec is met
 
 ## Risks
 
-| Risk                                          | Mitigation                                                        |
-| --------------------------------------------- | ----------------------------------------------------------------- |
-| iOS standalone breaks the OAuth round trip    | Check on a real iPhone right after Task 4; fallback in the spec   |
-| Consent screen left in Testing blocks others  | Task 1 publishes it and verifies with a second Google account     |
-| Preview deployments cannot sign in            | Wildcard redirect URL for this Vercel project (Task 1)            |
-| Local Google sign-in needs the secret locally | Optional: only for manual local checks; tests use the email login |
+| Risk                                                 | Mitigation                                                                               |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Policy helpers slow every later query                | One helper pair, partial indexes, `explain` check in Task 1 and again in Task 5          |
+| Racing joins or transfers break one-owner or the cap | Partial unique indexes plus row locks; race tests in Tasks 3 and 6                       |
+| Profile visibility policy leaks beyond one flat      | Added with the members list (Task 5) and tested from both sides                          |
+| Chat-app link previews trigger a join                | Join only on POST; E2E asserts a plain GET changes nothing (Task 4)                      |
+| Owner deletes account and strands a flat             | Refusal path built and tested in Task 7                                                  |
+| `ledger` forgets the leave hook later                | Hook `private.can_leave` created in Task 6; the ledger spec must list it as a dependency |
+| Hosted migration differs from local                  | Task 9 applies via the migration tool and diffs `list_migrations` against the repo       |
+| Owner checks from identity are still open            | Tracked as carry-over in `tasks/todo.md`; none of them block this module                 |
