@@ -250,3 +250,63 @@ test.describe("members and roles", () => {
     await context.close();
   });
 });
+
+test.describe("leaving a flat", () => {
+  test.beforeEach(() => {
+    test.skip(
+      test.info().project.name !== "desktop-chrome",
+      "several people in the shared database",
+    );
+  });
+
+  test("a member leaves and can rejoin; the owner hands over, then closes when alone", async ({
+    browser,
+    baseURL,
+  }) => {
+    const owner = await signUpAndIn(newTestUser("lowner"));
+    await createFlat(owner.supabase, "Leaving Flat");
+    const finn = await signUpAndIn(newTestUser("finn"));
+    await joinFlat(owner.supabase, finn.supabase);
+
+    const finnContext = await browser.newContext({ baseURL });
+    await addSessionCookies(finnContext, finn.jar, baseURL!);
+    const finnPage = await finnContext.newPage();
+    await finnPage.goto("/more/flat");
+
+    // A member leaves after confirming, and lands on create-or-join.
+    await finnPage.getByRole("button", { name: "Leave flat" }).click();
+    await finnPage.getByRole("button", { name: "Leave flat" }).click();
+    await expect(finnPage).toHaveURL(/\/dashboard$/);
+    await expect(finnPage.getByRole("heading", { name: "Create your flat" })).toBeVisible();
+
+    // They can come back with a fresh link.
+    await joinFlat(owner.supabase, finn.supabase);
+    await finnPage.reload();
+    await expect(finnPage.getByRole("heading", { level: 2, name: "Leaving Flat" })).toBeVisible();
+
+    // The owner cannot leave: they hand over instead, then (now an admin) can leave.
+    const ownerContext = await browser.newContext({ baseURL });
+    await addSessionCookies(ownerContext, owner.jar, baseURL!);
+    const ownerPage = await ownerContext.newPage();
+    await ownerPage.goto("/more/flat");
+    await expect(ownerPage.getByRole("button", { name: "Leave flat" })).toHaveCount(0);
+
+    const finnName = finn.user.email.split("@")[0];
+    await ownerPage.getByLabel("New owner").selectOption({ label: finnName });
+    await ownerPage.getByRole("button", { name: "Hand over ownership" }).click();
+    await expect(ownerPage.getByRole("button", { name: "Leave flat" })).toBeVisible();
+
+    await ownerPage.getByRole("button", { name: "Leave flat" }).click();
+    await ownerPage.getByRole("button", { name: "Leave flat" }).click();
+    await expect(ownerPage).toHaveURL(/\/dashboard$/);
+
+    // Finn is the owner now and alone, so can close the flat.
+    await finnPage.goto("/more/flat");
+    await finnPage.getByRole("button", { name: "Close flat" }).click();
+    await finnPage.getByRole("button", { name: "Close flat" }).click();
+    await expect(finnPage).toHaveURL(/\/dashboard$/);
+    await expect(finnPage.getByRole("heading", { name: "Create your flat" })).toBeVisible();
+
+    await Promise.all([finnContext.close(), ownerContext.close()]);
+  });
+});

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Card, CardLabel } from "@/components/ui/card";
 import { getMembership } from "@/features/household/membership";
 import { InviteCard } from "@/features/household/invite-card";
+import { LeaveSection } from "@/features/household/leave-section";
 import { MembersCard } from "@/features/household/members-card";
 import { getMembers } from "@/features/household/members";
 import { getLiveInviteExpiry } from "@/features/household/live-invite";
@@ -48,6 +49,10 @@ async function FlatContent() {
         viewerRole={membership.role}
       />
       {canInvite ? <InviteCard activeUntil={activeUntil} /> : null}
+      <LeaveSection
+        role={membership.role}
+        others={members.filter((m) => m.profileId !== membership.profileId)}
+      />
     </>
   );
 }

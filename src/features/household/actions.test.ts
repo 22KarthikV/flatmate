@@ -24,13 +24,16 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 import {
+  closeHousehold,
   createHousehold,
   createInvite,
   joinHousehold,
+  leaveHousehold,
   openInvite,
   removeMember,
   revokeInvite,
   setMemberRole,
+  transferOwnership,
 } from "./actions";
 
 const form = (name: string) => {
@@ -216,5 +219,60 @@ describe("setMemberRole and removeMember", () => {
     await removeMember({ status: "idle" }, form({ profileId: PROFILE }));
     expect(mocks.rpc).toHaveBeenCalledWith("remove_member", { p_profile_id: PROFILE });
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/more/flat");
+  });
+});
+
+describe("leaving, handing over and closing", () => {
+  const PROFILE = "11111111-2222-3333-4444-555555555555";
+
+  it("leaves and goes Home", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null });
+    await expect(leaveHousehold({ status: "idle" }, new FormData())).rejects.toThrow(
+      "REDIRECT:/dashboard",
+    );
+    expect(mocks.rpc).toHaveBeenCalledWith("leave_household");
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/", "layout");
+  });
+
+  it.each([
+    ["owner_must_transfer", "Hand the flat to someone else before you leave."],
+    ["owner_must_close", "You are the only one here. Close the flat instead."],
+    ["cannot_leave", "You can’t leave yet. Settle up with your flatmates first."],
+  ])("explains %s", async (code, message) => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "P0001", message: code } });
+    expect(await leaveHousehold({ status: "idle" }, new FormData())).toEqual({
+      status: "error",
+      message,
+    });
+  });
+
+  it("hands over ownership to a chosen member only", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null });
+    const data = new FormData();
+    data.set("profileId", PROFILE);
+    expect(await transferOwnership({ status: "idle" }, data)).toEqual({ status: "idle" });
+    expect(mocks.rpc).toHaveBeenCalledWith("transfer_ownership", { p_profile_id: PROFILE });
+
+    mocks.rpc.mockClear();
+    const bad = new FormData();
+    bad.set("profileId", "nope");
+    expect((await transferOwnership({ status: "idle" }, bad)).status).toBe("error");
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it("closes the flat and goes Home", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null });
+    await expect(closeHousehold({ status: "idle" }, new FormData())).rejects.toThrow(
+      "REDIRECT:/dashboard",
+    );
+    expect(mocks.rpc).toHaveBeenCalledWith("close_household");
+  });
+
+  it("shows one neutral message for an unknown failure", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "XX000", message: "internal" } });
+    expect(await closeHousehold({ status: "idle" }, new FormData())).toEqual({
+      status: "error",
+      message: "Something went wrong. Please try again.",
+    });
   });
 });
