@@ -3,6 +3,7 @@ import { Suspense, type ReactNode } from "react";
 import { LiveFlatGate } from "@/features/household/live-flat-gate";
 import { NotificationBell } from "@/features/notifications/bell";
 import { BellLink } from "@/features/notifications/bell-link";
+import { LiveInboxGate } from "@/features/notifications/live-inbox-gate";
 import { RequireSession } from "@/features/identity/require-session";
 import { InstallPrompt } from "@/features/pwa/install-prompt";
 import { BottomNav, SideNav } from "@/features/shell/nav";
@@ -21,6 +22,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <Suspense fallback={null}>
           <RequireSession>{children}</RequireSession>
           <LiveFlatGate />
+          <LiveInboxGate />
         </Suspense>
       </main>
       <BottomNav />
