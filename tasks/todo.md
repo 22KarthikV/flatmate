@@ -37,11 +37,11 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-not
   - Dependencies: Task 1
   - Files: `src/features/notifications/*`, `src/app/(app)/notifications/page.tsx`, `src/features/shell/nav.tsx`, `e2e/notifications.spec.ts`
 
-- [ ] **Task 3: Household events create notifications** (Medium)
+- [x] **Task 3: Household events create notifications** (Medium)
   - Description: Migration changing `join_household`, `leave_household`, `remove_member`, `set_member_role` (and the account-deletion membership end) to call `private.notify` in the same transaction: `member_joined` and `member_left` to the other active members, `role_changed` to the person affected. No self-notification. Existing behaviour unchanged.
   - Acceptance:
-    - [ ] pgTAP: each action creates exactly the rows in the spec's table, to the right people, with the right dedupe keys; repeating an action path cannot duplicate; existing household suites still pass
-    - [ ] E2E: A creates a flat, B joins from the link; A's inbox shows "B joined"; B is told nothing about their own join; A makes B an admin and B's inbox shows it
+    - [x] pgTAP: each action creates exactly the rows in the spec's table, to the right people, with the right dedupe keys; repeating an action path cannot duplicate; existing household suites still pass
+    - [x] E2E: A creates a flat, B joins from the link; A's inbox shows "B joined"; B is told nothing about their own join; A makes B an admin and B's inbox shows it
   - Verify: `pnpm db:test`, `pnpm test:e2e`
   - Dependencies: Tasks 1, 2
   - Files: migration, `household-notifications.test.sql`, `e2e/notifications.spec.ts`
