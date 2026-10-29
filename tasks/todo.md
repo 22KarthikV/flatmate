@@ -14,14 +14,14 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-not
 
 ---
 
-- [ ] **Task 1: Tables, `private.notify`, read/snooze functions, type registry, isolation tests** (Medium)
+- [x] **Task 1: Tables, `private.notify`, read/snooze functions, type registry, isolation tests** (Medium) 59 pgTAP assertions. The registry also lives in the database as `notification_types` (so `notify` can decide on push); a unit test keeps `types.ts` and the migrations in step.
   - Description: Migration `*_notifications.sql` with `notifications`, `notification_preferences`, `push_subscriptions`, `push_outbox` (spec data model), RLS (own rows only; outbox service role only; subscription keys not selectable), `private.notify(...)`, `mark_read`, `mark_all_read`, `snooze`, `save_push_subscription`, and `public.notifications` added to the Realtime publication. `src/features/notifications/types.ts` registry with defaults (`member_joined`, `member_left` in-app only; `role_changed` in-app and push). pgTAP first.
   - Acceptance:
-    - [ ] pgTAP: a person cannot read another person's notifications, preferences or subscriptions, even in the same flat; `anon` reads nothing; the browser role cannot insert or update notifications except via the read/snooze functions; subscription keys are not selectable
-    - [ ] pgTAP: `notify` is idempotent per `(recipient, dedupe_key)`; rejects recipients outside the household; honours an in-app-off preference; creates outbox rows only for push-enabled devices; `href` must be an internal path
-    - [ ] pgTAP: Realtime publication contains `notifications` and nothing more personal
-    - [ ] Unit: type registry defaults and lookup; unknown type rejected
-    - [ ] Types regenerated; `pnpm db:test` green
+    - [x] pgTAP: a person cannot read another person's notifications, preferences or subscriptions, even in the same flat; `anon` reads nothing; the browser role cannot insert or update notifications except via the read/snooze functions; subscription keys are not selectable
+    - [x] pgTAP: `notify` is idempotent per `(recipient, dedupe_key)`; rejects recipients outside the household; honours an in-app-off preference; creates outbox rows only for push-enabled devices; `href` must be an internal path
+    - [x] pgTAP: Realtime publication contains `notifications` and nothing more personal
+    - [x] Unit: type registry defaults and lookup; unknown type rejected
+    - [x] Types regenerated; `pnpm db:test` green
   - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types && pnpm test`
   - Dependencies: none
   - Files: migration, `notifications.test.sql`, `src/lib/db/types.ts`, `src/features/notifications/types.ts` and test

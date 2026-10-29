@@ -191,6 +191,130 @@ export type Database = {
           },
         ];
       };
+      notification_preferences: {
+        Row: {
+          in_app: boolean;
+          profile_id: string;
+          push: boolean;
+          type: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          in_app: boolean;
+          profile_id: string;
+          push: boolean;
+          type: string;
+        };
+        Update: {
+          in_app?: boolean;
+          profile_id?: string;
+          push?: boolean;
+          type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notification_preferences_type_fkey";
+            columns: ["type"];
+            isOneToOne: false;
+            referencedRelation: "notification_types";
+            referencedColumns: ["type"];
+          },
+        ];
+      };
+      notification_types: {
+        Row: {
+          default_in_app: boolean;
+          default_push: boolean;
+          snoozable: boolean;
+          type: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          default_in_app: boolean;
+          default_push: boolean;
+          snoozable?: boolean;
+          type: string;
+        };
+        Update: {
+          default_in_app?: boolean;
+          default_push?: boolean;
+          snoozable?: boolean;
+          type?: string;
+        };
+        Relationships: [];
+      };
+      notifications: {
+        Row: {
+          body: string;
+          created_at: string;
+          dedupe_key: string;
+          household_id: string;
+          href: string;
+          id: string;
+          read_at: string | null;
+          recipient_id: string;
+          snoozed_until: string | null;
+          title: string;
+          type: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body?: string;
+          created_at?: string;
+          dedupe_key: string;
+          household_id: string;
+          href: string;
+          id?: string;
+          read_at?: string | null;
+          recipient_id: string;
+          snoozed_until?: string | null;
+          title: string;
+          type: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          dedupe_key?: string;
+          household_id?: string;
+          href?: string;
+          id?: string;
+          read_at?: string | null;
+          recipient_id?: string;
+          snoozed_until?: string | null;
+          title?: string;
+          type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_recipient_id_fkey";
+            columns: ["recipient_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_type_fkey";
+            columns: ["type"];
+            isOneToOne: false;
+            referencedRelation: "notification_types";
+            referencedColumns: ["type"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
@@ -222,6 +346,97 @@ export type Database = {
         };
         Relationships: [];
       };
+      push_outbox: {
+        Row: {
+          attempts: number;
+          id: string;
+          last_error: string | null;
+          next_attempt_at: string;
+          notification_id: string;
+          sent_at: string | null;
+          subscription_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attempts?: number;
+          id?: string;
+          last_error?: string | null;
+          next_attempt_at?: string;
+          notification_id: string;
+          sent_at?: string | null;
+          subscription_id: string;
+        };
+        Update: {
+          attempts?: number;
+          id?: string;
+          last_error?: string | null;
+          next_attempt_at?: string;
+          notification_id?: string;
+          sent_at?: string | null;
+          subscription_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "push_outbox_notification_id_fkey";
+            columns: ["notification_id"];
+            isOneToOne: false;
+            referencedRelation: "notifications";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "push_outbox_subscription_id_fkey";
+            columns: ["subscription_id"];
+            isOneToOne: false;
+            referencedRelation: "push_subscriptions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      push_subscriptions: {
+        Row: {
+          auth: string;
+          created_at: string;
+          endpoint: string;
+          failed_at: string | null;
+          id: string;
+          last_success_at: string | null;
+          p256dh: string;
+          profile_id: string;
+          user_agent: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          auth: string;
+          created_at?: string;
+          endpoint: string;
+          failed_at?: string | null;
+          id?: string;
+          last_success_at?: string | null;
+          p256dh: string;
+          profile_id: string;
+          user_agent?: string | null;
+        };
+        Update: {
+          auth?: string;
+          created_at?: string;
+          endpoint?: string;
+          failed_at?: string | null;
+          id?: string;
+          last_success_at?: string | null;
+          p256dh?: string;
+          profile_id?: string;
+          user_agent?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -235,6 +450,20 @@ export type Database = {
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
       join_household: { Args: { p_token: string }; Returns: string };
       leave_household: { Args: Record<PropertyKey, never>; Returns: undefined };
+      mark_all_read: { Args: Record<PropertyKey, never>; Returns: undefined };
+      mark_read: { Args: { p_id: string }; Returns: undefined };
+      notify: {
+        Args: {
+          p_body: string;
+          p_dedupe_key: string;
+          p_household: string;
+          p_href: string;
+          p_recipient: string;
+          p_title: string;
+          p_type: string;
+        };
+        Returns: string;
+      };
       preview_invite: {
         Args: { p_token: string };
         Returns: {
@@ -246,10 +475,19 @@ export type Database = {
       remove_member: { Args: { p_profile_id: string }; Returns: undefined };
       rename_household: { Args: { p_name: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
+      save_push_subscription: {
+        Args: { p_auth: string; p_endpoint: string; p_p256dh: string; p_user_agent: string };
+        Returns: string;
+      };
       set_member_role: {
         Args: { p_profile_id: string; p_role: Database["public"]["Enums"]["household_role"] };
         Returns: undefined;
       };
+      set_notification_preference: {
+        Args: { p_in_app: boolean; p_push: boolean; p_type: string };
+        Returns: undefined;
+      };
+      snooze: { Args: { p_id: string; p_until: string }; Returns: undefined };
       transfer_ownership: { Args: { p_profile_id: string }; Returns: undefined };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
     };

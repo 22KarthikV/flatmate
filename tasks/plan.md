@@ -30,7 +30,7 @@ One way for any module to tell a person something: a notification row written in
 
 ## Task list
 
-- [ ] Task 1: Tables, `private.notify`, read/snooze functions, type registry, isolation tests
+- [x] Task 1: Tables, `private.notify`, read/snooze functions, type registry, isolation tests
 - [ ] Task 2: Inbox page and bell
 - [ ] Task 3: Household events create notifications
 - [ ] Task 4: Live bell (no navigation needed)
