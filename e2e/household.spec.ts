@@ -310,3 +310,87 @@ test.describe("leaving a flat", () => {
     await Promise.all([finnContext.close(), ownerContext.close()]);
   });
 });
+
+test.describe("deleting an account that belongs to a flat", () => {
+  test.beforeEach(() => {
+    test.skip(
+      test.info().project.name !== "desktop-chrome",
+      "several people in the shared database",
+    );
+  });
+
+  async function deleteViaUi(page: import("@playwright/test").Page) {
+    await page.goto("/more/account");
+    await page.getByRole("button", { name: "Delete account" }).click();
+    await page.getByLabel(/type delete/i).fill("DELETE");
+    await page.getByRole("button", { name: "Delete my account" }).click();
+  }
+
+  test("a member who deletes their account disappears from the flat", async ({
+    browser,
+    baseURL,
+  }) => {
+    const owner = await signUpAndIn(newTestUser("downer"));
+    await createFlat(owner.supabase, "Deletion Flat");
+    const gus = await signUpAndIn(newTestUser("gus"));
+    await joinFlat(owner.supabase, gus.supabase);
+
+    const ownerContext = await browser.newContext({ baseURL });
+    await addSessionCookies(ownerContext, owner.jar, baseURL!);
+    const ownerPage = await ownerContext.newPage();
+    await ownerPage.goto("/more/flat");
+    await expect(ownerPage.getByText("Members · 2")).toBeVisible();
+
+    const gusContext = await browser.newContext({ baseURL });
+    await addSessionCookies(gusContext, gus.jar, baseURL!);
+    const gusPage = await gusContext.newPage();
+    await deleteViaUi(gusPage);
+    await expect(gusPage).toHaveURL(/\/sign-in\?deleted=1$/);
+
+    await ownerPage.reload();
+    await expect(ownerPage.getByText("Members · 1")).toBeVisible();
+
+    // Their history would read "Deleted user": the profile row survives, anonymised.
+    const { data } = await owner.supabase.from("profiles").select("display_name");
+    expect(data?.map((row) => row.display_name)).toContain("Deleted user");
+
+    await Promise.all([ownerContext.close(), gusContext.close()]);
+  });
+
+  test("an owner with flatmates is told to hand over first, and keeps their account", async ({
+    browser,
+    baseURL,
+  }) => {
+    const owner = await signUpAndIn(newTestUser("stubborn"));
+    await createFlat(owner.supabase, "Held Flat");
+    const hal = await signUpAndIn(newTestUser("hal"));
+    await joinFlat(owner.supabase, hal.supabase);
+
+    const context = await browser.newContext({ baseURL });
+    await addSessionCookies(context, owner.jar, baseURL!);
+    const page = await context.newPage();
+    await deleteViaUi(page);
+
+    await expect(page.getByText("Hand it over to someone else first")).toBeVisible();
+    await page.goto("/more/account");
+    await expect(page.getByLabel("Display name")).toBeVisible();
+    await page.goto("/more/flat");
+    await expect(page.getByText("Members · 2")).toBeVisible();
+    await context.close();
+  });
+
+  test("a lone owner can delete their account, which closes the flat", async ({
+    browser,
+    baseURL,
+  }) => {
+    const owner = await signUpAndIn(newTestUser("alone"));
+    await createFlat(owner.supabase, "Solo Flat");
+
+    const context = await browser.newContext({ baseURL });
+    await addSessionCookies(context, owner.jar, baseURL!);
+    const page = await context.newPage();
+    await deleteViaUi(page);
+    await expect(page).toHaveURL(/\/sign-in\?deleted=1$/);
+    await context.close();
+  });
+});

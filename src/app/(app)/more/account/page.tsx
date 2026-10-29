@@ -60,7 +60,8 @@ async function AccountContent() {
       <Card>
         <CardLabel>Delete account</CardLabel>
         <p className="text-muted mt-3 max-w-md text-sm">
-          Leaving the flat, or done with FlatMate? You can delete your account at any time.
+          Leaving the flat, or done with FlatMate? You can delete your account at any time. If you
+          own a flat other people live in, hand it over to someone first.
         </p>
         <div className="mt-4">
           <DeleteAccountForm />

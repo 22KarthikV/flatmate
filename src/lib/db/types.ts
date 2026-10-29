@@ -231,6 +231,7 @@ export type Database = {
       close_household: { Args: Record<PropertyKey, never>; Returns: undefined };
       create_household: { Args: { p_name: string }; Returns: string };
       create_invite: { Args: Record<PropertyKey, never>; Returns: string };
+      end_memberships_for_account: { Args: { p_user_id: string }; Returns: string };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
       join_household: { Args: { p_token: string }; Returns: string };
       leave_household: { Args: Record<PropertyKey, never>; Returns: undefined };

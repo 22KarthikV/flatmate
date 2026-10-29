@@ -16,6 +16,10 @@ function deps(overrides: Partial<DeleteAccountDeps> = {}) {
   const calls: string[] = [];
   const base: DeleteAccountDeps = {
     getUserId: vi.fn(async () => "user-1"),
+    endMemberships: vi.fn(async () => {
+      calls.push("memberships");
+      return "ok" as const;
+    }),
     anonymiseProfile: vi.fn(async () => void calls.push("anonymise")),
     deleteAuthUser: vi.fn(async () => void calls.push("delete")),
     log: vi.fn(),
@@ -53,6 +57,39 @@ describe("handleDeleteAccount", () => {
     expect(calls).toEqual([]);
   });
 
+  it("ends the flat membership, then anonymises, then deletes the sign-in", async () => {
+    const { deps: d, calls } = deps();
+    await handleDeleteAccount(request({ auth: "Bearer good" }), d);
+    expect(d.endMemberships).toHaveBeenCalledWith("user-1");
+    expect(calls).toEqual(["memberships", "anonymise", "delete"]);
+  });
+
+  it("refuses with 409 and changes nothing when the person owns a flat others still live in", async () => {
+    const { deps: d, calls } = deps({
+      endMemberships: vi.fn(async () => "owner_must_transfer" as const),
+    });
+    const res = await handleDeleteAccount(request({ auth: "Bearer good" }), d);
+
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ ok: false, error: "owner_must_transfer" });
+    expect(calls).toEqual([]);
+    expect(d.anonymiseProfile).not.toHaveBeenCalled();
+    expect(d.deleteAuthUser).not.toHaveBeenCalled();
+  });
+
+  it("stops without touching the profile when ending the membership fails", async () => {
+    const { deps: d, calls } = deps({
+      endMemberships: vi.fn(async () => {
+        throw new Error("db password=hunter2");
+      }),
+    });
+    const res = await handleDeleteAccount(request({ auth: "Bearer good" }), d);
+
+    expect(res.status).toBe(500);
+    expect(await res.text()).not.toContain("hunter2");
+    expect(calls).toEqual([]);
+  });
+
   it("anonymises the profile first, then deletes the sign-in", async () => {
     const { deps: d, calls } = deps();
     const res = await handleDeleteAccount(request({ auth: "Bearer good" }), d);
@@ -62,7 +99,7 @@ describe("handleDeleteAccount", () => {
     expect(d.getUserId).toHaveBeenCalledWith("good");
     expect(d.anonymiseProfile).toHaveBeenCalledWith("user-1");
     expect(d.deleteAuthUser).toHaveBeenCalledWith("user-1");
-    expect(calls).toEqual(["anonymise", "delete"]);
+    expect(calls).toEqual(["memberships", "anonymise", "delete"]);
   });
 
   it("only ever acts on the person the token proves", async () => {
@@ -83,7 +120,7 @@ describe("handleDeleteAccount", () => {
 
     expect(res.status).toBe(500);
     expect(text).not.toContain("hunter2");
-    expect(calls).toEqual([]);
+    expect(calls).toEqual(["memberships"]);
   });
 
   it("reports failure when the sign-in cannot be deleted, so the person can retry", async () => {
@@ -95,7 +132,7 @@ describe("handleDeleteAccount", () => {
     const res = await handleDeleteAccount(request({ auth: "Bearer good" }), d);
 
     expect(res.status).toBe(500);
-    expect(calls).toEqual(["anonymise"]);
+    expect(calls).toEqual(["memberships", "anonymise"]);
   });
 
   it("logs that an account was deleted, without the person's identity", async () => {

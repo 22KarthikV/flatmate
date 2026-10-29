@@ -78,12 +78,12 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
   - Dependencies: Task 5
   - Files: migration, tests, `/more/flat` dialogs, actions
 
-- [ ] **Task 7: Account deletion interaction** (Small)
+- [x] **Task 7: Account deletion interaction** (Small). 16 pgTAP assertions. ORDER MATTERS on hosted (Task 9): apply the migrations first, then deploy the new `delete-account` function, because the function calls `end_memberships_for_account`.
   - Description: `private.end_memberships_for_account(profile_id)` (service role only); extend the `delete-account` handler: owner with others returns a clear 409 `owner_must_transfer`, sole member closes the flat, other members leave, then anonymise and delete as before. Account page shows the message.
   - Acceptance:
-    - [ ] Handler tests: each of the three cases; still anonymises before deleting; no detail leaks; retry is safe
-    - [ ] pgTAP: only `service_role` can call the function; `left_reason` is `account_deleted` or `flat_closed`
-    - [ ] E2E: a non-owner deletes and disappears from the member list as "Deleted user"; an owner with others is told to transfer
+    - [x] Handler tests: each of the three cases; still anonymises before deleting; no detail leaks; retry is safe
+    - [x] pgTAP: only `service_role` can call the function; `left_reason` is `account_deleted` or `flat_closed`
+    - [x] E2E: a non-owner deletes and disappears from the member list as "Deleted user"; an owner with others is told to transfer
   - Verify: `pnpm test`, `pnpm db:test`, `pnpm test:e2e`
   - Dependencies: Task 6
   - Files: migration, tests, `delete-account/*`, `delete-account-form.tsx`
