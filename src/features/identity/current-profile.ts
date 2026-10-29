@@ -1,8 +1,6 @@
 import "server-only";
 
-import { connection } from "next/server";
-
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getRequestSession } from "./session-claims";
 
 export interface CurrentProfile {
   displayName: string;
@@ -15,12 +13,7 @@ export interface CurrentProfile {
  * verified claims; the profile row is read through RLS, so it can only ever be their own.
  */
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
-  // Request time only: the Supabase client reads the clock on start-up, which Next forbids
-  // while it prerenders or prefetches.
-  await connection();
-  const supabase = await createSupabaseServerClient();
-  const { data } = await supabase.auth.getClaims();
-  const claims = data?.claims;
+  const { supabase, claims } = await getRequestSession();
   if (!claims?.sub) return null;
 
   const { data: profile } = await supabase

@@ -70,6 +70,13 @@ signedIn.describe("app shell", () => {
     });
   }
 
+  signedIn("More lists Account below its heading, not above", async ({ page }) => {
+    await page.goto("/more");
+    const heading = await page.getByRole("heading", { level: 1, name: "More" }).boundingBox();
+    const account = await page.getByRole("link", { name: "Account" }).boundingBox();
+    expect(account!.y).toBeGreaterThan(heading!.y);
+  });
+
   signedIn("navigation targets are at least 44px", async ({ page }) => {
     await page.goto("/dashboard");
     const links = page.getByRole("navigation", { name: "Main" }).getByRole("link");

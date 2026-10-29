@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { Card, CardLabel } from "@/components/ui/card";
 
 interface PlaceholderPageProps {
@@ -5,10 +7,18 @@ interface PlaceholderPageProps {
   title: string;
   description: string;
   module: string;
+  /** Shown between the heading and the "coming soon" card. */
+  children?: ReactNode;
 }
 
 /** Stand-in for a module that has not shipped yet. Replaced by the real screen. */
-export function PlaceholderPage({ eyebrow, title, description, module }: PlaceholderPageProps) {
+export function PlaceholderPage({
+  eyebrow,
+  title,
+  description,
+  module,
+  children,
+}: PlaceholderPageProps) {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-8">
       <header className="flex flex-col gap-2">
@@ -16,6 +26,7 @@ export function PlaceholderPage({ eyebrow, title, description, module }: Placeho
         <h1 className="font-display text-5xl sm:text-6xl">{title}</h1>
         <p className="text-muted max-w-md">{description}</p>
       </header>
+      {children}
       <Card>
         <CardLabel>Coming soon</CardLabel>
         <p className="mt-3 text-lg">
