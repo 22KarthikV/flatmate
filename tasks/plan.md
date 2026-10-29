@@ -33,7 +33,7 @@ One way for any module to tell a person something: a notification row written in
 - [x] Task 1: Tables, `private.notify`, read/snooze functions, type registry, isolation tests
 - [x] Task 2: Inbox page and bell
 - [x] Task 3: Household events create notifications
-- [ ] Task 4: Live bell (no navigation needed)
+- [x] Task 4: Live bell (no navigation needed)
 - [ ] Task 5: Preferences and snooze
 - [ ] Task 6: Push on the device (service worker, subscribe, settings card, library choice)
 - [ ] Task 7: `deliver-push` worker, outbox drain, retention

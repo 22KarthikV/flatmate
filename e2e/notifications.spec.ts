@@ -99,6 +99,33 @@ test.describe("the inbox and the bell", () => {
   });
 });
 
+test.describe("the live bell", () => {
+  test("A's bell count rises the moment B joins, without navigating", async ({
+    browser,
+    baseURL,
+  }) => {
+    const a = await signUpAndIn(newTestUser("live-a"));
+    await createFlat(a.supabase, "Live bell flat");
+
+    const context = await browser.newContext({ baseURL });
+    await addSessionCookies(context, a.jar, baseURL!);
+    const page = await context.newPage();
+    await page.goto("/dashboard");
+    await expect(page.getByRole("link", { name: "Notifications", exact: true })).toBeVisible();
+    // Give the page's live connection a moment to open before anything happens.
+    await page.waitForTimeout(3000);
+
+    // B joins while A's page is open. Nothing is clicked or reloaded here.
+    const b = await signUpAndIn(newTestUser("live-b"));
+    await joinFlat(a.supabase, b.supabase);
+
+    await expect(page.getByRole("link", { name: "Notifications, 1 unread" })).toBeVisible({
+      timeout: 15_000,
+    });
+    await context.close();
+  });
+});
+
 test.describe("household events", () => {
   test("a join tells the others, not the joiner; a promotion tells the person promoted", async ({
     browser,

@@ -46,12 +46,12 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-not
   - Dependencies: Tasks 1, 2
   - Files: migration, `household-notifications.test.sql`, `e2e/notifications.spec.ts`
 
-- [ ] **Task 4: Live bell** (Small)
+- [x] **Task 4: Live bell** (Small)
   - Description: `live-inbox.tsx`, same pattern as `household/live-flat.tsx`: lazy import of the browser client, `getSession` then `realtime.setAuth`, subscribe to `notifications` (RLS limits rows to the recipient), debounced `router.refresh()`, refresh on tab focus and a 60 s backstop. Mounted next to `LiveFlatGate`.
   - Acceptance:
-    - [ ] Unit: sets auth before subscribing, debounces bursts, refreshes on focus and backstop, cleans up on unmount, never subscribes if unmounted early (mirrors `live-flat.test.tsx`)
-    - [ ] E2E: with A's page open, B joins and A's bell count rises without navigating
-    - [ ] Bundle budgets unchanged (no raise); CI green
+    - [x] Unit: sets auth before subscribing, debounces bursts, refreshes on focus and backstop, cleans up on unmount, never subscribes if unmounted early (mirrors `live-flat.test.tsx`)
+    - [x] E2E: with A's page open, B joins and A's bell count rises without navigating
+    - [x] Bundle budgets unchanged (no raise); CI green
   - Verify: `pnpm check`, `pnpm test:e2e`
   - Dependencies: Task 3
   - Files: `src/features/notifications/live-inbox.tsx` and test, `(app)/layout.tsx`
