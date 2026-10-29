@@ -16,6 +16,8 @@ const schema = z.object({
   // Optional until the Supabase wiring task makes them required.
   NEXT_PUBLIC_SUPABASE_URL: optional(z.url()),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: optional(z.string().min(1)),
+  // The PUBLIC half of the VAPID pair (not secret). Without it push is simply not offered.
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: optional(z.string().regex(/^[A-Za-z0-9_-]{80,100}$/)),
 });
 
 export type Env = z.infer<typeof schema>;
@@ -53,6 +55,7 @@ export function getEnv(): Env {
     LOG_LEVEL: process.env.LOG_LEVEL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
   });
   return cached;
 }

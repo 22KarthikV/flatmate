@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   availableSnoozeChoices,
+  coarseDeviceLabel,
   isSafeInternalPath,
   parseNotificationId,
   parsePreferenceForm,
+  parsePushSubscription,
   parseSnoozeChoice,
   snoozeUntil,
 } from "./schemas";
@@ -39,6 +41,51 @@ describe("isSafeInternalPath", () => {
     "javascript:alert(1)",
   ])("refuses %s", (value) => {
     expect(isSafeInternalPath(value)).toBe(false);
+  });
+});
+
+describe("parsePushSubscription", () => {
+  const good = { endpoint: "https://fcm.example/send/abc", p256dh: "BPk_-9", auth: "au-_1" };
+
+  it("accepts an https endpoint with base64url keys", () => {
+    expect(parsePushSubscription(good)).toEqual(good);
+  });
+
+  it.each([
+    null,
+    "string",
+    {},
+    { ...good, endpoint: "http://fcm.example/abc" },
+    { ...good, endpoint: "javascript:alert(1)" },
+    { ...good, endpoint: `https://x.example/${"a".repeat(2100)}` },
+    { ...good, p256dh: "" },
+    { ...good, auth: "has space" },
+    { ...good, auth: "a".repeat(201) },
+    { ...good, p256dh: 5 },
+  ])("refuses %j", (value) => {
+    expect(parsePushSubscription(value)).toBeNull();
+  });
+});
+
+describe("coarseDeviceLabel", () => {
+  it.each([
+    [
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+      "Safari on iPhone",
+    ],
+    [
+      "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+      "Chrome on Android",
+    ],
+    [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+      "Edge on Windows",
+    ],
+    ["Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0", "Firefox on Linux"],
+    ["", "Unknown device"],
+    [null, "Unknown device"],
+  ])("%s", (userAgent, label) => {
+    expect(coarseDeviceLabel(userAgent)).toBe(label);
   });
 });
 

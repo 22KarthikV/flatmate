@@ -66,12 +66,13 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-not
   - Dependencies: Tasks 1, 2 (3 for the E2E)
   - Files: `src/features/notifications/{preferences-form,actions,schemas}.ts*`, `src/app/(app)/more/notifications/page.tsx`, `src/app/(app)/more/page.tsx`
 
-- [ ] **Task 6: Push on the device** (Medium)
+- [x] **Task 6: Push on the device** (Medium)
   - Description: Spike and choose the smallest audited Web Push library that runs on Deno (confirm with the owner before adding). `pnpm vapid:generate` script. `push-client.ts` (permission, subscribe, unsubscribe; states granted, denied, unsupported, iOS in-browser), `push-card.tsx` with the iPhone install explanation, `savePushSubscription` and remove actions, device list with remove. `public/sw.js` gains `push` and `notificationclick` handlers and a `VERSION` bump; it still caches no pages. Permission is only requested after a tap.
   - Acceptance:
-    - [ ] Unit: push-client state machine with mocked browser APIs; service-worker handlers with a fake `self` (shows title, body, opens the path, ignores off-site paths); subscription schema
-    - [ ] E2E: settings page shows the unsupported explanation in a browser without push, and a working toggle where supported (subscription stored, removable)
-    - [ ] No permission prompt on page load; bundle budgets unchanged
+    - [x] Unit: push-client state machine with mocked browser APIs; service-worker handlers with a fake `self` (shows title, body, opens the path, ignores off-site paths); subscription schema
+    - [x] E2E: settings page shows the unsupported explanation in a browser without push, and a working toggle where supported (subscription stored, removable)
+    - [x] No permission prompt on page load; bundle budgets unchanged
+    - Library choice is NOT part of this task's code: nothing is added to `package.json` or Deno imports until the owner confirms (needed by Task 7's worker).
   - Verify: `pnpm test`, `pnpm test:e2e`, `pnpm check`
   - Dependencies: Task 5
   - Files: `src/features/notifications/push-*.ts*`, `public/sw.js`, `scripts/vapid-generate.mts`, `package.json`
