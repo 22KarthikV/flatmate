@@ -62,6 +62,52 @@ export type Database = {
           },
         ];
       };
+      invites: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          expires_at: string;
+          household_id: string;
+          id: string;
+          revoked_at: string | null;
+          token_hash: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          expires_at: string;
+          household_id: string;
+          id?: string;
+          revoked_at?: string | null;
+          token_hash: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          expires_at?: string;
+          household_id?: string;
+          id?: string;
+          revoked_at?: string | null;
+          token_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "invites_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "invites_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       job_runs: {
         Row: {
           created_at: string;
@@ -183,8 +229,19 @@ export type Database = {
     Functions: {
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
       create_household: { Args: { p_name: string }; Returns: string };
+      create_invite: { Args: Record<PropertyKey, never>; Returns: string };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
+      join_household: { Args: { p_token: string }; Returns: string };
+      preview_invite: {
+        Args: { p_token: string };
+        Returns: {
+          household_name: string;
+          inviter_name: string;
+          member_count: number;
+        }[];
+      };
       rename_household: { Args: { p_name: string }; Returns: undefined };
+      revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
     };
     Enums: {

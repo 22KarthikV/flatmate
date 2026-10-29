@@ -34,13 +34,13 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
   - Dependencies: Task 1
   - Files: `src/features/household/*`, dashboard and tab pages, `e2e/household.spec.ts`
 
-- [ ] **Task 3: Invite functions with tests** (Medium)
+- [x] **Task 3: Invite functions with tests** (Medium). 41 pgTAP assertions. The cap race cannot be shown inside one test transaction, so it was verified with two real concurrent sessions (the second join waited on the flat lock, then got `household_full`; the flat ended at exactly 20).
   - Description: `invites` table and `create_invite`, `revoke_invite`, `preview_invite(token)`, `join_household(token)` (member cap 20, one live link per flat, 7-day expiry, hash-only storage). pgTAP first.
   - Acceptance:
-    - [ ] pgTAP: token never stored in clear; admins only create and revoke; a new link revokes the old one
-    - [ ] pgTAP: join works once per person; expired, revoked, unknown and malformed tokens give an identical result; already-in-a-flat is refused
-    - [ ] pgTAP: `preview_invite` returns only flat name, inviter name and member count; the 21st join is refused; two simultaneous joins at the cap cannot both succeed
-    - [ ] `invites` is invisible to members and `anon`; admins can read their own flat's row metadata only
+    - [x] pgTAP: token never stored in clear; admins only create and revoke; a new link revokes the old one
+    - [x] pgTAP: join works once per person; expired, revoked, unknown and malformed tokens give an identical result; already-in-a-flat is refused
+    - [x] pgTAP: `preview_invite` returns only flat name, inviter name and member count; the 21st join is refused; two simultaneous joins at the cap cannot both succeed
+    - [x] `invites` is invisible to members and `anon`; admins can read their own flat's row metadata only
   - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types`
   - Dependencies: Task 1
   - Files: migration, `invites.test.sql`, types
