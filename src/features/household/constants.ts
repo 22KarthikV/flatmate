@@ -6,3 +6,8 @@ export type HouseholdRole = "owner" | "admin" | "member";
 
 export type CreateFlatState =
   { status: "idle" } | { status: "created" } | { status: "error"; message: string };
+
+export type CreateInviteState =
+  { status: "idle" } | { status: "created"; url: string } | { status: "error"; message: string };
+
+export type SimpleState = { status: "idle" } | { status: "error"; message: string };

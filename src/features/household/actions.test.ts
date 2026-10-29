@@ -10,6 +10,9 @@ const mocks = vi.hoisted(() => ({
   }),
 }));
 
+vi.mock("next/headers", () => ({
+  headers: async () => new Headers({ host: "flatmate-ten.vercel.app" }),
+}));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/lib/logger", () => ({ logger: { error: vi.fn(), info: vi.fn() } }));
@@ -20,7 +23,7 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
-import { createHousehold } from "./actions";
+import { createHousehold, createInvite, joinHousehold, openInvite, revokeInvite } from "./actions";
 
 const form = (name: string) => {
   const data = new FormData();
@@ -75,6 +78,94 @@ describe("createHousehold", () => {
     expect(result).toEqual({
       status: "error",
       message: "We couldn’t create your flat. Please try again.",
+    });
+  });
+});
+
+const TOKEN = "Fk193IB2W6Z9kgq5_aJ-D94u3MxFQwtotcdhx2jj5FY";
+
+describe("createInvite", () => {
+  it("returns the full link once, built from this deployment's address", async () => {
+    mocks.rpc.mockResolvedValue({ data: TOKEN, error: null });
+    const result = await createInvite({ status: "idle" }, new FormData());
+    expect(mocks.rpc).toHaveBeenCalledWith("create_invite");
+    expect(result).toEqual({
+      status: "created",
+      url: `https://flatmate-ten.vercel.app/join/${TOKEN}`,
+    });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/more/flat");
+  });
+
+  it("tells a plain member only admins can invite", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "42501", message: "not_allowed" } });
+    const result = await createInvite({ status: "idle" }, new FormData());
+    expect(result).toEqual({
+      status: "error",
+      message: "Only the owner and admins can invite people.",
+    });
+  });
+});
+
+describe("revokeInvite", () => {
+  it("switches the link off", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null });
+    expect(await revokeInvite({ status: "idle" }, new FormData())).toEqual({ status: "idle" });
+    expect(mocks.rpc).toHaveBeenCalledWith("revoke_invite");
+  });
+});
+
+describe("joinHousehold", () => {
+  const withToken = (token: string) => {
+    const data = new FormData();
+    data.set("token", token);
+    return data;
+  };
+
+  it("never calls the database for a malformed token", async () => {
+    const result = await joinHousehold({ status: "idle" }, withToken("nope"));
+    expect(result.status).toBe("error");
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it("joins, refreshes the app and goes Home", async () => {
+    mocks.rpc.mockResolvedValue({ data: "h1", error: null });
+    await expect(joinHousehold({ status: "idle" }, withToken(TOKEN))).rejects.toThrow(
+      "REDIRECT:/dashboard",
+    );
+    expect(mocks.rpc).toHaveBeenCalledWith("join_household", { p_token: TOKEN });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/", "layout");
+  });
+
+  it.each([
+    ["invalid_invite", "This invite link isn’t valid any more. Ask your flatmate for a new one."],
+    ["already_in_household", "You are already in a flat. Leave it before joining another."],
+    ["household_full", "This flat is full."],
+  ])("explains %s", async (code, message) => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "P0001", message: code } });
+    expect(await joinHousehold({ status: "idle" }, withToken(TOKEN))).toEqual({
+      status: "error",
+      message,
+    });
+  });
+});
+
+describe("openInvite", () => {
+  const withLink = (link: string) => {
+    const data = new FormData();
+    data.set("link", link);
+    return data;
+  };
+
+  it("opens the join page for a pasted link", async () => {
+    await expect(
+      openInvite({ status: "idle" }, withLink(`https://flatmate-ten.vercel.app/join/${TOKEN}`)),
+    ).rejects.toThrow(`REDIRECT:/join/${TOKEN}`);
+  });
+
+  it("refuses anything that is not an invite link", async () => {
+    expect(await openInvite({ status: "idle" }, withLink("https://evil.example/x"))).toEqual({
+      status: "error",
+      message: "That doesn’t look like an invite link.",
     });
   });
 });
