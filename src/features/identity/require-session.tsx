@@ -1,10 +1,9 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
-import { connection } from "next/server";
 import type { ReactNode } from "react";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getRequestSession } from "./session-claims";
 
 /**
  * Second line of defence behind proxy.ts: nothing inside the app renders unless the verified
@@ -12,9 +11,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
  * whose profile is missing cannot be bounced between here and /sign-in.
  */
 export async function RequireSession({ children }: { children: ReactNode }) {
-  await connection();
-  const supabase = await createSupabaseServerClient();
-  const { data } = await supabase.auth.getClaims();
-  if (!data?.claims?.sub) redirect("/sign-in");
+  const { claims } = await getRequestSession();
+  if (!claims?.sub) redirect("/sign-in");
   return <>{children}</>;
 }

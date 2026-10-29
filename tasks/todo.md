@@ -63,7 +63,7 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-identity.md](../docs/SPEC-identity
   - Verify: review by owner, Lighthouse
   - Dependencies: none
 
-- [ ] **Task 8: E2E, hosted verification, device checks** (Medium). Code done: the guard is on unless AUTH_GUARD=off (so no Vercel setting is needed), `(app)` layout re-checks the session, E2E and a signed-in Lighthouse run use a local test user. Open: production sign-in, persistence and deletion on a real Google account, and the phone checks (owner).
+- [ ] **Task 8: E2E, hosted verification, device checks** (Medium). Code done: the guard is on unless AUTH_GUARD=off (so no Vercel setting is needed), `(app)` layout re-checks the session, E2E and a signed-in Lighthouse run use a local test user. Owner iPhone check (29 Oct): Google sign-in and persistence after closing the app work; Account was slow and its link sat above the More title (fixed in the follow-up PR: functions pinned to London, session check shared per request, link moved). Open: Android and installed-app results, and deletion on a real account.
   - Description: Playwright flows from the spec using the local email test user (existing E2E specs and Lighthouse switch to a signed-in session); turn on AUTH_GUARD by default (CI and Vercel); add the layout-level second check in the (app) layout; hosted sign-in on production; real-device checks.
   - Acceptance:
     - [x] All E2E flows pass locally (CI to confirm on the PR)
