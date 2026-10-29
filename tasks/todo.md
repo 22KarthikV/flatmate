@@ -47,11 +47,11 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-identity.md](../docs/SPEC-identity
   - Verify: `pnpm test`, E2E in Task 8
   - Dependencies: Task 4
 
-- [ ] **Task 6: `delete-account` function and flow** (Medium)
+- [x] **Task 6: `delete-account` function and flow** (Medium). The "member left" signal is the profile's deleted_at stamp (plus an account.deleted log line): the rota, recurring and ledger modules rebalance when they see a member whose profile is deleted, so no speculative event table was added. Function must be deployed to hosted after merge.
   - Description: Edge Function (verified user JWT) that anonymises the profile and deletes the auth user; typed confirmation in the UI; emits the "member left" signal for later modules.
   - Acceptance:
-    - [ ] Handler tests: needs a valid user, anonymises before deleting, no detail leaks
-    - [ ] After deletion the session is gone and the profile reads "Deleted user"
+    - [x] Handler tests: needs a valid user, anonymises before deleting, no detail leaks
+    - [x] After deletion the session is gone and the profile reads "Deleted user"
   - Verify: `pnpm test`, local run
   - Dependencies: Tasks 2, 5
 

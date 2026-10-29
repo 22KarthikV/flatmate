@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardLabel } from "@/components/ui/card";
 import { signOut, signOutEverywhere } from "@/features/identity/actions";
 import { getCurrentProfile } from "@/features/identity/current-profile";
+import { DeleteAccountForm } from "@/features/identity/delete-account-form";
 import { RenameForm } from "@/features/identity/rename-form";
 
 export const metadata = { title: "Account | FlatMate" };
@@ -53,6 +54,16 @@ async function AccountContent() {
               Sign out everywhere
             </Button>
           </form>
+        </div>
+      </Card>
+
+      <Card>
+        <CardLabel>Delete account</CardLabel>
+        <p className="text-muted mt-3 max-w-md text-sm">
+          Leaving the flat, or done with FlatMate? You can delete your account at any time.
+        </p>
+        <div className="mt-4">
+          <DeleteAccountForm />
         </div>
       </Card>
     </>

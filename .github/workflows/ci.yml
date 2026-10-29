@@ -81,6 +81,17 @@ jobs:
             echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(grep '^PUBLISHABLE_KEY=' supabase.env | cut -d= -f2-)"
           } >> "$GITHUB_ENV"
           rm supabase.env
+      # Account deletion calls the delete-account Edge Function, so serve the functions too.
+      - name: Serve Edge Functions
+        run: |
+          nohup pnpm exec supabase functions serve > functions.log 2>&1 &
+          for i in $(seq 1 40); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$NEXT_PUBLIC_SUPABASE_URL/functions/v1/delete-account" || true)
+            [ "$code" = "401" ] && exit 0
+            sleep 3
+          done
+          cat functions.log
+          exit 1
       - run: pnpm test:e2e
       - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}

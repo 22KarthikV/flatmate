@@ -5,8 +5,10 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { logger } from "@/lib/logger";
+import { getSupabaseConfig } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+import { DELETE_PHRASE, isDeleteConfirmed, type DeleteState } from "./delete-account";
 import { originFromHeaders } from "./origin";
 import { parseDisplayName } from "./profile";
 import type { RenameState } from "./profile-constants";
@@ -84,4 +86,48 @@ async function endSession(scope: "local" | "global") {
   const { error } = await supabase.auth.signOut({ scope });
   // Never trap someone in a session: log it and carry on to the sign-in page.
   if (error) logger.error("auth.sign_out_failed", { scope, error });
+}
+
+/**
+ * Deletes the signed-in person's account through the delete-account Edge Function, which holds
+ * the service role. The typed confirmation is checked here as well as in the form.
+ */
+export async function deleteAccount(
+  _previous: DeleteState,
+  formData: FormData,
+): Promise<DeleteState> {
+  if (!isDeleteConfirmed(formData.get("confirmation"))) {
+    return { status: "error", message: `Type ${DELETE_PHRASE} to confirm.` };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  // Only forwarded: the function checks the token with the auth server before doing anything.
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) redirect("/sign-in?next=%2Fmore%2Faccount");
+
+  const { url, publishableKey } = getSupabaseConfig();
+  let deleted = false;
+  try {
+    const response = await fetch(`${url}/functions/v1/delete-account`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, apikey: publishableKey },
+      cache: "no-store",
+      signal: AbortSignal.timeout(15_000),
+    });
+    deleted = response.ok;
+    if (!deleted) logger.error("account.delete_failed", { status: response.status });
+  } catch (error) {
+    logger.error("account.delete_unreachable", { error });
+  }
+
+  if (!deleted) {
+    return {
+      status: "error",
+      message: "We couldn’t delete your account. Nothing has been lost. Please try again.",
+    };
+  }
+
+  await endSession("local"); // clears this browser's cookies; the account itself is already gone
+  redirect("/sign-in?deleted=1");
 }
