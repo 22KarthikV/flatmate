@@ -26,13 +26,13 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-not
   - Dependencies: none
   - Files: migration, `notifications.test.sql`, `src/lib/db/types.ts`, `src/features/notifications/types.ts` and test
 
-- [ ] **Task 2: Inbox page and bell** (Medium)
+- [x] **Task 2: Inbox page and bell** (Medium)
   - Description: `inbox.ts` (list, unread count, cached per request), `/notifications` page grouped by day with mark read on open and "Mark all read", bell with badge in the app shell (hidden at zero, "9+" above nine), empty state. Server actions `markRead`, `markAllRead`.
   - Acceptance:
-    - [ ] Unit: badge formatting; day grouping; schemas
-    - [ ] A seeded notification shows in the inbox and the bell; opening it marks it read and follows its link; "Mark all read" clears the badge
-    - [ ] Bell is reachable on mobile and desktop nav without crowding; no sideways scroll on mobile
-    - [ ] E2E (desktop-chrome): seed through the service role, check inbox and bell
+    - [x] Unit: badge formatting; day grouping; schemas
+    - [x] A seeded notification shows in the inbox and the bell; opening it marks it read and follows its link; "Mark all read" clears the badge
+    - [x] Bell is reachable on mobile and desktop nav without crowding; no sideways scroll on mobile
+    - [x] E2E (desktop-chrome): seed through the service role, check inbox and bell
   - Verify: `pnpm test`, `pnpm test:e2e`
   - Dependencies: Task 1
   - Files: `src/features/notifications/*`, `src/app/(app)/notifications/page.tsx`, `src/features/shell/nav.tsx`, `e2e/notifications.spec.ts`
