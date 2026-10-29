@@ -37,9 +37,31 @@ export default function PrivacyPage() {
           sign-in.
         </p>
         <p>
-          As FlatMate gains features (flats, rotas, rent, bills, expenses and events), what you add
-          to them will be stored too. This page will be updated, and shown to you, before any new
-          kind of data is collected.
+          As FlatMate gains more features (rotas, rent, bills, expenses and events), what you add to
+          them will be stored too. This page will be updated, and shown to you, before any new kind
+          of data is collected.
+        </p>
+      </Section>
+
+      <Section title="What we store about your flat">
+        <p>When you create or join a flat, FlatMate also stores:</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>the flat&rsquo;s name and time zone, and when it was created or closed;</li>
+          <li>
+            your <strong>membership</strong>: which flat you are in, your role (owner, admin or
+            member), when you joined, and when and why you left (you left, you were removed, your
+            account was deleted, or the flat was closed);
+          </li>
+          <li>
+            the flat&rsquo;s <strong>invite link</strong>: who made it, when it was made and when it
+            expires or was switched off. Only a scrambled fingerprint of the link is kept, never the
+            link itself.
+          </li>
+        </ul>
+        <p>
+          The other people in your flat can see your display name, photo and role. If you leave, or
+          are removed, they still see your name next to things you added, so the flat&rsquo;s
+          history makes sense. People in other flats cannot see anything about you.
         </p>
       </Section>
 
@@ -99,9 +121,11 @@ export default function PrivacyPage() {
         <p>
           For as long as you have an account. When you delete your account, your sign-in record is
           removed, your name and photo are replaced by &ldquo;Deleted user&rdquo;, and you are
-          signed out everywhere. Records you added to a flat (for example an expense) may remain for
-          your flatmates&rsquo; history without your name. Technical logs are kept by our providers
-          for a short time and then removed.
+          signed out everywhere. Your place in your flat ends. If you owned a flat with no one else
+          in it, that flat is closed. Records you added to a flat (for example an expense) may
+          remain for your flatmates&rsquo; history without your name. A closed flat&rsquo;s records
+          are kept but nobody can open it. Technical logs are kept by our providers for a short time
+          and then removed.
         </p>
       </Section>
 
@@ -116,7 +140,10 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>Delete your account:</strong> Account page, Delete account. It takes effect
-            straight away.
+            straight away. If you own a flat other people live in, hand it over first.
+          </li>
+          <li>
+            <strong>Leave a flat:</strong> More, then Your flat.
           </li>
           <li>
             <strong>Get a copy of your data, or anything else:</strong> <ContactLine />. We aim to

@@ -4,7 +4,7 @@
       "startServerCommand": "pnpm exec next start -p 3200",
       "startServerReadyPattern": "Ready",
       "startServerReadyTimeout": 60000,
-      "url": ["http://localhost:3200/dashboard"],
+      "url": ["http://localhost:3200/dashboard", "http://localhost:3200/more/flat"],
       "numberOfRuns": 3
     },
     "assert": {
