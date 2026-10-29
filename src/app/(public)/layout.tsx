@@ -20,7 +20,17 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
       </header>
       <div className="flex-1">{children}</div>
       <footer className="border-line mx-auto w-full max-w-5xl border-t px-4 py-8 sm:px-8">
-        <p className="label-caps text-muted">FlatMate · Shared flat life, sorted</p>
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+          <p className="label-caps text-muted">FlatMate · Shared flat life, sorted</p>
+          <nav aria-label="Legal" className="label-caps flex gap-6">
+            <Link href="/privacy" className="min-h-11 content-center underline underline-offset-4">
+              Privacy
+            </Link>
+            <Link href="/terms" className="min-h-11 content-center underline underline-offset-4">
+              Terms
+            </Link>
+          </nav>
+        </div>
       </footer>
     </>
   );

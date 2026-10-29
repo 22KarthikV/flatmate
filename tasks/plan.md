@@ -30,7 +30,7 @@ Google sign-in, profiles, route protection, account page (rename, sign out, dele
 - [ ] Task 4: Callback, sign-in and error pages (+ early iPhone check)
 - [x] Task 5: Account page: rename, sign out, sign out everywhere
 - [x] Task 6: `delete-account` Edge Function and flow
-- [ ] Task 7: Privacy and terms pages
+- [x] Task 7: Privacy and terms pages
 - [ ] Task 8: E2E suite, hosted verification, device checks
 
 ### Checkpoint: Identity complete
