@@ -6,8 +6,11 @@ test.describe("sign-in pages", () => {
 
     await expect(page.getByRole("heading", { name: "Sign in to FlatMate" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "terms" })).toHaveAttribute("href", "/terms");
-    await expect(page.getByRole("link", { name: "privacy notice" })).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "terms", exact: true })).toHaveAttribute(
+      "href",
+      "/terms",
+    );
+    await expect(page.getByRole("link", { name: "privacy notice", exact: true })).toHaveAttribute(
       "href",
       "/privacy",
     );

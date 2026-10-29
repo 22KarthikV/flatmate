@@ -9,7 +9,9 @@
     "/offline": 195,
     "/sign-in": 195,
     "/auth/error": 195,
-    "/more/account": 200
+    "/more/account": 200,
+    "/privacy": 195,
+    "/terms": 195
   },
   "lazyMotionKb": 60
 }

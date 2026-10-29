@@ -55,11 +55,11 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-identity.md](../docs/SPEC-identity
   - Verify: `pnpm test`, local run
   - Dependencies: Tasks 2, 5
 
-- [ ] **Task 7: Privacy and terms pages** (Small)
+- [x] **Task 7: Privacy and terms pages** (Small). Draft in plain English, not legal advice: the owner should read both pages. Contact shows the GitHub issue tracker until NEXT_PUBLIC_CONTACT_EMAIL is set in Vercel.
   - Description: `/privacy` (exactly what is stored, why, how to delete or request data) and `/terms` (plain-English terms), linked from sign-in and the footer.
   - Acceptance:
-    - [ ] Both public, accessible, offline-safe, in the editorial style
-    - [ ] Privacy page matches what the code actually stores
+    - [x] Both public, accessible, offline-safe, in the editorial style
+    - [x] Privacy page matches what the code actually stores
   - Verify: review by owner, Lighthouse
   - Dependencies: none
 
