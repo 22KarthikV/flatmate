@@ -92,3 +92,51 @@ test.describe("account page", () => {
     expect(after.error).not.toBeNull();
   });
 });
+
+test.describe("delete account", () => {
+  test("needs the typed confirmation, then removes the account for good", async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    const { user, jar, supabase } = await signUpAndIn(newTestUser("delete"));
+    await addSessionCookies(context, jar, baseURL!);
+
+    await page.goto("/more/account");
+    await page.getByRole("button", { name: "Delete account" }).click();
+
+    const confirm = page.getByRole("button", { name: "Delete my account" });
+    await expect(confirm).toBeDisabled();
+    await page.getByLabel(/type delete/i).fill("DELETE");
+    await expect(confirm).toBeEnabled();
+    await confirm.click();
+
+    await expect(page).toHaveURL(/\/sign-in\?deleted=1$/);
+    await expect(page.getByRole("status")).toContainText("Your account has been deleted");
+
+    // The sign-in is gone: the same credentials no longer work, and the old session is dead.
+    const again = await signInAgain(user).then(
+      () => "signed in",
+      () => "refused",
+    );
+    expect(again).toBe("refused");
+    const stale = await supabase.auth.getUser();
+    expect(stale.error).not.toBeNull();
+
+    await page.goto("/more/account");
+    await expect(page).toHaveURL(/\/sign-in\?next=%2Fmore%2Faccount$/);
+  });
+
+  test("cancelling leaves the account untouched", async ({ page, context, baseURL }) => {
+    const { jar } = await signUpAndIn(newTestUser("keep"));
+    await addSessionCookies(context, jar, baseURL!);
+
+    await page.goto("/more/account");
+    await page.getByRole("button", { name: "Delete account" }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
+    await expect(page.getByRole("button", { name: "Delete account" })).toBeVisible();
+    await page.reload();
+    await expect(page.getByLabel("Display name")).toBeVisible();
+  });
+});

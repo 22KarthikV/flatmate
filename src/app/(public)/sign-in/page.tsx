@@ -12,8 +12,18 @@ export const metadata = {
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 async function SignInAction({ searchParams }: { searchParams: SearchParams }) {
-  const raw = (await searchParams).next;
-  return <GoogleButton next={safeNextPath(typeof raw === "string" ? raw : undefined)} />;
+  const params = await searchParams;
+  const raw = params.next;
+  return (
+    <div className="flex flex-col gap-4">
+      {params.deleted === "1" ? (
+        <p role="status" className="border-line border p-4 text-sm">
+          Your account has been deleted. Thank you for using FlatMate.
+        </p>
+      ) : null}
+      <GoogleButton next={safeNextPath(typeof raw === "string" ? raw : undefined)} />
+    </div>
+  );
 }
 
 export default function SignInPage({ searchParams }: { searchParams: SearchParams }) {
