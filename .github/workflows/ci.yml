@@ -71,16 +71,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium webkit
-      # /api/health checks the database, so the tests run against a real local Supabase.
-      - run: pnpm exec supabase start -x studio,imgproxy,mailpit,logflare,vector,supavisor
-      - name: Point the app at the local Supabase
-        run: |
-          pnpm exec supabase status -o env | grep -E '^(API_URL|PUBLISHABLE_KEY)=' | tr -d '"' > supabase.env
-          {
-            echo "NEXT_PUBLIC_SUPABASE_URL=$(grep '^API_URL=' supabase.env | cut -d= -f2-)"
-            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(grep '^PUBLISHABLE_KEY=' supabase.env | cut -d= -f2-)"
-          } >> "$GITHUB_ENV"
-          rm supabase.env
+      # /api/health checks the database and the tests sign in, so they use a real local Supabase.
+      - uses: ./.github/actions/local-supabase
       # Account deletion calls the delete-account Edge Function, so serve the functions too.
       - name: Serve Edge Functions
         run: |
@@ -112,8 +104,11 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Signed-in pages need a session, and the build bakes the Supabase address into the app.
+      - uses: ./.github/actions/local-supabase
       - run: pnpm build
       - run: pnpm exec lhci autorun
+      - run: node scripts/lighthouse-app.mts
       - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:

@@ -6,13 +6,12 @@ import { updateSession } from "@/lib/supabase/session";
 /**
  * Refreshes the session, then enforces the route guard.
  *
- * Enforcement is switched on with AUTH_GUARD=on. It stays off until the end-to-end tests and
- * Lighthouse run as a signed-in user (identity Task 8), because they open signed-in pages
- * anonymously today. The guard logic itself is complete and tested.
+ * Enforcement is on unless AUTH_GUARD=off, so a missing setting can never leave the app open.
+ * The (app) layout checks the session again as a second line of defence.
  */
 export async function proxy(request: NextRequest) {
   const { response, signedIn } = await updateSession(request);
-  if (process.env.AUTH_GUARD !== "on") return response;
+  if (process.env.AUTH_GUARD === "off") return response;
 
   const { pathname, search } = request.nextUrl;
   const decision = decideAccess({ pathname, search, signedIn });

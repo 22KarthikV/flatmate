@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { test as signedIn } from "./support/signed-in";
+
 async function scrollThroughPage(page: Page) {
   await page.evaluate(async () => {
     for (let y = 0; y <= document.body.scrollHeight; y += 300) {
@@ -52,7 +54,7 @@ test.describe("smooth scroll scope", () => {
     }
   });
 
-  test("never runs inside the signed-in app", async ({ page }) => {
+  signedIn("never runs inside the signed-in app", async ({ page }) => {
     await page.goto("/dashboard");
     await page.waitForTimeout(500);
     await expect(page.locator("html")).not.toHaveClass(/lenis/);

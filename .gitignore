@@ -51,3 +51,4 @@ Thumbs.db
 .claude/
 .lighthouseci/
 functions.log
+.lighthouserc.app.generated.json
