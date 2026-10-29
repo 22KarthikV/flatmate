@@ -12,13 +12,13 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
 
 ---
 
-- [ ] **Task 1: Flat and membership tables, helpers, `create_household`, isolation tests** (Medium)
+- [x] **Task 1: Flat and membership tables, helpers, `create_household`, isolation tests** (Medium). 39 pgTAP assertions. Policy helpers live in a new `authz` schema (not `private`, which stays closed to app roles; ADR-003 updated). Hosted migration is applied in Task 9.
   - Description: Migration `*_households.sql` with `households`, `memberships` (partial unique indexes: one active flat per person, one owner per flat), the role enum, `private.is_household_member` / `private.is_household_admin` helpers, RLS (select for members; nothing else), `create_household(name)` and `rename_household(name)`. pgTAP first.
   - Acceptance:
-    - [ ] pgTAP: a user in flat A cannot read B's household or memberships; `anon` reads nothing; no API insert, update or delete on either table
-    - [ ] pgTAP: creating a flat makes the caller its only owner; a second active flat for the same person is refused; names outside 1 to 50 characters are refused
-    - [ ] pgTAP: only admins and the owner can rename; the helper plan is checked with `explain` (index used)
-    - [ ] Types regenerated; `pnpm db:test` green
+    - [x] pgTAP: a user in flat A cannot read B's household or memberships; `anon` reads nothing; no API insert, update or delete on either table
+    - [x] pgTAP: creating a flat makes the caller its only owner; a second active flat for the same person is refused; names outside 1 to 50 characters are refused
+    - [x] pgTAP: only admins and the owner can rename; the helper plan is checked with `explain` (index used)
+    - [x] Types regenerated; `pnpm db:test` green
   - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types`
   - Dependencies: none
   - Files: migration, `households.test.sql`, `src/lib/db/types.ts`
