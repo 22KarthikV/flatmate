@@ -1,5 +1,6 @@
 import { Suspense, type ReactNode } from "react";
 
+import { LiveFlatGate } from "@/features/household/live-flat-gate";
 import { RequireSession } from "@/features/identity/require-session";
 import { InstallPrompt } from "@/features/pwa/install-prompt";
 import { BottomNav, SideNav } from "@/features/shell/nav";
@@ -12,6 +13,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <InstallPrompt />
         <Suspense fallback={null}>
           <RequireSession>{children}</RequireSession>
+          <LiveFlatGate />
         </Suspense>
       </main>
       <BottomNav />

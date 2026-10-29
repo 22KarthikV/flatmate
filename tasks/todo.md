@@ -108,6 +108,8 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-househo
   - Verify: CI, hosted checks, manual
   - Dependencies: Tasks 1 to 8
 
+- [x] **Follow-up: live flat updates** (owner feedback 29 Oct: a new member only appeared after leaving the screen and coming back). `memberships` is published to Realtime (migration `20261029170000`), the app layout runs `LiveFlat`, and open screens refresh on join, leave and role changes, when you return to the tab, and on a 60 second backstop. Realtime needs the signed-in token handed to it and rejects a `household_id` filter, so it listens without one; row-level security limits it to your own flat. A removed person is not told (they can no longer see the row) and catches up on return.
+
 ### Checkpoint: Household complete
 
 - [ ] Every success criterion in `docs/SPEC-household.md` is met

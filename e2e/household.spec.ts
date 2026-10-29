@@ -450,3 +450,33 @@ test.describe("the setup checklist", () => {
     await context.close();
   });
 });
+
+test.describe("live updates", () => {
+  test.beforeEach(() => {
+    test.skip(
+      test.info().project.name !== "desktop-chrome",
+      "several people in the shared database",
+    );
+  });
+
+  test("an open members list and Home update the moment someone joins", async ({
+    browser,
+    baseURL,
+  }) => {
+    const owner = await signUpAndIn(newTestUser("live"));
+    await createFlat(owner.supabase, "Live Flat");
+
+    const context = await browser.newContext({ baseURL });
+    await addSessionCookies(context, owner.jar, baseURL!);
+    const page = await context.newPage();
+    await page.goto("/more/flat");
+    await expect(page.getByText("Members · 1")).toBeVisible();
+
+    // Someone joins while the page is open. Nothing is clicked or reloaded here.
+    const joiner = await signUpAndIn(newTestUser("livejoin"));
+    await joinFlat(owner.supabase, joiner.supabase);
+
+    await expect(page.getByText("Members · 2")).toBeVisible({ timeout: 15_000 });
+    await context.close();
+  });
+});
