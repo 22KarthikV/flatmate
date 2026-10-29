@@ -1,56 +1,62 @@
-# Implementation Plan: household
+# Implementation Plan: notifications
 
-Spec: [docs/SPEC-household.md](../docs/SPEC-household.md) (approved 2026-10-29; open questions settled on the defaults: cap 20, old owner becomes admin, name only, closed flats kept). Task list: [tasks/todo.md](todo.md). The foundation and identity plans are archived in [tasks/archive](archive/).
+Spec: [docs/SPEC-notifications.md](../docs/SPEC-notifications.md) (approved 2026-10-29; email deferred, no quiet hours, joined/left inbox only, push library chosen in Task 6). Task list: [tasks/todo.md](todo.md). Earlier plans are archived in [tasks/archive](archive/).
 
 ## Overview
 
-Create a flat, invite flatmates with one shareable link, manage roles, leave or remove people, and guide the admin with a setup checklist. This module is the tenant boundary for everything after it.
+One way for any module to tell a person something: a notification row written in the same transaction as the event, shown in an inbox with a live bell, and optionally delivered as a phone push through an outbox and worker. The first real events come from `household`, which proves the pipeline before `ledger` depends on it.
 
 ## Architecture decisions
 
-- **Vertical slices, database first inside each slice.** Every task ships one complete path (functions and pgTAP, then the action and screen, then E2E) so the app is usable after each merge. No task is "all the tables".
-- **The database enforces the rules.** All writes go through `security definer` functions that derive the caller from `auth.uid()`. Tables have no write policies. The pgTAP suite is the main safety net and grows with each slice.
-- **One migration file per slice**, so each can be reviewed and applied to hosted on its own. Types are regenerated each time (CI fails if stale).
-- **Keep the app layout session-only.** Flatless people must still reach Account. Pages that need a flat call the cached `getMembership()` and show the `no-flat` screen otherwise.
-- **Joining is a POST.** `/join/<token>` previews; a server action joins.
-- **Hosted rollout is a task, not an afterthought:** the migrations and the `delete-account` function are applied to the hosted project at the end, with a real two-person check.
+- **Inbox first, push last.** Tasks 1 to 5 deliver a complete, useful in-app feature with no push code. Push (Tasks 6 and 7) is added on top and can fail without affecting the inbox.
+- **Database first inside each slice,** as in household: pgTAP before the migration, then the action and screen, then E2E. One migration file per slice so each can be applied to hosted on its own.
+- **Only `private.notify` writes notifications.** The browser can read its own rows and call `mark_read`, `mark_all_read`, `snooze`. Nothing else.
+- **Dedupe is a unique key,** `(recipient_id, dedupe_key)`, and the outbox has `(notification_id, subscription_id)` unique, so retries can never duplicate.
+- **Defaults live in code** (`types.ts`); a saved preference row overrides them. No migration is needed to add a type's defaults, only the type's check-constraint entry.
+- **Reuse, don't invent:** the Realtime pattern from `LiveFlat` (set auth, lazy import, debounced refresh), the heartbeat/`job_runs` pipeline for scheduling, the `authz` schema for any policy helper.
+- **Bundle budgets are not raised.** The live bell listener is lazily imported.
+- **Rollout rule (unchanged):** apply each migration to hosted before merging code that needs it; deploy Edge Functions after their migration.
 
 ```
-1 flat + roles data model, create_household, isolation tests
-        ├─ 2 create-flat UI, getMembership, no-flat screens
-        │       ├─ 3 invite functions ── 4 join flow + invite card
-        │       │                            ├─ 5 members list, roles, remove
-        │       │                            │        └─ 6 leave, transfer, close
-        │       │                            │               └─ 7 account deletion interaction
-        │       └─ 8 setup checklist + step registry (needs 4 for its first step)
-        └─ all ─ 9 privacy update, full E2E, hosted rollout, device checks
+1 data model, notify(), registry, isolation tests
+      ├─ 2 inbox page + bell (server-rendered count)
+      │       ├─ 3 household events -> notifications (join, leave, remove, role)
+      │       │        └─ 4 live bell (Realtime)
+      │       └─ 5 preferences + snooze
+      └─ 6 push client: service worker, subscribe, settings card (needs 5)
+              └─ 7 deliver-push worker, outbox drain, retention job (needs 6)
+                      └─ 8 account deletion, privacy notice, hosted rollout, phone checks
 ```
 
 ## Task list
 
-- [x] Task 1: Flat and membership tables, helpers, `create_household`, isolation tests
-- [x] Task 2: Create a flat from Home (UI, `getMembership`, no-flat screens)
-- [x] Task 3: Invite functions (create, revoke, preview, join) with tests
-- [x] Task 4: Invite card and join flow (two-person E2E)
-- [x] Task 5: Members list, roles and removal (incl. flatmate profile visibility)
-- [x] Task 6: Leave, transfer ownership, close the flat
-- [x] Task 7: Account deletion interaction
-- [x] Task 8: Setup checklist and step registry
-- [x] Task 9: Privacy notice, full E2E, hosted rollout, device checks
+- [x] Task 1: Tables, `private.notify`, read/snooze functions, type registry, isolation tests
+- [ ] Task 2: Inbox page and bell
+- [ ] Task 3: Household events create notifications
+- [ ] Task 4: Live bell (no navigation needed)
+- [ ] Task 5: Preferences and snooze
+- [ ] Task 6: Push on the device (service worker, subscribe, settings card, library choice)
+- [ ] Task 7: `deliver-push` worker, outbox drain, retention
+- [ ] Task 8: Account deletion, privacy notice, hosted rollout, phone checks
 
-### Checkpoint: Household complete
+### Checkpoint: after Task 5 (inbox complete)
+
+- [ ] A flatmate joining shows in the other members' inbox and live bell; preferences and snooze work; `pnpm check`, `pnpm db:test`, `pnpm test:e2e` green. Push is still absent, and that is fine to ship.
+
+### Checkpoint: Notifications complete
 
 - [ ] Every success criterion in the spec is met
 
 ## Risks
 
-| Risk                                                 | Mitigation                                                                               |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Policy helpers slow every later query                | One helper pair, partial indexes, `explain` check in Task 1 and again in Task 5          |
-| Racing joins or transfers break one-owner or the cap | Partial unique indexes plus row locks; race tests in Tasks 3 and 6                       |
-| Profile visibility policy leaks beyond one flat      | Added with the members list (Task 5) and tested from both sides                          |
-| Chat-app link previews trigger a join                | Join only on POST; E2E asserts a plain GET changes nothing (Task 4)                      |
-| Owner deletes account and strands a flat             | Refusal path built and tested in Task 7                                                  |
-| `ledger` forgets the leave hook later                | Hook `private.can_leave` created in Task 6; the ledger spec must list it as a dependency |
-| Hosted migration differs from local                  | Task 9 applies via the migration tool and diffs `list_migrations` against the repo       |
-| Owner checks from identity are still open            | Tracked as carry-over in `tasks/todo.md`; none of them block this module                 |
+| Risk                                                    | Mitigation                                                                                          |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| iPhone push only works for the installed app            | Inbox is the source of truth; install guidance in Task 6; phone check is a ship criterion in Task 8 |
+| Push library does not run on Deno or is unmaintained    | Task 6 starts with a small spike against the real runtime; owner confirms the choice before adding  |
+| Duplicate or lost notifications                         | Unique dedupe key and outbox pair; row commits with the event; delivery is separate and idempotent  |
+| Household function changes in Task 3 regress join/leave | Existing household pgTAP and E2E suites must stay green; new assertions added beside them           |
+| Realtime inbox adds bundle weight                       | Lazy import (Task 4); budgets checked in CI                                                         |
+| VAPID private key leaks                                 | Secret store only; generation script prints, never writes; rotation documented in `docs/DEPLOY.md`  |
+| Worker down or push service rate-limits                 | Outbox waits and drains later; backoff and attempt cap; `job_runs` shows gaps                       |
+| Cross-flat leak through notification text               | `notify` checks the recipient belongs to the household; text built only from that flat's own data   |
+| Owner checks from identity and household are still open | Carried over in `tasks/todo.md`; none block this module                                             |

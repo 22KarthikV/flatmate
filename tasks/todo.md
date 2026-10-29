@@ -1,116 +1,98 @@
-# Task list: household
+# Task list: notifications
 
-Plan: [plan.md](plan.md). Spec: [../docs/SPEC-household.md](../docs/SPEC-household.md). Tests come first for any logic (TDD). Database tasks write the pgTAP file before the migration.
+Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-notifications.md). Tests come first for any logic (TDD). Database tasks write the pgTAP file before the migration.
 
-## Carry-over from identity (owner checks, none block this module)
+## Carry-over (owner checks, none block this module)
 
 - [ ] Android Chrome: Google sign-in, persistence (iPhone Safari already confirmed 29 Oct)
 - [ ] Installed Home Screen app on iPhone and Android: sign-in stays in the app, session persists
 - [ ] Delete an account on the live site with a real Google account
 - [ ] Add each flatmate's Gmail as a Google test user; set `NEXT_PUBLIC_CONTACT_EMAIL` in Vercel
 - [ ] Re-time the Account page on a phone after the London region change
-- [ ] Two real phones on production: share the invite link from the share sheet, second phone joins (Safari and the installed app), roles, removal, leave and rejoin behave. Needs both flatmates' Gmail addresses added as Google test users first.
+- [ ] Two real phones on production: invite link from the share sheet, second phone joins (Safari and installed app), roles, removal, leave and rejoin
+- [ ] Live flat updates on real phones: a join, leave or role change shows on an open Home and Your flat screen without navigating
 
 ---
 
-- [x] **Task 1: Flat and membership tables, helpers, `create_household`, isolation tests** (Medium). 39 pgTAP assertions. Policy helpers live in a new `authz` schema (not `private`, which stays closed to app roles; ADR-003 updated). Hosted migration is applied in Task 9.
-  - Description: Migration `*_households.sql` with `households`, `memberships` (partial unique indexes: one active flat per person, one owner per flat), the role enum, `private.is_household_member` / `private.is_household_admin` helpers, RLS (select for members; nothing else), `create_household(name)` and `rename_household(name)`. pgTAP first.
+- [x] **Task 1: Tables, `private.notify`, read/snooze functions, type registry, isolation tests** (Medium) 59 pgTAP assertions. The registry also lives in the database as `notification_types` (so `notify` can decide on push); a unit test keeps `types.ts` and the migrations in step.
+  - Description: Migration `*_notifications.sql` with `notifications`, `notification_preferences`, `push_subscriptions`, `push_outbox` (spec data model), RLS (own rows only; outbox service role only; subscription keys not selectable), `private.notify(...)`, `mark_read`, `mark_all_read`, `snooze`, `save_push_subscription`, and `public.notifications` added to the Realtime publication. `src/features/notifications/types.ts` registry with defaults (`member_joined`, `member_left` in-app only; `role_changed` in-app and push). pgTAP first.
   - Acceptance:
-    - [x] pgTAP: a user in flat A cannot read B's household or memberships; `anon` reads nothing; no API insert, update or delete on either table
-    - [x] pgTAP: creating a flat makes the caller its only owner; a second active flat for the same person is refused; names outside 1 to 50 characters are refused
-    - [x] pgTAP: only admins and the owner can rename; the helper plan is checked with `explain` (index used)
+    - [x] pgTAP: a person cannot read another person's notifications, preferences or subscriptions, even in the same flat; `anon` reads nothing; the browser role cannot insert or update notifications except via the read/snooze functions; subscription keys are not selectable
+    - [x] pgTAP: `notify` is idempotent per `(recipient, dedupe_key)`; rejects recipients outside the household; honours an in-app-off preference; creates outbox rows only for push-enabled devices; `href` must be an internal path
+    - [x] pgTAP: Realtime publication contains `notifications` and nothing more personal
+    - [x] Unit: type registry defaults and lookup; unknown type rejected
     - [x] Types regenerated; `pnpm db:test` green
-  - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types`
+  - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types && pnpm test`
   - Dependencies: none
-  - Files: migration, `households.test.sql`, `src/lib/db/types.ts`
+  - Files: migration, `notifications.test.sql`, `src/lib/db/types.ts`, `src/features/notifications/types.ts` and test
 
-- [x] **Task 2: Create a flat from Home** (Medium). Home for a flatless person also says how invites work; the paste-a-link field arrives with Task 4. The E2E signed-in fixture now gives its user a flat.
-  - Description: `getMembership()` (cached per request, uses the shared session), zod schemas, `createHousehold` action, `create-flat-form`, Home shows "Create your flat" or the plain flat view, and `no-flat` screens on Rota, Money and Events. Account keeps working without a flat.
+- [ ] **Task 2: Inbox page and bell** (Medium)
+  - Description: `inbox.ts` (list, unread count, cached per request), `/notifications` page grouped by day with mark read on open and "Mark all read", bell with badge in the app shell (hidden at zero, "9+" above nine), empty state. Server actions `markRead`, `markAllRead`.
   - Acceptance:
-    - [x] Unit: schemas (name rules), `getMembership` for none, owner, member
-    - [x] A new user creates a flat and Home shows its name; reload keeps it
-    - [x] Without a flat, Rota, Money and Events show the no-flat screen; `/more/account` still opens
-    - [x] E2E (desktop-chrome): create a flat; no-flat tabs; layout has no sideways scroll on mobile projects
+    - [ ] Unit: badge formatting; day grouping; schemas
+    - [ ] A seeded notification shows in the inbox and the bell; opening it marks it read and follows its link; "Mark all read" clears the badge
+    - [ ] Bell is reachable on mobile and desktop nav without crowding; no sideways scroll on mobile
+    - [ ] E2E (desktop-chrome): seed through the service role, check inbox and bell
   - Verify: `pnpm test`, `pnpm test:e2e`
   - Dependencies: Task 1
-  - Files: `src/features/household/*`, dashboard and tab pages, `e2e/household.spec.ts`
+  - Files: `src/features/notifications/*`, `src/app/(app)/notifications/page.tsx`, `src/features/shell/nav.tsx`, `e2e/notifications.spec.ts`
 
-- [x] **Task 3: Invite functions with tests** (Medium). 41 pgTAP assertions. The cap race cannot be shown inside one test transaction, so it was verified with two real concurrent sessions (the second join waited on the flat lock, then got `household_full`; the flat ended at exactly 20).
-  - Description: `invites` table and `create_invite`, `revoke_invite`, `preview_invite(token)`, `join_household(token)` (member cap 20, one live link per flat, 7-day expiry, hash-only storage). pgTAP first.
+- [ ] **Task 3: Household events create notifications** (Medium)
+  - Description: Migration changing `join_household`, `leave_household`, `remove_member`, `set_member_role` (and the account-deletion membership end) to call `private.notify` in the same transaction: `member_joined` and `member_left` to the other active members, `role_changed` to the person affected. No self-notification. Existing behaviour unchanged.
   - Acceptance:
-    - [x] pgTAP: token never stored in clear; admins only create and revoke; a new link revokes the old one
-    - [x] pgTAP: join works once per person; expired, revoked, unknown and malformed tokens give an identical result; already-in-a-flat is refused
-    - [x] pgTAP: `preview_invite` returns only flat name, inviter name and member count; the 21st join is refused; two simultaneous joins at the cap cannot both succeed
-    - [x] `invites` is invisible to members and `anon`; admins can read their own flat's row metadata only
-  - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types`
-  - Dependencies: Task 1
-  - Files: migration, `invites.test.sql`, types
-
-- [x] **Task 4: Invite card and join flow** (Medium). `/join/[token]` lives in its own `(invite)` layout (no tab bar: a dynamic route cannot prerender the tab bar). The link is shown only when created because the database keeps just a hash; admins see "working until" and can make a new one.
-  - Description: `/more/flat` page with the invite card (create, copy, share sheet, expiry, revoke, regenerate); `/join/[token]` shows "Join _Flat_?" and joins via a server action; "Got an invite link?" paste field on Home. Link shape built by a pure `invite-link.ts`.
-  - Acceptance:
-    - [x] Unit: link builder and token-shape validation
-    - [x] A plain GET of `/join/<token>` changes nothing (tested); tapping Join adds the member
-    - [x] Signed-out visitor to a join link is sent to sign in and brought back (existing guard)
-    - [x] Neutral message for bad, expired and revoked links; "leave your current flat first" message when already in one
-    - [x] E2E: user A creates the link; user B (second context) joins; B appears for A; A revokes and a third user sees the neutral message
-  - Verify: `pnpm test`, `pnpm test:e2e`
-  - Dependencies: Tasks 2, 3
-  - Files: `invite-card.tsx`, `join-panel.tsx`, `invite-link.ts`, join page, `/more/flat`, E2E
-
-- [x] **Task 5: Members list, roles and removal** (Medium). 26 pgTAP assertions. Flatmate profile visibility covers people who were ever in your current flat (so history can still name them), and only while you are a member.
-  - Description: `set_member_role`, `remove_member`, and the `profiles` select policy that lets flatmates see each other (name and photo only). Members list shows what each role may do; admins promote, demote and remove. pgTAP first.
-  - Acceptance:
-    - [x] pgTAP: members see flatmates' profiles and nobody else's; nothing changes for `anon`; deleted users still show as "Deleted user"
-    - [x] pgTAP: a member cannot call admin functions; admins cannot remove admins; nobody can demote or remove the owner; `left_reason` is `removed`
-    - [x] Unit: the role-to-actions table the UI uses
-    - [x] E2E: A promotes B to admin, demotes, removes; the removed person lands on the create-or-join screen
-  - Verify: `pnpm db:test`, `pnpm test`, `pnpm test:e2e`
-  - Dependencies: Task 4
-  - Files: migration, tests, `members-list.tsx`, actions, types
-
-- [x] **Task 6: Leave, transfer ownership, close the flat** (Medium). 30 pgTAP assertions. Each function takes the flat lock before reading who is in it. The two-simultaneous-transfers case is guarded by that lock plus the one-owner unique index; it was not exercised with two live sessions (unlike the member cap in Task 3).
-  - Description: `leave_household`, `transfer_ownership` (old owner becomes admin), `close_household` (sole member only), and the `private.can_leave` hook (returns true until `ledger`). Confirmation dialogs in `/more/flat`.
-  - Acceptance:
-    - [x] pgTAP: owner cannot leave while others remain; transfer swaps owner and keeps exactly one; two simultaneous transfers cannot create two owners
-    - [x] pgTAP: leaving sets `left_at`/`left_reason`; a closed flat cannot be joined or read; rejoining makes a new row; `can_leave` is called by leave
-    - [x] E2E: member leaves and rejoins with a fresh link; owner transfers then leaves; a sole member closes the flat
+    - [ ] pgTAP: each action creates exactly the rows in the spec's table, to the right people, with the right dedupe keys; repeating an action path cannot duplicate; existing household suites still pass
+    - [ ] E2E: A creates a flat, B joins from the link; A's inbox shows "B joined"; B is told nothing about their own join; A makes B an admin and B's inbox shows it
   - Verify: `pnpm db:test`, `pnpm test:e2e`
-  - Dependencies: Task 5
-  - Files: migration, tests, `/more/flat` dialogs, actions
+  - Dependencies: Tasks 1, 2
+  - Files: migration, `household-notifications.test.sql`, `e2e/notifications.spec.ts`
 
-- [x] **Task 7: Account deletion interaction** (Small). 16 pgTAP assertions. ORDER MATTERS on hosted (Task 9): apply the migrations first, then deploy the new `delete-account` function, because the function calls `end_memberships_for_account`.
-  - Description: `private.end_memberships_for_account(profile_id)` (service role only); extend the `delete-account` handler: owner with others returns a clear 409 `owner_must_transfer`, sole member closes the flat, other members leave, then anonymise and delete as before. Account page shows the message.
+- [ ] **Task 4: Live bell** (Small)
+  - Description: `live-inbox.tsx`, same pattern as `household/live-flat.tsx`: lazy import of the browser client, `getSession` then `realtime.setAuth`, subscribe to `notifications` (RLS limits rows to the recipient), debounced `router.refresh()`, refresh on tab focus and a 60 s backstop. Mounted next to `LiveFlatGate`.
   - Acceptance:
-    - [x] Handler tests: each of the three cases; still anonymises before deleting; no detail leaks; retry is safe
-    - [x] pgTAP: only `service_role` can call the function; `left_reason` is `account_deleted` or `flat_closed`
-    - [x] E2E: a non-owner deletes and disappears from the member list as "Deleted user"; an owner with others is told to transfer
+    - [ ] Unit: sets auth before subscribing, debounces bursts, refreshes on focus and backstop, cleans up on unmount, never subscribes if unmounted early (mirrors `live-flat.test.tsx`)
+    - [ ] E2E: with A's page open, B joins and A's bell count rises without navigating
+    - [ ] Bundle budgets unchanged (no raise); CI green
+  - Verify: `pnpm check`, `pnpm test:e2e`
+  - Dependencies: Task 3
+  - Files: `src/features/notifications/live-inbox.tsx` and test, `(app)/layout.tsx`
+
+- [ ] **Task 5: Preferences and snooze** (Medium)
+  - Description: `/more/notifications` with per-type in-app and push toggles (saved rows override code defaults), a link from More, `savePreference` action, `snooze` on snoozable types (one hour, this evening, tomorrow morning) hiding the row from the unread count until the snooze ends. The in-app toggle off means no inbox row for that type.
+  - Acceptance:
+    - [ ] Unit: preference resolution (saved overrides default); snooze choice to timestamp in Europe/London; schemas
+    - [ ] pgTAP: owner-only writes to preferences; snooze only on the caller's own snoozable row
+    - [ ] E2E: turn a type off and the next event does not reach the inbox; snoozing hides a test reminder from the badge
   - Verify: `pnpm test`, `pnpm db:test`, `pnpm test:e2e`
+  - Dependencies: Tasks 1, 2 (3 for the E2E)
+  - Files: `src/features/notifications/{preferences-form,actions,schemas}.ts*`, `src/app/(app)/more/notifications/page.tsx`, `src/app/(app)/more/page.tsx`
+
+- [ ] **Task 6: Push on the device** (Medium)
+  - Description: Spike and choose the smallest audited Web Push library that runs on Deno (confirm with the owner before adding). `pnpm vapid:generate` script. `push-client.ts` (permission, subscribe, unsubscribe; states granted, denied, unsupported, iOS in-browser), `push-card.tsx` with the iPhone install explanation, `savePushSubscription` and remove actions, device list with remove. `public/sw.js` gains `push` and `notificationclick` handlers and a `VERSION` bump; it still caches no pages. Permission is only requested after a tap.
+  - Acceptance:
+    - [ ] Unit: push-client state machine with mocked browser APIs; service-worker handlers with a fake `self` (shows title, body, opens the path, ignores off-site paths); subscription schema
+    - [ ] E2E: settings page shows the unsupported explanation in a browser without push, and a working toggle where supported (subscription stored, removable)
+    - [ ] No permission prompt on page load; bundle budgets unchanged
+  - Verify: `pnpm test`, `pnpm test:e2e`, `pnpm check`
+  - Dependencies: Task 5
+  - Files: `src/features/notifications/push-*.ts*`, `public/sw.js`, `scripts/vapid-generate.mts`, `package.json`
+
+- [ ] **Task 7: `deliver-push` worker, outbox drain, retention** (Medium)
+  - Description: Edge Function `deliver-push` (`handler.ts`, `index.ts`, tests): reads due outbox rows, sends, records success, retries with backoff (1, 5, 30 minutes then gives up), deletes subscriptions reported gone (404/410). A one-minute job through the existing `job_runs` scheduler calls it; a daily job deletes read notifications older than 90 days and sent outbox rows older than 14 days. Payload is title, one short line and a path only.
+  - Acceptance:
+    - [ ] Unit (Deno): success marks sent; 5xx retries with growing delay; 404/410 removes the subscription; attempt cap stops retries; payload carries no more than the spec allows
+    - [ ] pgTAP: outbox claim cannot hand the same row to two workers; retention deletes only what it should
+    - [ ] Local: a notification for a subscribed test device reaches a fake push endpoint through `functions serve`
+  - Verify: `pnpm test`, `pnpm db:test`, local functions serve check
   - Dependencies: Task 6
-  - Files: migration, tests, `delete-account/*`, `delete-account-form.tsx`
+  - Files: `supabase/functions/deliver-push/*`, migration (jobs, claim function), `docs/DEPLOY.md`
 
-- [x] **Task 8: Setup checklist and step registry** (Small). Later modules add their step to `SETUP_STEPS` in `setup-steps.ts`. The member note is unit-tested; in E2E it cannot appear yet (one step, which a second member completes).
-  - Description: `setup-steps.ts` registry and `setup-checklist.tsx` on Home for admins and the owner; first step "Invite your flatmates" (done at two or more members); members see the waiting note. Hides when every step is done.
+- [ ] **Task 8: Account deletion, privacy notice, hosted rollout, phone checks** (Medium)
+  - Description: Extend `delete-account` so notifications, preferences and push subscriptions go with the account (rows already cascade; handler test proves it). Privacy page names the new data and `privacy-matches-data` covers the four tables. Hosted rollout in order: migrations, VAPID secrets (Supabase) and public key (Vercel), `deliver-push` deploy, `delete-account` redeploy, advisors check. Owner device checks.
   - Acceptance:
-    - [x] Unit: ordering, done and hidden logic, role visibility, and a test that another module can register a step
-    - [x] E2E: checklist shows for the owner, ticks after B joins, members see the note
-  - Verify: `pnpm test`, `pnpm test:e2e`
-  - Dependencies: Task 4
-  - Files: `setup-steps.ts`, `setup-checklist.tsx`, dashboard, tests
-
-- [x] **Task 9: Privacy notice, full E2E, hosted rollout, device checks** (Medium). Done except the two-phone check, which only the owner can do. Hosted rollout 29 Oct 2026: the five household migrations were applied to project `flatmate` and aligned to the repo versions, then `delete-account` v2 was deployed (migrations first, as required). Supabase advisors: only the intended signed-in-callable functions (11 WARN) plus the earlier `job_runs` INFO.
-  - Description: Privacy page names the new data (membership, role, join and leave times, invite hashes) with a test tied to the generated types, as for `profiles`. Apply the migrations to hosted and deploy `delete-account`; compare migration versions to the repo; advisors check. Real-device check with two phones.
-  - Acceptance:
-    - [x] Privacy test fails if any household table gains a column the notice does not cover
-    - [x] Hosted migrations match the repo; Supabase advisors show nothing new beyond intended notes
-    - [ ] Two real phones: share the link through the share sheet, second phone joins (Safari and installed app), roles and removal behave
-    - [x] Lighthouse targets hold on `/dashboard` and `/more/flat`
-  - Verify: CI, hosted checks, manual
-  - Dependencies: Tasks 1 to 8
-
-- [x] **Follow-up: live flat updates** (owner feedback 29 Oct: a new member only appeared after leaving the screen and coming back). `memberships` is published to Realtime (migration `20261029170000`), the app layout runs `LiveFlat`, and open screens refresh on join, leave and role changes, when you return to the tab, and on a 60 second backstop. Realtime needs the signed-in token handed to it and rejects a `household_id` filter, so it listens without one; row-level security limits it to your own flat. A removed person is not told (they can no longer see the row) and catches up on return.
-
-### Checkpoint: Household complete
-
-- [ ] Every success criterion in `docs/SPEC-household.md` is met
-- [ ] `tasks/todo.md` carry-over items reported or consciously deferred
+    - [ ] Handler test: deleting an account removes the person's notifications, preferences and subscriptions
+    - [ ] Privacy test fails if the tables change without the notice
+    - [ ] Hosted: `list_migrations` matches the repo; advisors show no new warnings beyond the intended function ones
+    - [ ] Owner on real phones: install the app, turn on push, an admin makes them an admin and the push arrives with the app closed; tapping opens the right screen; push off on one device leaves others on; Safari shows the install explanation
+  - Verify: `pnpm check`, `pnpm db:test`, `pnpm test:e2e`, production `/api/health`
+  - Dependencies: Tasks 1 to 7
+  - Files: `supabase/functions/delete-account/*`, `src/app/(public)/privacy/page.tsx`, `src/features/legal/privacy-matches-data.test.tsx`, `docs/DEPLOY.md`
