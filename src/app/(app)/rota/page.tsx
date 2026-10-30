@@ -40,6 +40,9 @@ async function RotaContent() {
           <Link href="/rota/availability" className={linkClass}>
             Which days are you around?
           </Link>
+          <Link href="/rota/fairness" className={linkClass}>
+            Who has done what
+          </Link>
           <Link href="/rota/chores" className={linkClass}>
             {isAdmin ? "Edit chores" : "Chores and steps"}
           </Link>

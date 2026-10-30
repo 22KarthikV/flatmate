@@ -110,5 +110,11 @@ test.describe("the rota", () => {
     await other.goto(url);
     await expect(other.getByText(/^Why: /)).toBeVisible();
     await expect(other.locator("ol").getByRole("button")).toHaveCount(0);
+
+    // The fairness page lists everyone, with the viewer marked.
+    await hostPage.goto("/rota/fairness");
+    await expect(hostPage.getByRole("heading", { name: "Fairness" })).toBeVisible();
+    await expect(hostPage.getByRole("heading", { name: /(you)/ })).toBeVisible();
+    await expect(hostPage.getByText(/effort points done/).first()).toBeVisible();
   });
 });
