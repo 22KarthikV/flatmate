@@ -636,6 +636,18 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_expense: {
+        Args: {
+          p_amount_pence: number;
+          p_category: string;
+          p_description: string;
+          p_occurred_on: string;
+          p_paid_by: string;
+          p_profile_ids: string[];
+          p_share_pence: number[];
+        };
+        Returns: string;
+      };
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
       claim_push_outbox: {
         Args: { p_limit?: number };
@@ -662,6 +674,19 @@ export type Database = {
       };
       create_household: { Args: { p_name: string }; Returns: string };
       create_invite: { Args: Record<PropertyKey, never>; Returns: string };
+      edit_expense: {
+        Args: {
+          p_amount_pence: number;
+          p_category: string;
+          p_description: string;
+          p_expense_id: string;
+          p_occurred_on: string;
+          p_paid_by: string;
+          p_profile_ids: string[];
+          p_share_pence: number[];
+        };
+        Returns: string;
+      };
       end_memberships_for_account: { Args: { p_user_id: string }; Returns: string };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
       household_balances: {
@@ -713,6 +738,7 @@ export type Database = {
       snooze: { Args: { p_id: string; p_until: string }; Returns: undefined };
       transfer_ownership: { Args: { p_profile_id: string }; Returns: undefined };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
+      void_expense: { Args: { p_expense_id: string }; Returns: undefined };
     };
     Enums: {
       household_role: "owner" | "admin" | "member";
