@@ -4,12 +4,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getMembers } from "@/features/household/members";
+import { getMembership } from "@/features/household/membership";
 import { logger } from "@/lib/logger";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import type { ExpenseFormState } from "./constants";
 import { expenseErrorMessage, isExpectedExpenseError } from "./errors";
 import { londonToday, parseExpenseFields, parseExpenseId, rawFromFormData } from "./form";
+import { parseSettlementFields, rawSettlementFromFormData } from "./settle";
 
 type Parsed = Extract<ReturnType<typeof parseExpenseFields>, { ok: true }>["value"];
 
@@ -109,4 +111,79 @@ export async function voidExpense(
 
   revalidatePath("/money");
   redirect("/money");
+}
+
+/**
+ * Records "I paid" someone. It is pending until they confirm, so it changes nobody's balance yet;
+ * they are told straight away.
+ */
+export async function recordSettlement(
+  _previous: ExpenseFormState,
+  formData: FormData,
+): Promise<ExpenseFormState> {
+  const [members, membership] = await Promise.all([getMembers(), getMembership()]);
+  const parsed = parseSettlementFields(
+    rawSettlementFromFormData(formData),
+    members.map((member) => member.profileId),
+    membership?.profileId ?? "",
+  );
+  if (!parsed.ok) return { status: "error", message: parsed.message };
+
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("record_settlement", {
+    p_to: parsed.value.toProfile,
+    p_amount_pence: parsed.value.amountPence,
+  });
+  if (error) {
+    if (!isExpectedExpenseError(error)) logger.error("ledger.record_settlement_failed", { error });
+    return { status: "error", message: expenseErrorMessage(error) };
+  }
+
+  revalidatePath("/money");
+  redirect("/money");
+}
+
+type SettlementFunction = "confirm_settlement" | "decline_settlement" | "cancel_settlement";
+
+/** Runs one of the three decisions on a pending payment, named by the hidden settlementId field. */
+async function decideSettlement(
+  fn: SettlementFunction,
+  formData: FormData,
+): Promise<ExpenseFormState> {
+  const settlementId = parseExpenseId(formData.get("settlementId"));
+  if (!settlementId) return { status: "error", message: "We couldn’t find that payment." };
+
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc(fn, { p_settlement_id: settlementId });
+  if (error) {
+    if (!isExpectedExpenseError(error)) logger.error(`ledger.${fn}_failed`, { error });
+    return { status: "error", message: expenseErrorMessage(error) };
+  }
+
+  revalidatePath("/money");
+  return { status: "idle" };
+}
+
+/** The receiver confirms the payment arrived: it now counts. */
+export async function confirmSettlement(
+  _previous: ExpenseFormState,
+  formData: FormData,
+): Promise<ExpenseFormState> {
+  return decideSettlement("confirm_settlement", formData);
+}
+
+/** The receiver says it did not arrive: it never counts. */
+export async function declineSettlement(
+  _previous: ExpenseFormState,
+  formData: FormData,
+): Promise<ExpenseFormState> {
+  return decideSettlement("decline_settlement", formData);
+}
+
+/** The payer takes back a payment that is still pending. */
+export async function cancelSettlement(
+  _previous: ExpenseFormState,
+  formData: FormData,
+): Promise<ExpenseFormState> {
+  return decideSettlement("cancel_settlement", formData);
 }

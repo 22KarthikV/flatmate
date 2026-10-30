@@ -649,6 +649,7 @@ export type Database = {
         Returns: string;
       };
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
+      cancel_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       claim_push_outbox: {
         Args: { p_limit?: number };
         Returns: {
@@ -672,8 +673,10 @@ export type Database = {
         };
         Returns: undefined;
       };
+      confirm_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       create_household: { Args: { p_name: string }; Returns: string };
       create_invite: { Args: Record<PropertyKey, never>; Returns: string };
+      decline_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       edit_expense: {
         Args: {
           p_amount_pence: number;
@@ -720,6 +723,7 @@ export type Database = {
           member_count: number;
         }[];
       };
+      record_settlement: { Args: { p_amount_pence: number; p_to: string }; Returns: string };
       remove_member: { Args: { p_profile_id: string }; Returns: undefined };
       rename_household: { Args: { p_name: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };

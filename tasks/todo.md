@@ -69,12 +69,12 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
   - Dependencies: Task 4
   - Files: `src/features/ledger/balances*.ts*`, `src/app/(app)/money/page.tsx`
 
-- [ ] **Task 6: Settle-up: record, confirm, decline, cancel** (Medium)
+- [x] **Task 6: Settle-up: record, confirm, decline, cancel** (Medium)
   - Description: Migration `*_ledger_settlements.sql` with `record_settlement`, `confirm_settlement`, `decline_settlement`, `cancel_settlement`. A pending settlement changes no balance; confirming moves it. Notifications: `settlement_pending` to the receiver, `settlement_confirmed` or `settlement_declined` to the payer. Screens: `/money/settle` (prefilled from a suggested payment) and pending rows on `/money` with Confirm and Decline for the receiver and Cancel for the payer.
   - Acceptance:
-    - [ ] pgTAP: only the receiver can confirm or decline; only the payer can cancel; confirming twice is a no-op; a declined or cancelled settlement never changes a balance; balances stay zero-sum
-    - [ ] pgTAP: payer and receiver must be active members of the same flat; amount limits; notifications and generic push text
-    - [ ] E2E: B records a payment, A sees it pending and confirms, both balances update to zero; a declined payment leaves balances unchanged
+    - [x] pgTAP: only the receiver can confirm or decline; only the payer can cancel; confirming twice is a no-op; a declined or cancelled settlement never changes a balance; balances stay zero-sum
+    - [x] pgTAP: payer and receiver must be active members of the same flat; amount limits; notifications and generic push text
+    - [x] E2E: B records a payment, A sees it pending and confirms, both balances update to zero; a declined payment leaves balances unchanged
   - Verify: `pnpm db:test`, `pnpm test:e2e`
   - Dependencies: Task 5
   - Files: migration, `ledger-settlements.test.sql`, `src/features/ledger/{settle-form,actions}.ts*`, `src/app/(app)/money/settle/page.tsx`, `e2e/ledger.spec.ts`

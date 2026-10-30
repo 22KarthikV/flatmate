@@ -11,6 +11,9 @@ const MESSAGES: Record<string, string> = {
   not_a_member: "Everyone on an expense must still be in the flat.",
   expense_not_found: "We couldn’t find that expense.",
   already_voided: "That expense has already been cancelled.",
+  invalid_recipient: "Choose who you paid.",
+  settlement_not_found: "We couldn’t find that payment.",
+  settlement_not_pending: "That payment has already been dealt with.",
 };
 
 /** A friendly sentence for what the database function said, or a general one for anything unexpected. */

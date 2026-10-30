@@ -23,7 +23,19 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
-import { addExpense, editExpense, voidExpense } from "./actions";
+vi.mock("@/features/household/membership", () => ({
+  getMembership: async () => ({ profileId: "00000000-0000-0000-0000-00000000000a" }),
+}));
+
+import {
+  addExpense,
+  cancelSettlement,
+  confirmSettlement,
+  declineSettlement,
+  editExpense,
+  recordSettlement,
+  voidExpense,
+} from "./actions";
 import { londonToday } from "./form";
 
 const A = "00000000-0000-0000-0000-00000000000a";
@@ -138,6 +150,100 @@ describe("editExpense", () => {
     mocks.rpc.mockResolvedValue({ data: null, error: { code: "42501", message: "not_allowed" } });
     const result = await editExpense(IDLE, expenseForm({ expenseId: EXPENSE }));
     expect(result).toEqual({ status: "error", message: "You can’t do that in this flat." });
+  });
+});
+
+describe("recordSettlement", () => {
+  const form = (to: string, amount: string) => {
+    const data = new FormData();
+    data.set("to", to);
+    data.set("amount", amount);
+    return data;
+  };
+
+  it("refuses paying yourself or a stranger without calling the database", async () => {
+    expect(await recordSettlement(IDLE, form(A, "5"))).toEqual({
+      status: "error",
+      message: "Choose who you paid.",
+    });
+    expect(await recordSettlement(IDLE, form("00000000-0000-0000-0000-0000000000ff", "5"))).toEqual(
+      { status: "error", message: "Choose who you paid." },
+    );
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it("refuses a bad amount", async () => {
+    expect(await recordSettlement(IDLE, form(B, "abc"))).toEqual({
+      status: "error",
+      message: "Enter an amount like 4.20.",
+    });
+  });
+
+  it("records the payment in pence and goes back to the Money screen", async () => {
+    mocks.rpc.mockResolvedValue({ data: "s1", error: null });
+    await expect(recordSettlement(IDLE, form(B, "12.50"))).rejects.toThrow("REDIRECT:/money");
+    expect(mocks.rpc).toHaveBeenCalledWith("record_settlement", {
+      p_to: B,
+      p_amount_pence: 1250,
+    });
+  });
+
+  it("explains the database's refusals", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "P0001", message: "not_a_member" } });
+    expect(await recordSettlement(IDLE, form(B, "5"))).toEqual({
+      status: "error",
+      message: "Everyone on an expense must still be in the flat.",
+    });
+  });
+});
+
+describe("settlement decisions", () => {
+  const SETTLEMENT = "51000000-0000-0000-0000-000000000001";
+  const form = (id: string) => {
+    const data = new FormData();
+    data.set("settlementId", id);
+    return data;
+  };
+
+  it.each([
+    [confirmSettlement, "confirm_settlement"],
+    [declineSettlement, "decline_settlement"],
+    [cancelSettlement, "cancel_settlement"],
+  ] as const)("%o calls %s with the payment's id and refreshes the screen", async (action, fn) => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null });
+    expect(await action(IDLE, form(SETTLEMENT))).toEqual({ status: "idle" });
+    expect(mocks.rpc).toHaveBeenCalledWith(fn, { p_settlement_id: SETTLEMENT });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/money");
+  });
+
+  it.each([confirmSettlement, declineSettlement, cancelSettlement])(
+    "%o needs a real payment id",
+    async (action) => {
+      expect(await action(IDLE, form("nope"))).toEqual({
+        status: "error",
+        message: "We couldn’t find that payment.",
+      });
+      expect(mocks.rpc).not.toHaveBeenCalled();
+    },
+  );
+
+  it("says when it has already been dealt with", async () => {
+    mocks.rpc.mockResolvedValue({
+      data: null,
+      error: { code: "P0001", message: "settlement_not_pending" },
+    });
+    expect(await confirmSettlement(IDLE, form(SETTLEMENT))).toEqual({
+      status: "error",
+      message: "That payment has already been dealt with.",
+    });
+  });
+
+  it("says when someone else's payment cannot be touched", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "42501", message: "not_allowed" } });
+    expect(await cancelSettlement(IDLE, form(SETTLEMENT))).toEqual({
+      status: "error",
+      message: "You can’t do that in this flat.",
+    });
   });
 });
 

@@ -8,15 +8,18 @@ import { BalancesCard } from "@/features/ledger/balances-card";
 import { getBalancesView } from "@/features/ledger/balances";
 import { ExpenseList } from "@/features/ledger/expense-list";
 import { getRecentExpenses } from "@/features/ledger/expenses";
+import { PendingSettlementsCard } from "@/features/ledger/pending-settlements";
+import { getPendingSettlements } from "@/features/ledger/settlements";
 
 export const metadata = { title: "Money | FlatMate" };
 
 async function MoneyContent() {
   const membership = await getMembership();
   if (!membership) return null;
-  const [expenses, balances] = await Promise.all([
+  const [expenses, balances, pending] = await Promise.all([
     getRecentExpenses(membership.profileId),
     getBalancesView(membership.householdId, membership.profileId),
+    getPendingSettlements(membership.profileId),
   ]);
 
   return (
@@ -27,14 +30,22 @@ async function MoneyContent() {
         <p className="text-muted max-w-md">Shared expenses for {membership.householdName}.</p>
       </header>
 
-      <div>
+      <div className="flex flex-wrap gap-3">
         <Link
           href="/money/add"
           className="label-caps bg-ink text-paper inline-flex min-h-11 items-center px-6 hover:opacity-85"
         >
           Add expense
         </Link>
+        <Link
+          href="/money/settle"
+          className="label-caps border-ink hover:bg-ink hover:text-paper inline-flex min-h-11 items-center border px-6"
+        >
+          Record a payment
+        </Link>
       </div>
+
+      <PendingSettlementsCard pending={pending} />
 
       {balances ? (
         <BalancesCard view={balances} />
