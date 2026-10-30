@@ -2,12 +2,12 @@
 
 Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-rota.md). Tests come first (pgTAP before each migration, Vitest before pure code).
 
-- [ ] **Task 1: Chores and checklists (R1)**
+- [x] **Task 1: Chores and checklists (R1)**
   - Migration `20261116000000_rota.sql`: `chores`, `chore_checklist_items`, RLS (members read, nobody writes), admin-only functions `save_chore`, `archive_chore`, `load_default_chores`; `households.availability_deadline` is added in Task 3.
   - Acceptance: pgTAP isolation (flat A vs B, anon, browser role cannot write), only admins edit chores, defaults load once with efforts Bins 1 / Kitchen 3 / Living room 4 / Bathroom 2 / Hallway 1, cadence/effort/length checks; Vitest schemas and chore form; `/rota/chores` admin page; `/rota` budget route entries; privacy and DEPLOY stubs.
   - Verify: `pnpm check && pnpm db:reset && pnpm db:test && pnpm db:types`
 
-- [ ] **Task 2: Pure scheduler (R3)**
+- [x] **Task 2: Pure scheduler (R3)**
   - `week.ts`, `schedule.ts`, `fairness.ts`, `explain.ts`, property tests (determinism, no unavailable assignment, nothing lost, effort gap bound, long-run coverage, owed turn honoured, DST).
   - Verify: `pnpm test`
 
@@ -29,3 +29,7 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 - [ ] **Task 10: Leaver trigger, rebuild, undo, joiners (R7b)**
 
 - [ ] **Task 11: Checkpoint (R8)**
+
+## Progress notes
+
+- Task 1 merged (PR 54, migration `20261116000000_rota.sql` applied to hosted): chore tables, admin-only write functions, the usual five defaults and `/rota/chores`. Task 2 (PR 55) adds the pure scheduler, week helpers, fairness and explanations with property tests; no migration. Next: Task 3, availability.
