@@ -1228,6 +1228,7 @@ export type Database = {
       };
       end_memberships_for_account: { Args: { p_user_id: string }; Returns: string };
       end_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
+      enter_bill_amount: { Args: { p_amount_pence: number; p_instance: string }; Returns: string };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
       household_balances: {
         Args: { p_household_id: string };
