@@ -58,9 +58,31 @@ Roll out in this order: migrations first (`claim_push_outbox`, `complete_push`, 
 
 **Rotating the keys** invalidates every existing subscription: the push service rejects the old ones, the worker removes them as "gone", and each device re-subscribes the next time the app is opened. Update the Supabase secrets and the Vercel variable together, then redeploy both. Do this only if the private key may have leaked.
 
-**Checking it locally** (Docker and `pnpm db:start` running): `node scripts/local-push-check.mts` serves `deliver-push` in the real Edge runtime and proves it authenticates, claims queued pushes, signs a request with `web-push`, and records retries. It cannot show a push being accepted, because the local runtime only trusts public certificates; status handling is covered by the unit tests.
+**Checking it locally** (Docker and `pnpm db:start` running): `node scripts/local-push-check.mts` serves `deliver-push` in the real Edge runtime and proves it authenticates, claims queued pushes, signs a request with `web-push`, and records retries. It cannot show a push being accepted, because the local runtime only trusts public certificates; status handling is covered by the unit tests. The check borrows the local stack's function runtime and removes it when it finishes, so afterwards run `pnpm db:stop && pnpm db:start` to bring the stack's own functions (including `delete-account`, which the end-to-end tests use) back.
 
 **Watching it in production:** a `deliver-push` row should appear in `job_runs` every minute, and `notification-retention` once a day (03:17 UTC). A gap in `deliver-push` rows means the worker or the scheduler is down. Rows stuck in `push_outbox` with `next_attempt_at = 'infinity'` are pushes that were given up on after four attempts; the notification itself is still in the person's inbox.
+
+### Rollout order for notifications
+
+1. Migrations, in order, to the hosted project (`supabase db push`, or the migration tool followed by `migration repair`): `notifications`, `household_notifications`, `push_delivery`, `account_deletion_notifications`. Apply before merging the pull request that needs them.
+2. VAPID secrets in Supabase, then `supabase functions deploy deliver-push --no-verify-jwt`.
+3. Vercel `NEXT_PUBLIC_VAPID_PUBLIC_KEY` for Production and Preview, then redeploy.
+4. `delete-account` does **not** need redeploying: removing a deleted person's notification data happens inside the database function it already calls (`anonymise_profile`), in the same transaction.
+5. Compare `list_migrations` with `supabase/migrations/`, and run the Supabase security and performance advisors. The only new findings should be the intended ones: security-definer functions in `public` that only the service role (or signed-in people, for the inbox functions) can run.
+
+### Phone checks (owner, once, on real devices)
+
+The automated tests fake the push service, so this is the first time a push is truly accepted. Use a second account as the admin.
+
+- [ ] **Android (Chrome):** open the site, install the app, open Settings, Notifications, tap "Turn on push on this device" and allow. The device appears under "Your devices" with "This device".
+- [ ] **iPhone (iOS 16.4 or later):** in Safari the page explains Add to Home Screen and shows no switch. After installing from Share, Add to Home Screen and opening the Home Screen app, "Turn on push" appears and works.
+- [ ] Close the app completely. From another account (an owner or admin), make the phone's account an admin. Within a minute or two a push arrives: "You are now an admin".
+- [ ] Tap the push: the app opens on Your flat.
+- [ ] With push on for two devices, remove one under "Your devices". The other still receives pushes.
+- [ ] Turn "Your role changes" off for push, repeat the role change: the notification appears in the inbox but no push arrives.
+- [ ] Delete a throwaway account that had push on: its device disappears, and no push is delivered afterwards.
+
+If a push never arrives, check in this order: `deliver-push` rows in `job_runs` every minute; the person's `push_outbox` row (`attempts`, `last_error`, `next_attempt_at`); that the device row has no `failed_at`; and the function logs on the Supabase dashboard (they show a status code, never the endpoint).
 
 ## After a deploy
 

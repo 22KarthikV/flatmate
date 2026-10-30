@@ -1,6 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-import { ensureSnoozableType, seedNotification } from "./support/database";
+import {
+  ensureSnoozableType,
+  notificationDataCount,
+  profileIdFor,
+  seedNotification,
+  seedPushDevice,
+} from "./support/database";
 import {
   addSessionCookies,
   createFlat,
@@ -161,6 +167,56 @@ test.describe("preferences and snooze", () => {
     await expect(page.getByText(/Snoozed until \d\d:\d\d/)).toBeVisible();
     await expect(page.getByRole("link", { name: "Notifications", exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: /^Snooze/ })).toHaveCount(0);
+  });
+});
+
+test.describe("deleting an account", () => {
+  test("removes the person's notifications, choices and push devices, and their name from their flatmate's inbox", async ({
+    browser,
+    baseURL,
+  }) => {
+    const owner = await signUpAndIn(newTestUser("del-owner"));
+    await createFlat(owner.supabase, "Deletion inbox flat");
+    const leaver = await signUpAndIn(newTestUser("del-leaver"));
+    await joinFlat(owner.supabase, leaver.supabase);
+    const leaverName = leaver.user.email.split("@")[0];
+
+    // The leaver has a notification, a saved choice and a registered phone.
+    seedNotification(leaver.user.email, { title: "Take the bins out", dedupeKey: "e2e:del:1" });
+    await leaver.supabase.rpc("set_notification_preference", {
+      p_type: "member_left",
+      p_in_app: true,
+      p_push: true,
+    });
+    seedPushDevice(leaver.user.email, "https://push.example/e2e-delete");
+    const profileId = profileIdFor(leaver.user.email);
+    expect(notificationDataCount(profileId)).toBe(3);
+
+    const leaverContext = await browser.newContext({ baseURL });
+    await addSessionCookies(leaverContext, leaver.jar, baseURL!);
+    const leaverPage = await leaverContext.newPage();
+    await leaverPage.goto("/more/account");
+    await leaverPage.getByRole("button", { name: "Delete account" }).click();
+    await leaverPage.getByLabel(/type delete/i).fill("DELETE");
+    await leaverPage.getByRole("button", { name: "Delete my account" }).click();
+    await expect(leaverPage).toHaveURL(/\/sign-in\?deleted=1$/);
+
+    expect(notificationDataCount(profileId)).toBe(0);
+
+    // The owner was told the person joined and then left; neither message keeps their name.
+    const ownerContext = await browser.newContext({ baseURL });
+    await addSessionCookies(ownerContext, owner.jar, baseURL!);
+    const ownerPage = await ownerContext.newPage();
+    await ownerPage.goto("/notifications");
+    await expect(
+      ownerPage.getByRole("button", { name: /Deleted user joined Deletion inbox flat/ }),
+    ).toBeVisible();
+    await expect(
+      ownerPage.getByRole("button", { name: /Deleted user left Deletion inbox flat/ }),
+    ).toBeVisible();
+    await expect(ownerPage.getByText(leaverName)).toHaveCount(0);
+
+    await Promise.all([leaverContext.close(), ownerContext.close()]);
   });
 });
 

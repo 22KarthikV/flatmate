@@ -60,6 +60,64 @@ describe("privacy notice", () => {
     ]);
   });
 
+  it("covers every column of the notification tables as they stand today", () => {
+    expect(columnsOf("notifications")).toEqual([
+      "body",
+      "created_at",
+      "dedupe_key",
+      "household_id",
+      "href",
+      "id",
+      "read_at",
+      "recipient_id",
+      "snoozed_until",
+      "title",
+      "type",
+    ]);
+    expect(columnsOf("notification_preferences")).toEqual(["in_app", "profile_id", "push", "type"]);
+    expect(columnsOf("push_subscriptions")).toEqual([
+      "auth",
+      "created_at",
+      "endpoint",
+      "failed_at",
+      "id",
+      "last_success_at",
+      "p256dh",
+      "profile_id",
+      "user_agent",
+    ]);
+    expect(columnsOf("push_outbox")).toEqual([
+      "attempts",
+      "id",
+      "last_error",
+      "next_attempt_at",
+      "notification_id",
+      "sent_at",
+      "subscription_id",
+    ]);
+  });
+
+  it("explains notifications and push: what is kept, for how long, and what deletion does", () => {
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+
+    for (const phrase of [
+      "What we store about your notifications",
+      "Only you can see your own",
+      "read ones are deleted after 90 days",
+      "push address",
+      "encryption keys",
+      "Safari on iPhone",
+      "only a title, one short line and a link",
+      "14 days",
+      "turn push off for one device",
+      "Apple, Google, Microsoft or Mozilla",
+      "Messages other people already received about you will say",
+    ]) {
+      expect(text, `the notice should mention "${phrase}"`).toContain(phrase);
+    }
+  });
+
   it("explains the flat data, who sees it and what happens when someone leaves", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";
