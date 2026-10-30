@@ -43,6 +43,69 @@ async function addEqualExpense(page: Page, amount: string, description: string) 
   await expect(page).toHaveURL(/\/money\/expenses\/[0-9a-f-]{36}$/);
 }
 
+test.describe("balances", () => {
+  test("both flatmates see the same, correct positions and the same suggested payment", async ({
+    browser,
+    baseURL,
+  }) => {
+    const { hostPage, joinerPage, hostContext, joinerContext } = await twoFlatmates(
+      browser,
+      baseURL!,
+    );
+
+    // A new flat has nothing to settle.
+    await hostPage.goto("/money");
+    await expect(hostPage.getByText("Everyone is square")).toBeVisible();
+
+    // The host pays 10.00 for both of them; the flatmate pays 4.00 for both.
+    await addEqualExpense(hostPage, "10", "Shared shopping");
+    await addEqualExpense(joinerPage, "4", "Light bulbs");
+
+    // The flatmate owes 5.00 and is owed 2.00: net they owe 3.00, and the host is owed 3.00.
+    await hostPage.goto("/money");
+    await expect(hostPage.getByText("You are owed £3.00")).toBeVisible();
+    await expect(hostPage.getByText(/pays you £3\.00/)).toBeVisible();
+    await expect(hostPage.getByText("owes £3.00")).toBeVisible();
+
+    await joinerPage.goto("/money");
+    await expect(joinerPage.getByText("You owe £3.00")).toBeVisible();
+    await expect(joinerPage.getByText(/You pay .* £3\.00/)).toBeVisible();
+    await expect(joinerPage.getByText("is owed £3.00")).toBeVisible();
+
+    // Cancelling the larger expense moves everyone.
+    await hostPage.goto("/money");
+    await hostPage.getByRole("link", { name: /Shared shopping/ }).click();
+    await hostPage.getByRole("button", { name: "Cancel this expense" }).click();
+    await hostPage.getByRole("button", { name: "Yes, cancel it" }).click();
+    await expect(hostPage).toHaveURL(/\/money$/);
+    await expect(hostPage.getByText("You owe £2.00")).toBeVisible();
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+
+  test("an open Money screen updates when a flatmate adds an expense, without navigating", async ({
+    browser,
+    baseURL,
+  }) => {
+    const { hostPage, joinerPage, hostContext, joinerContext } = await twoFlatmates(
+      browser,
+      baseURL!,
+    );
+
+    await joinerPage.goto("/money");
+    await expect(joinerPage.getByText("Everyone is square")).toBeVisible();
+    // Give the live updates a moment to connect, as the notification tests do.
+    await joinerPage.waitForTimeout(3000);
+
+    await addEqualExpense(hostPage, "8", "Live update");
+
+    await expect(joinerPage.getByText("You owe £4.00")).toBeVisible({ timeout: 20_000 });
+    await expect(joinerPage.getByRole("link", { name: /Live update/ })).toBeVisible();
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+});
+
 test.describe("expenses", () => {
   test("adding an expense tells the other flatmate, who sees their share", async ({
     browser,
