@@ -48,7 +48,7 @@ Tasks 7 to 9 can start as soon as their database dependency is merged and hosted
 - [x] Task 3: Template functions and change log
 - [x] Task 4: Monthly generator, variable amounts, leaver pause
 - [x] Task 5: Rent payments, status, my rent, dashboard
-- [ ] Task 6: Reminders and the daily job
+- [x] Task 6: Reminders and the daily job
 - [ ] Task 7: Bills screens and Money links
 - [ ] Task 8: Template form, detail and edit
 - [ ] Task 9: Rent screens
