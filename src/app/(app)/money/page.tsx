@@ -66,6 +66,12 @@ async function MoneyContent() {
 
       <div className="flex gap-2">
         <Link
+          href="/money/rent"
+          className="label-caps border-ink hover:bg-ink hover:text-paper inline-flex min-h-11 min-w-0 flex-1 items-center justify-center border px-3 text-center"
+        >
+          Your rent
+        </Link>
+        <Link
           href="/money/recurring"
           className="label-caps border-ink hover:bg-ink hover:text-paper inline-flex min-h-11 min-w-0 flex-1 items-center justify-center border px-3 text-center"
         >

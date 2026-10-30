@@ -51,7 +51,7 @@ Tasks 7 to 9 can start as soon as their database dependency is merged and hosted
 - [x] Task 6: Reminders and the daily job
 - [x] Task 7: Bills screens and Money links
 - [x] Task 8: Template form, detail and edit
-- [ ] Task 9: Rent screens
+- [x] Task 9: Rent screens
 - [ ] Task 10: End-to-end, deploy notes, final report
 
 ## Risks and how the plan handles them

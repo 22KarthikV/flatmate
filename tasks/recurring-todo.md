@@ -81,10 +81,10 @@ Plan: [recurring-plan.md](recurring-plan.md). Spec: [../docs/SPEC-recurring.md](
   - Dependencies: Tasks 3, 7
   - Files: as spec, budgets
 
-- [ ] **Task 9: Rent screens** (Large)
+- [x] **Task 9: Rent screens** (Large)
   - Description: `/money/rent` (Your rent, plus dashboard for admins and collector), `/money/rent/pay`, `/money/rent/history`, `rent-card`, `rent-dashboard`, `rent-pay-form`, confirm/decline/cancel/void/waive actions.
   - Acceptance:
-    - [ ] Unit: rent card shows only the viewer's own amount (a roommate's amount is absent from the rendered output); dashboard rows; pay form caps at what is owed
+    - [x] Unit: rent card shows only the viewer's own amount (a roommate's amount is absent from the rendered output); dashboard rows; pay form caps at what is owed
   - Verify: `pnpm check`
   - Dependencies: Tasks 5, 8
   - Files: as spec, budgets
