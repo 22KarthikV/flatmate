@@ -12,6 +12,7 @@ export type Reason =
   | { kind: "turn" }
   | { kind: "moved_day"; from: string; to: string }
   | { kind: "rebalanced"; leaver: string }
+  | { kind: "balanced"; leaver: string }
   | { kind: "unassigned"; chore: string };
 
 function sentenceFor(reason: Reason): string {
@@ -34,6 +35,8 @@ function sentenceFor(reason: Reason): string {
       return `Moved to ${weekdayName(reason.to)} because you are away on ${weekdayName(reason.from)}.`;
     case "rebalanced":
       return `Moved to you because ${reason.leaver} left.`;
+    case "balanced":
+      return `Moved to you to even out the work after ${reason.leaver} left.`;
     case "unassigned":
       return `Nobody is around for ${reason.chore} this week.`;
   }
