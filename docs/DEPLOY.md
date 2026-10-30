@@ -94,6 +94,7 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 
 - Balances are never stored; they are summed from the expense, share and settlement rows every time, and always add up to zero.
 - Nothing in the ledger is deleted or rewritten. A correction voids the old expense and adds a new one; a payment is decided once.
+- **Reminders:** a `ledger-reminders` row should appear in `job_runs` once a day (08:00 UTC): it nudges people who have owed over £1 for their flat's interval (owners and admins choose never, 3, 7 or 14 days on Your flat) and reminds receivers of payments waiting 2 days or more (once a day, three times at most). Running it twice in a day does nothing.
 - Push text for money types is fixed in the database (`notification_types.push_title` and `push_body`), so no amount reaches a lock screen. `deliver-push` is unchanged.
 - A flatmate who is removed with money open stays listed under "Former flatmates". If they are owed money, a payment to them can be recorded and another admin (not the payer) confirms it on their behalf. If they **owe** money there is no way to close it yet: it stays on the books until a decision is made about writing debts off.
 

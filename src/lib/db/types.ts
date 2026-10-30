@@ -739,6 +739,7 @@ export type Database = {
         Args: { p_in_app: boolean; p_push: boolean; p_type: string };
         Returns: undefined;
       };
+      set_nudge_interval: { Args: { p_days: number }; Returns: undefined };
       snooze: { Args: { p_id: string; p_until: string }; Returns: undefined };
       transfer_ownership: { Args: { p_profile_id: string }; Returns: undefined };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
