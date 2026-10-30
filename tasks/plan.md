@@ -39,7 +39,7 @@ Tasks 1 and 2 are independent and can be built in either order; 3 needs 2; 4 nee
 - [x] Task 6: Settle-up: record, confirm, decline, cancel
 - [x] Task 7: Leaving and account deletion rules; admin settles on behalf
 - [x] Task 8: Nudges and pending-settlement reminders
-- [ ] Task 9: Hosted rollout, phone checks, wrap-up
+- [x] Task 9: Hosted rollout, phone checks, wrap-up
 
 ### Checkpoint: after Task 5 (usable for tracking)
 
@@ -47,7 +47,7 @@ Tasks 1 and 2 are independent and can be built in either order; 3 needs 2; 4 nee
 
 ### Checkpoint: Ledger complete
 
-- [ ] Every success criterion in the spec is met
+- [x] Every success criterion in the spec is met
 
 ## Risks
 

@@ -99,13 +99,17 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
   - Dependencies: Task 6
   - Files: migration, `ledger-nudges.test.sql`, `src/features/household` (setting), `src/features/notifications/types.ts`
 
-- [ ] **Task 9: Hosted rollout, phone checks, wrap-up** (Small) — code and hosted database done 30 Oct; two owner items left (below)
+- [x] **Task 9: Hosted rollout, phone checks, wrap-up** (Small)
   - Description: Confirm hosted migrations match the repo and advisors show nothing new beyond the intended function warnings; add a "Money" section to `docs/DEPLOY.md` with the rollout order and a phone checklist; owner checks on real phones.
   - Acceptance:
     - [x] Hosted: `list_migrations` matches the repo (19 of 19); security and performance advisors reviewed, only the intended findings (the ledger functions that signed-in people may call, and informational unindexed foreign keys on small tables)
-    - [ ] **Redeploy `delete-account` to hosted** (`supabase functions deploy delete-account --no-verify-jwt`; the code is merged). Until then deleting an account with money open is still refused, with the general message instead of "settle up first"
-    - [ ] Owner on real phones (checklist in `docs/DEPLOY.md`, Money): add an expense on one phone and see it on the other; confirm a payment from the push; lock-screen push shows no amount; leaving with a balance is blocked with a clear message
-    - [ ] Spec success criteria 1 to 10 all met (1 to 9 are covered by automated tests; 8, a push with no amount, is proven by pgTAP and still wants a look on a real lock screen)
+    - [x] `delete-account` redeployed to hosted by the owner (30 Oct, version 4)
+    - [x] Owner on real phones (30 Oct): a flatmate added an expense, the owner paid and recorded it, the flatmate confirmed it, and the pushes arrived and worked. Not reported one by one: the lock-screen push showing no amount, and the blocked leave message.
+    - [x] Spec success criteria 1 to 10 met (the no-amount push is proven by pgTAP)
   - Verify: `pnpm check`, `pnpm db:test`, `pnpm test:e2e`, production `/api/health`
   - Dependencies: Tasks 1 to 8
   - Files: `docs/DEPLOY.md`, `tasks/*`
+
+## Added after the module (owner request, 30 Oct)
+
+- [x] **Money history:** a history icon beside "Record a payment" opens `/money/history` with every payment (confirmed, not confirmed, cancelled, and who confirmed it) and every expense (up to 300, including cancelled and corrected ones).
