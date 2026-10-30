@@ -64,11 +64,11 @@ Plan: [recurring-plan.md](recurring-plan.md). Spec: [../docs/SPEC-recurring.md](
   - Dependencies: Tasks 4, 5
   - Files: migration, `recurring-reminders.test.sql`
 
-- [ ] **Task 7: Bills screens and Money links** (Medium)
+- [x] **Task 7: Bills screens and Money links** (Medium)
   - Description: Server data layer, `/money/recurring` (this month and templates), `/money/recurring/months` history, `/money/recurring/instances/[id]/amount`, month card and amount form, Money screen links "Your rent" and "Rent and bills", bundle budgets for the new routes.
   - Acceptance:
-    - [ ] Unit: month card, amount form, action error mapping
-    - [ ] Budgets added for new routes, none raised
+    - [x] Unit: month card, amount form, action error mapping
+    - [x] Budgets added for new routes, none raised
   - Verify: `pnpm check`
   - Dependencies: Task 4
   - Files: `src/features/recurring/*`, `src/app/(app)/money/recurring/*`, Money page, budgets

@@ -22,7 +22,10 @@
     "/more/notifications": 200,
     "/join/[token]": 195,
     "/privacy": 195,
-    "/terms": 195
+    "/terms": 195,
+    "/money/recurring": 200,
+    "/money/recurring/months": 200,
+    "/money/recurring/instances/[id]/amount": 200
   },
   "lazyMotionKb": 60
 }
