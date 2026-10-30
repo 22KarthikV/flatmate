@@ -1,6 +1,6 @@
-# Task list: notifications
+# Task list: ledger
 
-Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-notifications.md). Tests come first for any logic (TDD). Database tasks write the pgTAP file before the migration.
+Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md). Tests come first for any logic (TDD). Database tasks write the pgTAP file before the migration.
 
 ## Carry-over (owner checks, none block this module)
 
@@ -14,86 +14,97 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-not
 
 ---
 
-- [x] **Task 1: Tables, `private.notify`, read/snooze functions, type registry, isolation tests** (Medium) 59 pgTAP assertions. The registry also lives in the database as `notification_types` (so `notify` can decide on push); a unit test keeps `types.ts` and the migrations in step.
-  - Description: Migration `*_notifications.sql` with `notifications`, `notification_preferences`, `push_subscriptions`, `push_outbox` (spec data model), RLS (own rows only; outbox service role only; subscription keys not selectable), `private.notify(...)`, `mark_read`, `mark_all_read`, `snooze`, `save_push_subscription`, and `public.notifications` added to the Realtime publication. `src/features/notifications/types.ts` registry with defaults (`member_joined`, `member_left` in-app only; `role_changed` in-app and push). pgTAP first.
+- [ ] **Task 1: Money, splits and debt simplification** (Medium)
+  - Description: Three pure modules in `src/features/ledger/`, no database. `money.ts`: `formatPence`, `parsePounds` (typed text to pence; two decimals at most), limits (1p to £10,000). `splits.ts`: `splitExpense` for equal, exact, percent (hundredths of a percent) and one-person, leftover pence given out one at a time by largest remainder with ties broken by profile id. `simplify.ts`: `simplifyDebts` from net balances to at most (people minus one) payments.
   - Acceptance:
-    - [x] pgTAP: a person cannot read another person's notifications, preferences or subscriptions, even in the same flat; `anon` reads nothing; the browser role cannot insert or update notifications except via the read/snooze functions; subscription keys are not selectable
-    - [x] pgTAP: `notify` is idempotent per `(recipient, dedupe_key)`; rejects recipients outside the household; honours an in-app-off preference; creates outbox rows only for push-enabled devices; `href` must be an internal path
-    - [x] pgTAP: Realtime publication contains `notifications` and nothing more personal
-    - [x] Unit: type registry defaults and lookup; unknown type rejected
-    - [x] Types regenerated; `pnpm db:test` green
-  - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types && pnpm test`
+    - [ ] Unit: parse and format round-trip; "4.2" is £4.20; "4.205", "-1", "0", "10000.01" and "abc" are rejected
+    - [ ] Unit and property tests: shares always sum to the amount; an equal split differs by at most 1p between people; the result does not depend on input order; percentages must total 100.00%; exact amounts must total the amount; each rejection gives a clear message
+    - [ ] Property tests: suggested payments clear every balance exactly, each is positive, and there are at most (people minus one)
+  - Verify: `pnpm test`, `pnpm check`
   - Dependencies: none
-  - Files: migration, `notifications.test.sql`, `src/lib/db/types.ts`, `src/features/notifications/types.ts` and test
+  - Files: `src/features/ledger/{money,splits,simplify}.ts` and tests
 
-- [x] **Task 2: Inbox page and bell** (Medium)
-  - Description: `inbox.ts` (list, unread count, cached per request), `/notifications` page grouped by day with mark read on open and "Mark all read", bell with badge in the app shell (hidden at zero, "9+" above nine), empty state. Server actions `markRead`, `markAllRead`.
+- [ ] **Task 2: Ledger tables, RLS, balances function, notification types, isolation tests** (Medium)
+  - Description: Migration `*_ledger.sql` with `expenses`, `expense_shares`, `settlements` (spec data model), RLS (members of the flat read; no write policies), a deferred constraint that shares sum to the amount, a guard that only allows voiding a row once and nothing else, `households.nudge_after_days`, `public.household_balances(household_id)` (members only), the new `notification_types` rows (`expense_added`, `expense_changed`, `expense_voided`, `settlement_pending`, `settlement_confirmed`, `settlement_declined`, `payment_nudge`) with a nullable generic push text column, and `types.ts` entries. pgTAP first.
   - Acceptance:
-    - [x] Unit: badge formatting; day grouping; schemas
-    - [x] A seeded notification shows in the inbox and the bell; opening it marks it read and follows its link; "Mark all read" clears the badge
-    - [x] Bell is reachable on mobile and desktop nav without crowding; no sideways scroll on mobile
-    - [x] E2E (desktop-chrome): seed through the service role, check inbox and bell
-  - Verify: `pnpm test`, `pnpm test:e2e`
-  - Dependencies: Task 1
-  - Files: `src/features/notifications/*`, `src/app/(app)/notifications/page.tsx`, `src/features/shell/nav.tsx`, `e2e/notifications.spec.ts`
+    - [ ] pgTAP: a member of flat A reads zero rows from flat B and cannot write there; `anon` reads nothing; the browser role cannot insert, update or delete any ledger table
+    - [ ] pgTAP: shares must sum to the amount; amounts outside 1p to £10,000 fail; payer and sharers must be active members; update other than a single void, and any delete, are rejected
+    - [ ] pgTAP: `household_balances` is zero-sum after a mixed set of expenses and confirmed settlements, ignores voided rows and non-confirmed settlements, and is callable only by members
+    - [ ] Unit: `types.ts` and the migrations agree on the new types and their defaults
+    - [ ] Types regenerated; `privacy-matches-data` pins the new tables' columns; `pnpm db:test` green
+  - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types && pnpm test`
+  - Dependencies: none (Task 1 is independent)
+  - Files: migration, `ledger.test.sql`, `src/lib/db/types.ts`, `src/features/notifications/types.ts` and test, `src/features/legal/privacy-matches-data.test.tsx`
 
-- [x] **Task 3: Household events create notifications** (Medium)
-  - Description: Migration changing `join_household`, `leave_household`, `remove_member`, `set_member_role` (and the account-deletion membership end) to call `private.notify` in the same transaction: `member_joined` and `member_left` to the other active members, `role_changed` to the person affected. No self-notification. Existing behaviour unchanged.
+- [ ] **Task 3: Add, edit and void expenses in the database, with notifications and generic push text** (Medium)
+  - Description: Migration `*_ledger_expenses.sql`. `add_expense(...)` takes the already-computed shares, re-checks the sum and membership, and notifies each person with a share (not the adder). `edit_expense(...)` voids the old expense and adds a replacement in one transaction (`replaces_id`); `void_expense(...)` voids with no replacement. Only the creator or an admin may edit or void. Dedupe keys `expense:<id>`, `expense_changed:<id>`, `expense_voided:<id>`. `deliver-push` uses a type's generic push text when one is set, so amounts never reach a push.
   - Acceptance:
-    - [x] pgTAP: each action creates exactly the rows in the spec's table, to the right people, with the right dedupe keys; repeating an action path cannot duplicate; existing household suites still pass
-    - [x] E2E: A creates a flat, B joins from the link; A's inbox shows "B joined"; B is told nothing about their own join; A makes B an admin and B's inbox shows it
-  - Verify: `pnpm db:test`, `pnpm test:e2e`
-  - Dependencies: Tasks 1, 2
-  - Files: migration, `household-notifications.test.sql`, `e2e/notifications.spec.ts`
+    - [ ] pgTAP: each action writes exactly the notification rows in the spec to the right people, once, with no self-notification
+    - [ ] pgTAP: only the creator or an admin can edit or void; a member of another flat cannot; editing twice keeps both versions; balances recalculate and stay zero-sum
+    - [ ] pgTAP: the push outbox gets rows for push-enabled devices, and the inbox row keeps the full amount text
+    - [ ] Unit (Deno): `deliver-push` sends the generic text for money types and the normal text for others; no payload contains a currency amount
+    - [ ] Hosted migration applied before merge; `deliver-push` redeployed after
+  - Verify: `pnpm db:test`, `pnpm test`
+  - Dependencies: Task 2
+  - Files: migration, `ledger-expenses.test.sql`, `supabase/functions/deliver-push/*`
 
-- [x] **Task 4: Live bell** (Small)
-  - Description: `live-inbox.tsx`, same pattern as `household/live-flat.tsx`: lazy import of the browser client, `getSession` then `realtime.setAuth`, subscribe to `notifications` (RLS limits rows to the recipient), debounced `router.refresh()`, refresh on tab focus and a 60 s backstop. Mounted next to `LiveFlatGate`.
+- [ ] **Task 4: Add expense screen, expense list and detail, privacy notice** (Large: split into form and list if it runs long)
+  - Description: `/money/add` with the form (amount, description, category, date, who paid, who it is for, split mode with a live preview of each share), `/money/expenses/[id]` with shares and history plus edit and void for the creator or an admin, and a recent-expenses list on `/money`. Server actions `addExpense`, `editExpense`, `voidExpense` validate with zod, compute shares with `splitExpense`, and map database errors to plain messages. The form is a client component loaded only on its route. The privacy notice names the ledger data and what happens to it on account deletion (kept, shown as "Deleted user").
   - Acceptance:
-    - [x] Unit: sets auth before subscribing, debounces bursts, refreshes on focus and backstop, cleans up on unmount, never subscribes if unmounted early (mirrors `live-flat.test.tsx`)
-    - [x] E2E: with A's page open, B joins and A's bell count rises without navigating
-    - [x] Bundle budgets unchanged (no raise); CI green
+    - [ ] Unit: form validation messages, split-mode switching, live preview matches `splitExpense`; actions map errors
+    - [ ] E2E (desktop-chrome): A adds an expense split equally with B; B's inbox shows "Your share is £x"; A edits it and the detail page shows both versions; A voids it and it shows struck through
+    - [ ] Mobile: no sideways scroll at 360px; touch targets at least 44px; amounts inputs use the numeric keyboard
+    - [ ] `privacy-matches-data` fails if the ledger tables change without the notice; new routes have bundle budgets, none raised
   - Verify: `pnpm check`, `pnpm test:e2e`
-  - Dependencies: Task 3
-  - Files: `src/features/notifications/live-inbox.tsx` and test, `(app)/layout.tsx`
+  - Dependencies: Tasks 1, 3
+  - Files: `src/features/ledger/*`, `src/app/(app)/money/**`, `src/app/(public)/privacy/page.tsx`, `scripts/bundle-budgets.json`, `e2e/ledger.spec.ts`
 
-- [x] **Task 5: Preferences and snooze** (Medium)
-  - Description: `/more/notifications` with per-type in-app and push toggles (saved rows override code defaults), a link from More, `savePreference` action, `snooze` on snoozable types (one hour, this evening, tomorrow morning) hiding the row from the unread count until the snooze ends. The in-app toggle off means no inbox row for that type.
+- [ ] **Task 5: Balances screen and suggested payments** (Small)
+  - Description: `/money` shows "You are owed £x" or "You owe £x", each person's position, and the suggested payments from `simplifyDebts` ("Sam pays Karthik £12.00"), plus a "Former flatmates" section for people who have left but still have a balance. A single balances query; cached per request.
   - Acceptance:
-    - [x] Unit: preference resolution (saved overrides default); snooze choice to timestamp in Europe/London; schemas
-    - [x] pgTAP: owner-only writes to preferences; snooze only on the caller's own snoozable row (already covered in `notifications.test.sql` from Task 1; no new database work)
-    - [x] E2E: turn a type off and the next event does not reach the inbox; snoozing hides a test reminder from the badge
-  - Verify: `pnpm test`, `pnpm db:test`, `pnpm test:e2e`
-  - Dependencies: Tasks 1, 2 (3 for the E2E)
-  - Files: `src/features/notifications/{preferences-form,actions,schemas}.ts*`, `src/app/(app)/more/notifications/page.tsx`, `src/app/(app)/more/page.tsx`
+    - [ ] Unit: view-model from balances (owed, owing, settled, former flatmates); empty state for a new flat
+    - [ ] E2E: after A and B add expenses in different directions, both see the same, correct, zero-sum positions and the same suggested payment
+    - [ ] Balances update on an open screen when the other person adds an expense (via the live bell)
+  - Verify: `pnpm test`, `pnpm test:e2e`
+  - Dependencies: Task 4
+  - Files: `src/features/ledger/balances*.ts*`, `src/app/(app)/money/page.tsx`
 
-- [x] **Task 6: Push on the device** (Medium)
-  - Description: Spike and choose the smallest audited Web Push library that runs on Deno (confirm with the owner before adding). `pnpm vapid:generate` script. `push-client.ts` (permission, subscribe, unsubscribe; states granted, denied, unsupported, iOS in-browser), `push-card.tsx` with the iPhone install explanation, `savePushSubscription` and remove actions, device list with remove. `public/sw.js` gains `push` and `notificationclick` handlers and a `VERSION` bump; it still caches no pages. Permission is only requested after a tap.
+- [ ] **Task 6: Settle-up: record, confirm, decline, cancel** (Medium)
+  - Description: Migration `*_ledger_settlements.sql` with `record_settlement`, `confirm_settlement`, `decline_settlement`, `cancel_settlement`. A pending settlement changes no balance; confirming moves it. Notifications: `settlement_pending` to the receiver, `settlement_confirmed` or `settlement_declined` to the payer. Screens: `/money/settle` (prefilled from a suggested payment) and pending rows on `/money` with Confirm and Decline for the receiver and Cancel for the payer.
   - Acceptance:
-    - [x] Unit: push-client state machine with mocked browser APIs; service-worker handlers with a fake `self` (shows title, body, opens the path, ignores off-site paths); subscription schema
-    - [x] E2E: settings page shows the unsupported explanation in a browser without push, and a working toggle where supported (subscription stored, removable)
-    - [x] No permission prompt on page load; bundle budgets unchanged
-    - Library choice is NOT part of this task's code: nothing is added to `package.json` or Deno imports until the owner confirms (needed by Task 7's worker).
-  - Verify: `pnpm test`, `pnpm test:e2e`, `pnpm check`
+    - [ ] pgTAP: only the receiver can confirm or decline; only the payer can cancel; confirming twice is a no-op; a declined or cancelled settlement never changes a balance; balances stay zero-sum
+    - [ ] pgTAP: payer and receiver must be active members of the same flat; amount limits; notifications and generic push text
+    - [ ] E2E: B records a payment, A sees it pending and confirms, both balances update to zero; a declined payment leaves balances unchanged
+  - Verify: `pnpm db:test`, `pnpm test:e2e`
   - Dependencies: Task 5
-  - Files: `src/features/notifications/push-*.ts*`, `public/sw.js`, `scripts/vapid-generate.mts`, `package.json`
+  - Files: migration, `ledger-settlements.test.sql`, `src/features/ledger/{settle-form,actions}.ts*`, `src/app/(app)/money/settle/page.tsx`, `e2e/ledger.spec.ts`
 
-- [x] **Task 7: `deliver-push` worker, outbox drain, retention** (Medium)
-  - Description: Edge Function `deliver-push` (`handler.ts`, `index.ts`, tests): reads due outbox rows, sends, records success, retries with backoff (1, 5, 30 minutes then gives up), deletes subscriptions reported gone (404/410). A one-minute job through the existing `job_runs` scheduler calls it; a daily job deletes read notifications older than 90 days and sent outbox rows older than 14 days. Payload is title, one short line and a path only.
+- [ ] **Task 7: Leaving and account deletion rules; admin settles on behalf** (Medium)
+  - Description: Migration `*_ledger_leaving.sql`. `private.can_leave` becomes false when the person has a non-zero balance or a pending settlement; account deletion honours it. An admin can confirm a settlement on behalf of a removed person (`confirmed_by` records who). The leave section and delete-account page say plainly why someone cannot leave yet and what to do.
   - Acceptance:
-    - [x] Unit (Deno): success marks sent; 5xx retries with growing delay; 404/410 removes the subscription; attempt cap stops retries; payload carries no more than the spec allows
-    - [x] pgTAP: outbox claim cannot hand the same row to two workers; retention deletes only what it should
-    - [~] Local: `node scripts/local-push-check.mts` serves the function in the real Edge runtime and proves auth, claim, a signed `web-push` attempt and recorded retries. A push being _accepted_ by a fake endpoint cannot be shown through `functions serve`: the Edge runtime trusts only public certificates and the database only stores `https://` endpoints. Status handling is covered by the unit tests, and `web-push@3.6.7` was checked directly against a fake HTTPS push service (404/410/429/503 as `statusCode`, VAPID, `aes128gcm`). The first real acceptance is the phone check in Task 8.
-  - Verify: `pnpm test`, `pnpm db:test`, local functions serve check
+    - [ ] pgTAP: leaving with a balance or a pending settlement is refused; leaving when clear works; existing household suites still pass
+    - [ ] pgTAP: only an admin can confirm on behalf, only for someone who is no longer an active member, and the row records the admin
+    - [ ] E2E: a member with a balance sees why they cannot leave; after settling they can; the delete-account flow behaves the same
+  - Verify: `pnpm db:test`, `pnpm test:e2e`
   - Dependencies: Task 6
-  - Files: `supabase/functions/deliver-push/*`, migration (jobs, claim function), `docs/DEPLOY.md`
+  - Files: migration, `ledger-leaving.test.sql`, `src/features/household/leave-section.tsx`, identity delete-account screens
 
-- [ ] **Task 8: Account deletion, privacy notice, hosted rollout, phone checks** (Medium)
-  - Description: Extend `delete-account` so notifications, preferences and push subscriptions go with the account (rows already cascade; handler test proves it). Privacy page names the new data and `privacy-matches-data` covers the four tables. Hosted rollout in order: migrations, VAPID secrets (Supabase) and public key (Vercel), `deliver-push` deploy, `delete-account` redeploy, advisors check. Owner device checks.
+- [ ] **Task 8: Nudges and pending-settlement reminders** (Medium)
+  - Description: Migration `*_ledger_nudges.sql`: an admin setting for the nudge interval (off, 3, 7 default, 14 days) on Your flat, a daily job that creates `payment_nudge` for each person who owes more than £1 and has owed for at least that long, and a daily job that reminds the receiver of a settlement pending over 2 days (up to 3 times). Dedupe keys make each period send once. Both appear in the notification preferences, snoozable.
   - Acceptance:
-    - [x] Deleting an account removes the person's notifications, preferences and subscriptions. **Not by cascade, and not in the handler:** `anonymise_profile` keeps the profile row, so the cascades never fire. It is now done inside `anonymise_profile` itself (one transaction), proven by pgTAP `account-deletion-notifications.test.sql` and an end-to-end test through the real `delete-account` function. The same change rewrites the deleted person's name in other members' joined/left notifications to "Deleted user" and stops role-change messages naming the admin. `delete-account` needs no redeploy.
-    - [x] Privacy test fails if the tables change without the notice (`privacy-matches-data.test.tsx` now pins all four notification tables and the notice's wording)
-    - [ ] Hosted: `list_migrations` matches the repo; advisors show no new warnings beyond the intended function ones (checklist in `docs/DEPLOY.md`)
-    - [ ] Owner on real phones (checklist in `docs/DEPLOY.md`; **not done, needs the owner's devices**): install the app, turn on push, an admin makes them an admin and the push arrives with the app closed; tapping opens the right screen; push off on one device leaves others on; Safari shows the install explanation
+    - [ ] pgTAP: nudges go only to people who owe over £1 past the interval; one per person per period; off means none; reminders stop after 3 or when the settlement is decided; running a job twice duplicates nothing
+    - [ ] Unit: the settings form and its schema; the preferences list shows the new types
+    - [ ] E2E: an admin changes the interval and sees it saved; a seeded old debt produces one nudge
+  - Verify: `pnpm db:test`, `pnpm test`, `pnpm test:e2e`
+  - Dependencies: Task 6
+  - Files: migration, `ledger-nudges.test.sql`, `src/features/household` (setting), `src/features/notifications/types.ts`
+
+- [ ] **Task 9: Hosted rollout, phone checks, wrap-up** (Small)
+  - Description: Confirm hosted migrations match the repo and advisors show nothing new beyond the intended function warnings; redeploy `deliver-push`; add a "Money" section to `docs/DEPLOY.md` with the rollout order and a phone checklist; owner checks on real phones.
+  - Acceptance:
+    - [ ] Hosted: `list_migrations` matches the repo; advisors reviewed; `deliver-push` redeployed and a money push shows no amount
+    - [ ] Owner on real phones: add an expense on one phone and see it on the other; confirm a payment from the push; lock-screen push shows no amount; leaving with a balance is blocked with a clear message
+    - [ ] Spec success criteria 1 to 10 all met
   - Verify: `pnpm check`, `pnpm db:test`, `pnpm test:e2e`, production `/api/health`
-  - Dependencies: Tasks 1 to 7
-  - Files: `supabase/functions/delete-account/*`, `src/app/(public)/privacy/page.tsx`, `src/features/legal/privacy-matches-data.test.tsx`, `docs/DEPLOY.md`
+  - Dependencies: Tasks 1 to 8
+  - Files: `docs/DEPLOY.md`, `tasks/*`
