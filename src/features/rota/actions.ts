@@ -108,7 +108,7 @@ async function rotaCall(fn: string, args: Record<string, string>): Promise<void>
   const supabase = await signedInClient();
   const { error } = await supabase.rpc(fn as "tick_item", args as { p_item_id: string });
   if (error && !isExpectedRotaError(error)) logger.error(`rota.${fn}_failed`, { error });
-  revalidatePath("/rota");
+  revalidatePath("/rota", "layout");
 }
 
 /** Ticks one step of a chore. Finishing the last step finishes the chore. */
@@ -149,7 +149,7 @@ export async function generateWeekNow(
   formData: FormData,
 ): Promise<GenerateFormState> {
   const weekStart = formData.get("weekStart");
-  if (typeof weekStart !== "string" || !/^d{4}-d{2}-d{2}$/.test(weekStart)) {
+  if (typeof weekStart !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(weekStart)) {
     return { status: "error", message: "We couldn’t tell which week that was." };
   }
 
