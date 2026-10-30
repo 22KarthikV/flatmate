@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -30,10 +31,13 @@ function ErrorLine({ state }: { state: SimpleState }) {
 export function LeaveSection({
   role,
   others,
+  moneyOpen = false,
 }: {
   role: HouseholdRole;
   /** Everyone else currently in the flat. */
   others: Candidate[];
+  /** The person owes or is owed money, or has a payment waiting, so they cannot leave yet. */
+  moneyOpen?: boolean;
 }) {
   const [leaveState, leaveAction, leaving] = useActionState(leaveHousehold, initial);
   const [transferState, transferAction, transferring] = useActionState(transferOwnership, initial);
@@ -87,7 +91,16 @@ export function LeaveSection({
             Leaving keeps your past expenses in the flat&rsquo;s history. Your upcoming chores are
             shared out among the people who stay.
           </p>
-          {confirm === "leave" ? (
+          {moneyOpen ? (
+            <p role="status" className="border-line max-w-md border p-4 text-sm">
+              You can&rsquo;t leave yet: you still owe, or are owed, money in this flat, or have a
+              payment waiting for a decision. Settle up on the{" "}
+              <Link href="/money" className="underline underline-offset-4">
+                Money screen
+              </Link>{" "}
+              first, then you can leave.
+            </p>
+          ) : confirm === "leave" ? (
             <form action={leaveAction} className="border-negative flex flex-col gap-3 border p-4">
               <p className="text-sm">Leave this flat?</p>
               <div className="flex flex-wrap gap-3">

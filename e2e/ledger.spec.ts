@@ -7,6 +7,7 @@ import {
   newTestUser,
   signUpAndIn,
 } from "./support/session";
+import { profileIdFor } from "./support/database";
 
 // Two people in the shared local database, so one project only.
 test.beforeEach(() => {
@@ -209,6 +210,146 @@ test.describe("settling up", () => {
     await expect(joinerPage.locator('p[role="alert"]')).toContainText("at most £10,000.00");
 
     await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+});
+
+test.describe("leaving with money open", () => {
+  test("a member who owes money is told why they cannot leave, and can once they have settled", async ({
+    browser,
+    baseURL,
+  }) => {
+    const { hostPage, joinerPage, hostContext, joinerContext } = await twoFlatmates(
+      browser,
+      baseURL!,
+    );
+    await addEqualExpense(hostPage, "10", "Shared dinner");
+
+    // The flatmate owes 5.00: they are told, and are not offered a leave button.
+    await joinerPage.goto("/more/flat");
+    await expect(joinerPage.getByText(/You can’t leave yet/)).toBeVisible();
+    await expect(joinerPage.getByRole("button", { name: "Leave flat" })).toHaveCount(0);
+
+    // They pay, the host confirms.
+    await joinerPage.goto("/money");
+    await joinerPage.getByRole("link", { name: "Record this payment" }).click();
+    await joinerPage.getByRole("button", { name: "Record payment" }).click();
+    await expect(joinerPage).toHaveURL(/\/money$/);
+
+    // Still blocked while it waits for a decision.
+    await joinerPage.goto("/more/flat");
+    await expect(joinerPage.getByText(/You can’t leave yet/)).toBeVisible();
+
+    await hostPage.goto("/money");
+    await hostPage.getByRole("button", { name: "Confirm" }).click();
+    await expect(hostPage.getByText("Everyone is square")).toBeVisible();
+
+    // Square at last: they can leave.
+    await joinerPage.goto("/more/flat");
+    await expect(joinerPage.getByText(/You can’t leave yet/)).toHaveCount(0);
+    await joinerPage.getByRole("button", { name: "Leave flat" }).click();
+    await joinerPage.getByRole("button", { name: "Leave flat" }).click();
+    await expect(joinerPage.getByText(/No flat yet|Create your flat|Join/).first()).toBeVisible();
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+
+  test("deleting an account is refused while money is open", async ({ browser, baseURL }) => {
+    const { hostPage, joinerPage, hostContext, joinerContext } = await twoFlatmates(
+      browser,
+      baseURL!,
+    );
+    await addEqualExpense(hostPage, "10", "Shared dinner");
+
+    await joinerPage.goto("/more/account");
+    await joinerPage.getByRole("button", { name: "Delete account" }).click();
+    await joinerPage.getByLabel(/type delete/i).fill("DELETE");
+    await joinerPage.getByRole("button", { name: "Delete my account" }).click();
+    await expect(joinerPage.locator('p[role="alert"]')).toContainText("Settle up first");
+
+    // Nothing was lost: they can still open their flat.
+    await joinerPage.goto("/money");
+    await expect(joinerPage.getByText("You owe £5.00")).toBeVisible();
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+
+  test("an admin confirms a payment to someone who has left, on their behalf", async ({
+    browser,
+    baseURL,
+  }) => {
+    const host = await signUpAndIn(newTestUser("owner"));
+    await createFlat(host.supabase, "Leaving Flat");
+    const admin = await signUpAndIn(newTestUser("admin"));
+    await joinFlat(host.supabase, admin.supabase);
+    const leaver = await signUpAndIn(newTestUser("leaver"));
+    await joinFlat(host.supabase, leaver.supabase);
+
+    const hostId = profileIdFor(host.user.email);
+    const adminId = profileIdFor(admin.user.email);
+    const leaverId = profileIdFor(leaver.user.email);
+
+    const promoted = await host.supabase.rpc("set_member_role", {
+      p_profile_id: adminId,
+      p_role: "admin",
+    });
+    expect(promoted.error).toBeNull();
+
+    // The leaver paid 20.00 for the host and themselves: the host owes them 10.00.
+    const added = await leaver.supabase.rpc("add_expense", {
+      p_amount_pence: 2000,
+      p_description: "Washing line",
+      p_category: "household",
+      p_occurred_on: new Date().toISOString().slice(0, 10),
+      p_paid_by: leaverId,
+      p_profile_ids: [hostId, leaverId],
+      p_share_pence: [1000, 1000],
+    });
+    expect(added.error).toBeNull();
+    const removed = await host.supabase.rpc("remove_member", { p_profile_id: leaverId });
+    expect(removed.error).toBeNull();
+
+    const hostContext = await browser.newContext({ baseURL: baseURL! });
+    await addSessionCookies(hostContext, host.jar, baseURL!);
+    const hostPage = await hostContext.newPage();
+    const adminContext = await browser.newContext({ baseURL: baseURL! });
+    await addSessionCookies(adminContext, admin.jar, baseURL!);
+    const adminPage = await adminContext.newPage();
+
+    // The books still show what the host owes the person who left.
+    await hostPage.goto("/money");
+    await expect(hostPage.getByText("Former flatmates")).toBeVisible();
+    await expect(hostPage.getByText("is owed £10.00")).toBeVisible();
+
+    // The host records a payment to them: it waits for another admin.
+    await hostPage.goto("/money/settle");
+    const leftOption = hostPage.locator('optgroup[label="Left the flat, still owed money"] option');
+    await hostPage
+      .getByLabel("Who did you pay?")
+      .selectOption((await leftOption.getAttribute("value")) as string);
+    await expect(
+      hostPage.getByText(/has left the flat, so an admin confirms this for them/),
+    ).toBeVisible();
+    await hostPage.getByLabel("Amount (£)").fill("10");
+    await hostPage.getByRole("button", { name: "Record payment" }).click();
+    await expect(hostPage).toHaveURL(/\/money$/);
+    await expect(hostPage.getByText(/another admin has to confirm it for them/)).toBeVisible();
+    // The payer cannot decide it themselves: there is no Confirm for them.
+    await expect(hostPage.getByRole("button", { name: "Confirm" })).toHaveCount(0);
+
+    // The other admin sees it and confirms for the person who left.
+    await adminPage.goto("/money");
+    await expect(adminPage.getByText(/as an admin you can confirm it for them/)).toBeVisible();
+    await adminPage.getByRole("button", { name: "Confirm" }).click();
+    await expect(adminPage.getByText(/as an admin you can confirm it for them/)).toHaveCount(0);
+
+    // The host is told, and the books are square.
+    await hostPage.goto("/notifications");
+    await expect(hostPage.getByText(/an admin confirmed it for them/)).toBeVisible();
+    await hostPage.goto("/money");
+    await expect(hostPage.getByText("Everyone is square")).toBeVisible();
+    await expect(hostPage.getByText("Former flatmates")).toHaveCount(0);
+
+    await Promise.all([hostContext.close(), adminContext.close()]);
   });
 });
 

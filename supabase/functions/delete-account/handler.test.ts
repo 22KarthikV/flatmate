@@ -77,6 +77,19 @@ describe("handleDeleteAccount", () => {
     expect(d.deleteAuthUser).not.toHaveBeenCalled();
   });
 
+  it("refuses with 409 and changes nothing while the person owes, is owed, or has a payment waiting", async () => {
+    const { deps: d, calls } = deps({
+      endMemberships: vi.fn(async () => "open_balance" as const),
+    });
+    const res = await handleDeleteAccount(request({ auth: "Bearer good" }), d);
+
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ ok: false, error: "open_balance" });
+    expect(calls).toEqual([]);
+    expect(d.anonymiseProfile).not.toHaveBeenCalled();
+    expect(d.deleteAuthUser).not.toHaveBeenCalled();
+  });
+
   it("stops without touching the profile when ending the membership fails", async () => {
     const { deps: d, calls } = deps({
       endMemberships: vi.fn(async () => {

@@ -15,15 +15,19 @@ const initialState: ExpenseFormState = { status: "idle" };
 /** "I paid Sam": who and how much. Sam has to confirm it before it changes anyone's balance. */
 export function SettleForm({
   people,
+  former = [],
   initial,
 }: {
   /** The other people in the flat. */
   people: Person[];
+  /** People who have left but are still owed money; an admin confirms a payment to them. */
+  former?: Person[];
   initial: RawSettlement;
 }) {
   const [state, formAction, pending] = useActionState(recordSettlement, initialState);
   const [values, setValues] = useState<RawSettlement>(initial);
-  const recipient = people.find((person) => person.profileId === values.to);
+  const recipient = [...people, ...former].find((person) => person.profileId === values.to);
+  const recipientLeft = former.some((person) => person.profileId === values.to);
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
@@ -47,6 +51,15 @@ export function SettleForm({
               {person.displayName}
             </option>
           ))}
+          {former.length > 0 ? (
+            <optgroup label="Left the flat, still owed money">
+              {former.map((person) => (
+                <option key={person.profileId} value={person.profileId}>
+                  {person.displayName}
+                </option>
+              ))}
+            </optgroup>
+          ) : null}
         </select>
       </div>
 
@@ -60,9 +73,11 @@ export function SettleForm({
         placeholder="0.00"
         required
         hint={
-          recipient
-            ? `${recipient.displayName} has to confirm they received it before it counts.`
-            : "The person you paid has to confirm they received it before it counts."
+          recipientLeft && recipient
+            ? `${recipient.displayName} has left the flat, so an admin confirms this for them before it counts.`
+            : recipient
+              ? `${recipient.displayName} has to confirm they received it before it counts.`
+              : "The person you paid has to confirm they received it before it counts."
         }
       />
 

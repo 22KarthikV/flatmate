@@ -20,6 +20,8 @@ Deno.serve((request) =>
       const { data, error } = await admin.rpc("end_memberships_for_account", {
         p_user_id: userId,
       });
+      // The database refuses (and changes nothing) while money is open; any other error is a failure.
+      if (error?.message === "open_balance") return "open_balance";
       if (error) throw error;
       return data === "owner_must_transfer" ? "owner_must_transfer" : "ok";
     },

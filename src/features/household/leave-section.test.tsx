@@ -44,6 +44,13 @@ describe("LeaveSection", () => {
     expect(action.closeHousehold).toHaveBeenCalledOnce();
   });
 
+  it("explains why a member with money open cannot leave, and offers no leave button", () => {
+    render(<LeaveSection role="member" others={others} moneyOpen />);
+    expect(screen.getByRole("status")).toHaveTextContent("You can’t leave yet");
+    expect(screen.getByRole("link", { name: "Money screen" })).toHaveAttribute("href", "/money");
+    expect(screen.queryByRole("button", { name: "Leave flat" })).toBeNull();
+  });
+
   it("shows why leaving was refused", async () => {
     action.leaveHousehold.mockResolvedValue({ status: "error", message: "Settle up first." });
     const user = userEvent.setup();

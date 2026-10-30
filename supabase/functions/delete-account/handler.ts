@@ -6,10 +6,11 @@ export interface DeleteAccountDeps {
   getUserId(accessToken: string): Promise<string | null>;
   /**
    * Takes the person out of their flat (closing it if they are the only one). Answers
-   * "owner_must_transfer" and changes nothing when they own a flat that others still live in.
-   * Safe to repeat.
+   * "owner_must_transfer" and changes nothing when they own a flat that others still live in, and
+   * "open_balance" (also changing nothing) while they owe or are owed money or have a payment
+   * waiting. Safe to repeat.
    */
-  endMemberships(userId: string): Promise<"ok" | "owner_must_transfer">;
+  endMemberships(userId: string): Promise<"ok" | "owner_must_transfer" | "open_balance">;
   /** Replaces the person's name and photo with a neutral placeholder and unlinks the row. Safe to repeat. */
   anonymiseProfile(userId: string): Promise<void>;
   /** Removes the sign-in record, which ends every session. */
@@ -49,8 +50,9 @@ export async function handleDeleteAccount(
     if (!userId) return json({ ok: false, error: "unauthorized" }, 401);
 
     // Before anything is anonymised: the flat lookup needs the profile still linked to the person.
-    if ((await deps.endMemberships(userId)) === "owner_must_transfer") {
-      return json({ ok: false, error: "owner_must_transfer" }, 409);
+    const ended = await deps.endMemberships(userId);
+    if (ended === "owner_must_transfer" || ended === "open_balance") {
+      return json({ ok: false, error: ended }, 409);
     }
 
     await deps.anonymiseProfile(userId);

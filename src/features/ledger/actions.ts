@@ -11,6 +11,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ExpenseFormState } from "./constants";
 import { expenseErrorMessage, isExpectedExpenseError } from "./errors";
 import { londonToday, parseExpenseFields, parseExpenseId, rawFromFormData } from "./form";
+import { getSettlementRecipients } from "./recipients";
 import { parseSettlementFields, rawSettlementFromFormData } from "./settle";
 
 type Parsed = Extract<ReturnType<typeof parseExpenseFields>, { ok: true }>["value"];
@@ -121,11 +122,15 @@ export async function recordSettlement(
   _previous: ExpenseFormState,
   formData: FormData,
 ): Promise<ExpenseFormState> {
-  const [members, membership] = await Promise.all([getMembers(), getMembership()]);
+  const membership = await getMembership();
+  const viewerId = membership?.profileId ?? "";
+  const recipients = membership
+    ? await getSettlementRecipients(membership.householdId, viewerId)
+    : { current: [], former: [] };
   const parsed = parseSettlementFields(
     rawSettlementFromFormData(formData),
-    members.map((member) => member.profileId),
-    membership?.profileId ?? "",
+    [...recipients.current, ...recipients.former].map((person) => person.profileId),
+    viewerId,
   );
   if (!parsed.ok) return { status: "error", message: parsed.message };
 

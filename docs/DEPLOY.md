@@ -84,6 +84,25 @@ The automated tests fake the push service, so this is the first time a push is t
 
 If a push never arrives, check in this order: `deliver-push` rows in `job_runs` every minute; the person's `push_outbox` row (`attempts`, `last_error`, `next_attempt_at`); that the device row has no `failed_at`; and the function logs on the Supabase dashboard (they show a status code, never the endpoint).
 
+## Money (ledger)
+
+**Rollout order** for each ledger migration (`ledger`, `ledger_expenses`, `ledger_settlements`, `ledger_leaving`): apply it to the hosted project before merging the pull request that needs it, then fix the recorded version (the migration tool stamps its own timestamp) so `list_migrations` matches `supabase/migrations/`.
+
+**`delete-account` must be redeployed after `ledger_leaving`** (`supabase functions deploy delete-account --no-verify-jwt`). Until it is, nothing unsafe happens: the database refuses to delete an account with money open by raising `open_balance`, and the older function treats any error as a failure and deletes nothing, so the person only sees the general "couldn't delete your account, nothing has been lost" message instead of "settle up first". Deploying it first is also safe, since before the migration it behaves exactly as before.
+
+**Things to know**
+
+- Balances are never stored; they are summed from the expense, share and settlement rows every time, and always add up to zero.
+- Nothing in the ledger is deleted or rewritten. A correction voids the old expense and adds a new one; a payment is decided once.
+- Push text for money types is fixed in the database (`notification_types.push_title` and `push_body`), so no amount reaches a lock screen. `deliver-push` is unchanged.
+- A flatmate who is removed with money open stays listed under "Former flatmates". If they are owed money, a payment to them can be recorded and another admin (not the payer) confirms it on their behalf. If they **owe** money there is no way to close it yet: it stays on the books until a decision is made about writing debts off.
+
+### Phone checks for money (owner, once)
+
+- [ ] Add an expense on one phone: the other phone's bell rises and a push arrives that shows **no amount** on the lock screen; the inbox shows the amount.
+- [ ] Record a payment on one phone, confirm it from the push on the other: both balances move.
+- [ ] A flatmate who owes money sees why they cannot leave, and cannot delete their account (after `delete-account` is redeployed) until they have settled.
+
 ## After a deploy
 
 - `GET /api/health` returns 200 with `app` and `database` both `ok`.

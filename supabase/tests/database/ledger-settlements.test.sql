@@ -117,7 +117,7 @@ select throws_ok($sql$ select public.record_settlement(current_setting('t.bob'):
 select throws_ok($sql$ select public.record_settlement(current_setting('t.dave')::uuid, 100) $sql$,
   'P0001', 'not_a_member', 'a payment to someone in another flat is refused');
 select throws_ok($sql$ select public.record_settlement(current_setting('t.frank')::uuid, 100) $sql$,
-  'P0001', 'not_a_member', 'a payment to someone who has left is refused');
+  'P0001', 'not_owed', 'a payment to someone who has left, and is owed nothing, is refused');
 select throws_ok($sql$ select public.record_settlement(null, 100) $sql$,
   '22023', 'invalid_recipient', 'a payment to nobody is refused');
 reset role;

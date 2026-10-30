@@ -8,6 +8,7 @@ import { LeaveSection } from "@/features/household/leave-section";
 import { MembersCard } from "@/features/household/members-card";
 import { getMembers } from "@/features/household/members";
 import { getLiveInviteExpiry } from "@/features/household/live-invite";
+import { hasOpenMoney } from "@/features/ledger/open-money";
 
 export const metadata = { title: "Your flat | FlatMate" };
 
@@ -31,9 +32,10 @@ async function FlatContent() {
   }
 
   const canInvite = membership.role === "owner" || membership.role === "admin";
-  const [members, activeUntil] = await Promise.all([
+  const [members, activeUntil, moneyOpen] = await Promise.all([
     getMembers(),
     canInvite ? getLiveInviteExpiry() : Promise.resolve(null),
+    hasOpenMoney(membership.householdId, membership.profileId),
   ]);
 
   return (
@@ -53,6 +55,7 @@ async function FlatContent() {
       ) : null}
       <LeaveSection
         role={membership.role}
+        moneyOpen={moneyOpen}
         others={members.filter((m) => m.profileId !== membership.profileId)}
       />
     </>

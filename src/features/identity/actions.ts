@@ -117,7 +117,15 @@ export async function deleteAccount(
     });
     deleted = response.ok;
     if (response.status === 409) {
-      // Nothing was changed: they own a flat other people still live in.
+      // Nothing was changed. Either they own a flat other people still live in, or money is open.
+      const body = (await response.json().catch(() => null)) as { error?: string } | null;
+      if (body?.error === "open_balance") {
+        return {
+          status: "error",
+          message:
+            "You still owe, or are owed, money in your flat, or have a payment waiting. Settle up first (Money), then delete your account.",
+        };
+      }
       return {
         status: "error",
         message:

@@ -19,7 +19,10 @@ async function MoneyContent() {
   const [expenses, balances, pending] = await Promise.all([
     getRecentExpenses(membership.profileId),
     getBalancesView(membership.householdId, membership.profileId),
-    getPendingSettlements(membership.profileId),
+    getPendingSettlements(
+      membership.profileId,
+      membership.role === "owner" || membership.role === "admin",
+    ),
   ]);
 
   return (
