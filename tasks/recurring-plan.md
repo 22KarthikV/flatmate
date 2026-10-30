@@ -52,7 +52,7 @@ Tasks 7 to 9 can start as soon as their database dependency is merged and hosted
 - [x] Task 7: Bills screens and Money links
 - [x] Task 8: Template form, detail and edit
 - [x] Task 9: Rent screens
-- [ ] Task 10: End-to-end, deploy notes, final report
+- [x] Task 10: End-to-end, deploy notes, final report
 
 ## Risks and how the plan handles them
 
