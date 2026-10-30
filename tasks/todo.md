@@ -99,12 +99,13 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
   - Dependencies: Task 6
   - Files: migration, `ledger-nudges.test.sql`, `src/features/household` (setting), `src/features/notifications/types.ts`
 
-- [ ] **Task 9: Hosted rollout, phone checks, wrap-up** (Small)
+- [ ] **Task 9: Hosted rollout, phone checks, wrap-up** (Small) — code and hosted database done 30 Oct; two owner items left (below)
   - Description: Confirm hosted migrations match the repo and advisors show nothing new beyond the intended function warnings; add a "Money" section to `docs/DEPLOY.md` with the rollout order and a phone checklist; owner checks on real phones.
   - Acceptance:
-    - [ ] Hosted: `list_migrations` matches the repo; advisors reviewed; a money push shows no amount on a phone
-    - [ ] Owner on real phones: add an expense on one phone and see it on the other; confirm a payment from the push; lock-screen push shows no amount; leaving with a balance is blocked with a clear message
-    - [ ] Spec success criteria 1 to 10 all met
+    - [x] Hosted: `list_migrations` matches the repo (19 of 19); security and performance advisors reviewed, only the intended findings (the ledger functions that signed-in people may call, and informational unindexed foreign keys on small tables)
+    - [ ] **Redeploy `delete-account` to hosted** (`supabase functions deploy delete-account --no-verify-jwt`; the code is merged). Until then deleting an account with money open is still refused, with the general message instead of "settle up first"
+    - [ ] Owner on real phones (checklist in `docs/DEPLOY.md`, Money): add an expense on one phone and see it on the other; confirm a payment from the push; lock-screen push shows no amount; leaving with a balance is blocked with a clear message
+    - [ ] Spec success criteria 1 to 10 all met (1 to 9 are covered by automated tests; 8, a push with no amount, is proven by pgTAP and still wants a look on a real lock screen)
   - Verify: `pnpm check`, `pnpm db:test`, `pnpm test:e2e`, production `/api/health`
   - Dependencies: Tasks 1 to 8
   - Files: `docs/DEPLOY.md`, `tasks/*`
