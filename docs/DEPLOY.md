@@ -126,3 +126,24 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 - **Jobs** (all hourly, each at its own minute): `rota-generate` at :07 (the Edge Function, registered with `private.register_edge_job` in `20261119000000_rota_schedule.sql`), `rota-availability` at :17, `rota-reminders` at :37. Rows appear in `job_runs`. They only touch flats that have at least one active chore.
 - A week is generated once, shortly after Saturday 18:00 London for the week starting the next day. People who did not answer are filled in as around and marked "assumed".
 - Push text for rota types is fixed in the database and never names a chore or a person.
+
+## Rent and bills (recurring)
+
+**Rollout order** for each recurring migration (`recurring`, `recurring_templates`, `recurring_generate`, `recurring_rent`, `recurring_reminders`): the orchestrating session applies it to the hosted project before the pull request that needs it merges, then fixes the recorded version so `list_migrations` matches `supabase/migrations/`. Apply `recurring_reminders` last: it registers the `recurring-daily` job. No Edge Function is added and `deliver-push` does not change.
+
+**Things to know**
+
+- An admin sets up the rent (by room) and each bill once on `/money/recurring`. A daily job creates each month ahead of its due date: 7 days before for rent and fixed bills, 14 days before for bills whose amount changes. A month whose due date has passed is never created, and a month is never created twice.
+- Bills become ordinary ledger expenses (category "Bills") written through the ledger's own function. Rent is **private**: it lives in its own tables (`rent_charges`, `rent_payments`), never in `expenses`, `expense_shares`, `settlements` or the balances, and unpaid rent does not stop anyone leaving or deleting their account.
+- **How to check the daily job ran:** a `recurring-daily` row should appear in `job_runs` once a day (07:00 UTC, an hour before the ledger's reminders) with status `succeeded`. Running it twice in a day does nothing. To see what it would do on a given day, ask the database for `select private.recurring_generate('2026-11-30 12:00:00+00')` and `select private.recurring_remind('2026-11-30 12:00:00+00')` (in the SQL editor only; both are idempotent).
+- Reminders: rent 7, 3, 2 and 1 days before, on the day, then daily until it is paid; a bill that needs its amount 14, 7, 3 and 1 days before, on the day, then daily. Nobody who has paid is reminded. Each person can snooze or turn a type off in notification settings.
+- If someone with a share of the rent or of a percentage bill leaves, or the collector or payer leaves, that template is **paused** by the next daily run, every admin is told, and nothing new is created until an admin edits it and resumes it. Equal bills carry on over whoever is in the flat.
+- Push text for these types is fixed in the database, so no amount reaches a lock screen. Inbox text carries amounts only for the person or the admins it concerns.
+
+### Phone checks for rent and bills (owner, once)
+
+- [ ] Set up the rent by room and a gas bill on `/money/recurring/new`. Each flatmate gets "Your rent has been created" as a push that shows **no amount**, and the inbox shows only their **own** amount.
+- [ ] On a flatmate's phone open **Your rent** (Money, then Your rent): only their own amount appears. Open the link of the rent template from the admin's phone on the flatmate's phone: it says "We couldn't find that."
+- [ ] A flatmate taps "I paid my rent", the collector's phone gets a push, and confirming turns the flatmate's rent to "paid".
+- [ ] The payer of the gas bill gets "A bill needs its amount" about two weeks before it is due, enters the amount, and the others see it on Money.
+- [ ] As a normal member, look through Money, Rent and bills, the inbox and the history: no other person's rent appears anywhere.

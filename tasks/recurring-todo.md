@@ -81,19 +81,19 @@ Plan: [recurring-plan.md](recurring-plan.md). Spec: [../docs/SPEC-recurring.md](
   - Dependencies: Tasks 3, 7
   - Files: as spec, budgets
 
-- [ ] **Task 9: Rent screens** (Large)
+- [x] **Task 9: Rent screens** (Large)
   - Description: `/money/rent` (Your rent, plus dashboard for admins and collector), `/money/rent/pay`, `/money/rent/history`, `rent-card`, `rent-dashboard`, `rent-pay-form`, confirm/decline/cancel/void/waive actions.
   - Acceptance:
-    - [ ] Unit: rent card shows only the viewer's own amount (a roommate's amount is absent from the rendered output); dashboard rows; pay form caps at what is owed
+    - [x] Unit: rent card shows only the viewer's own amount (a roommate's amount is absent from the rendered output); dashboard rows; pay form caps at what is owed
   - Verify: `pnpm check`
   - Dependencies: Tasks 5, 8
   - Files: as spec, budgets
 
-- [ ] **Task 10: End-to-end, deploy notes, final report** (Medium)
+- [x] **Task 10: End-to-end, deploy notes, final report** (Medium)
   - Description: `e2e/recurring.spec.ts` (three people, an admin collector, time-travel through a test hook), `docs/DEPLOY.md` "Rent and bills" section, phone checklist, final report to the orchestrator.
   - Acceptance:
-    - [ ] E2E: setup in three rooms and a gas bill; each member sees only their own rent, including by opening the rent template link directly; pay, confirm, status changes; variable bill amount entered and seen on Money; edit leaves the earlier month unchanged
-    - [ ] `pnpm check`, `pnpm db:test`, `pnpm test:e2e` green; no bundle budget raised
+    - [x] E2E: setup in three rooms and a gas bill; each member sees only their own rent, including by opening the rent template link directly; pay, confirm, status changes; variable bill amount entered and seen on Money; edit leaves the earlier month unchanged
+    - [x] `pnpm check`, `pnpm db:test`, `pnpm test:e2e` green; no bundle budget raised
   - Verify: `pnpm test:e2e`
   - Dependencies: Tasks 1 to 9
   - Files: `e2e/recurring.spec.ts`, `docs/DEPLOY.md`
