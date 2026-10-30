@@ -3,6 +3,16 @@ import { describe, expect, it } from "vitest";
 import { EnvError, parseEnv } from "./env";
 
 describe("parseEnv", () => {
+  it("accepts a public VAPID key, treats empty as unset, and refuses junk", () => {
+    const key =
+      "BJs0g8LtHW4iA3cxm-4DQRIIXkdcbBZ7uVo5T828zfxaZupX_zYVTBG4oDFjeRFvt844biMwFcEEoFv2DD30wts";
+    expect(parseEnv({ NEXT_PUBLIC_VAPID_PUBLIC_KEY: key }).NEXT_PUBLIC_VAPID_PUBLIC_KEY).toBe(key);
+    expect(
+      parseEnv({ NEXT_PUBLIC_VAPID_PUBLIC_KEY: "" }).NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    ).toBeUndefined();
+    expect(() => parseEnv({ NEXT_PUBLIC_VAPID_PUBLIC_KEY: "short" })).toThrow(EnvError);
+  });
+
   it("applies defaults when nothing is set", () => {
     const env = parseEnv({});
     expect(env.NODE_ENV).toBe("development");

@@ -3,11 +3,20 @@ import { Suspense } from "react";
 
 import { getPreferences } from "@/features/notifications/preferences";
 import { PreferencesForm } from "@/features/notifications/preferences-form";
+import { PushCard } from "@/features/notifications/push-card";
+import { getPushDevices } from "@/features/notifications/push-devices";
+import { getEnv } from "@/lib/env";
 
 export const metadata = { title: "Notification settings | FlatMate" };
 
-async function PreferencesContent() {
-  return <PreferencesForm preferences={await getPreferences()} />;
+async function SettingsContent() {
+  const [preferences, devices] = await Promise.all([getPreferences(), getPushDevices()]);
+  return (
+    <>
+      <PushCard publicKey={getEnv().NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? null} devices={devices} />
+      <PreferencesForm preferences={preferences} />
+    </>
+  );
 }
 
 export default function NotificationSettingsPage() {
@@ -20,7 +29,7 @@ export default function NotificationSettingsPage() {
         <h1 className="font-display text-5xl sm:text-6xl">Notifications</h1>
       </header>
       <Suspense fallback={<p className="text-muted text-sm">Loading…</p>}>
-        <PreferencesContent />
+        <SettingsContent />
       </Suspense>
     </div>
   );

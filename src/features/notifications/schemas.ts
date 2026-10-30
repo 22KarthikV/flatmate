@@ -10,6 +10,65 @@ export function isSafeInternalPath(value: string): boolean {
   return /^\/([^/\\]|$)/.test(value);
 }
 
+export interface PushSubscriptionInput {
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+}
+
+const BASE64URL = /^[A-Za-z0-9_-]+={0,2}$/;
+
+/**
+ * What a browser hands over when it subscribes: an https endpoint and two base64url keys.
+ * Anything else is refused before it reaches the database (which checks again).
+ */
+export function parsePushSubscription(value: unknown): PushSubscriptionInput | null {
+  if (typeof value !== "object" || value === null) return null;
+  const { endpoint, p256dh, auth } = value as Record<string, unknown>;
+  if (
+    typeof endpoint !== "string" ||
+    endpoint.length > 2048 ||
+    !/^https:\/\/[^\s]+$/.test(endpoint)
+  ) {
+    return null;
+  }
+  for (const key of [p256dh, auth]) {
+    if (typeof key !== "string" || key.length === 0 || key.length > 200 || !BASE64URL.test(key)) {
+      return null;
+    }
+  }
+  return { endpoint, p256dh: p256dh as string, auth: auth as string };
+}
+
+/** A coarse label for the device list, such as "Safari on iPhone". Never the full user agent. */
+export function coarseDeviceLabel(userAgent: string | null | undefined): string {
+  const ua = userAgent ?? "";
+  const device = /iPhone/.test(ua)
+    ? "iPhone"
+    : /iPad/.test(ua)
+      ? "iPad"
+      : /Android/.test(ua)
+        ? "Android"
+        : /Windows/.test(ua)
+          ? "Windows"
+          : /Mac OS X|Macintosh/.test(ua)
+            ? "Mac"
+            : /Linux|X11/.test(ua)
+              ? "Linux"
+              : null;
+  const browser = /Edg\//.test(ua)
+    ? "Edge"
+    : /Firefox\/|FxiOS/.test(ua)
+      ? "Firefox"
+      : /Chrome\/|CriOS/.test(ua)
+        ? "Chrome"
+        : /Safari\//.test(ua)
+          ? "Safari"
+          : null;
+  if (browser && device) return `${browser} on ${device}`;
+  return browser ?? device ?? "Unknown device";
+}
+
 export const SNOOZE_CHOICES = ["hour", "evening", "tomorrow"] as const;
 export type SnoozeChoice = (typeof SNOOZE_CHOICES)[number];
 

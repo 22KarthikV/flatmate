@@ -19,6 +19,19 @@ function literal(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
 }
 
+/** How many push devices the person with this email has registered. */
+export function countPushDevices(email: string): number {
+  return Number(
+    runLocalSql(`
+      select count(*)
+        from public.push_subscriptions s
+        join public.profiles p on p.id = s.profile_id
+        join auth.users u on u.id = p.user_id
+       where u.email = ${literal(email)}
+    `),
+  );
+}
+
 /** Adds a reminder-style type that can be snoozed (none of the launch types can). Local only. */
 export function ensureSnoozableType(type: string): void {
   runLocalSql(`
