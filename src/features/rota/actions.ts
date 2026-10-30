@@ -257,6 +257,16 @@ export async function cancelSwap(formData: FormData): Promise<void> {
   revalidatePath("/rota", "layout");
 }
 
+/** An owner or admin undoes the changes made after someone left, within 24 hours. */
+export async function undoRebuild(formData: FormData): Promise<void> {
+  const rebuildId = chosenId(formData, "rebuildId");
+  if (!rebuildId) return;
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("undo_rota_rebuild", { p_rebuild: rebuildId });
+  if (error && !isExpectedRotaError(error)) logger.error("rota.undo_rebuild_failed", { error });
+  revalidatePath("/rota", "layout");
+}
+
 /** An owner or admin moves a chore straight to someone else. */
 export async function reassignChore(
   _previous: GenerateFormState,

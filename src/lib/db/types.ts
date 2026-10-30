@@ -1310,6 +1310,141 @@ export type Database = {
           },
         ];
       };
+      rota_rebuild_moves: {
+        Row: {
+          created_at: string;
+          from_profile: string | null;
+          id: string;
+          new_assignment_id: string;
+          old_assignment_id: string;
+          reason: string;
+          rebuild_id: string;
+          to_profile: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          from_profile?: string | null;
+          id?: string;
+          new_assignment_id: string;
+          old_assignment_id: string;
+          reason: string;
+          rebuild_id: string;
+          to_profile?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          from_profile?: string | null;
+          id?: string;
+          new_assignment_id?: string;
+          old_assignment_id?: string;
+          reason?: string;
+          rebuild_id?: string;
+          to_profile?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rota_rebuild_moves_from_profile_fkey";
+            columns: ["from_profile"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rota_rebuild_moves_new_assignment_id_fkey";
+            columns: ["new_assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "chore_assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rota_rebuild_moves_old_assignment_id_fkey";
+            columns: ["old_assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "chore_assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rota_rebuild_moves_rebuild_id_fkey";
+            columns: ["rebuild_id"];
+            isOneToOne: false;
+            referencedRelation: "rota_rebuilds";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rota_rebuild_moves_to_profile_fkey";
+            columns: ["to_profile"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      rota_rebuilds: {
+        Row: {
+          applied_at: string | null;
+          household_id: string;
+          id: string;
+          left_profile: string;
+          left_reason: string | null;
+          requested_at: string;
+          status: string;
+          unassigned: number;
+          undo_until: string | null;
+          undone_at: string | null;
+          undone_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          applied_at?: string | null;
+          household_id: string;
+          id?: string;
+          left_profile: string;
+          left_reason?: string | null;
+          requested_at?: string;
+          status?: string;
+          unassigned?: number;
+          undo_until?: string | null;
+          undone_at?: string | null;
+          undone_by?: string | null;
+        };
+        Update: {
+          applied_at?: string | null;
+          household_id?: string;
+          id?: string;
+          left_profile?: string;
+          left_reason?: string | null;
+          requested_at?: string;
+          status?: string;
+          unassigned?: number;
+          undo_until?: string | null;
+          undone_at?: string | null;
+          undone_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rota_rebuilds_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rota_rebuilds_left_profile_fkey";
+            columns: ["left_profile"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rota_rebuilds_undone_by_fkey";
+            columns: ["undone_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       rota_weeks: {
         Row: {
           created_at: string;
@@ -1699,6 +1834,7 @@ export type Database = {
       };
       resume_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
+      rota_apply_rebuild: { Args: { p_moves: Json; p_rebuild: string }; Returns: string };
       rota_due_generations: {
         Args: { p_now: string };
         Returns: {
@@ -1711,6 +1847,14 @@ export type Database = {
         Args: { p_household: string; p_week_start: string };
         Returns: Json;
       };
+      rota_pending_rebuilds: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          household_id: string;
+          rebuild_id: string;
+        }[];
+      };
+      rota_rebuild_input: { Args: { p_rebuild: string }; Returns: Json };
       save_chore: {
         Args: {
           p_cadence?: string;
@@ -1758,6 +1902,7 @@ export type Database = {
       };
       tick_item: { Args: { p_item_id: string }; Returns: undefined };
       transfer_ownership: { Args: { p_profile_id: string }; Returns: undefined };
+      undo_rota_rebuild: { Args: { p_rebuild: string }; Returns: Json };
       untick_item: { Args: { p_item_id: string }; Returns: undefined };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
       void_expense: { Args: { p_expense_id: string }; Returns: undefined };

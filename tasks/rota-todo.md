@@ -24,9 +24,9 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 
 - [x] **Task 8: Fairness view (R6)**
 
-- [ ] **Task 9: Pure rebalance (R7a)**
+- [x] **Task 9: Pure rebalance (R7a)**
 
-- [ ] **Task 10: Leaver trigger, rebuild, undo, joiners (R7b)**
+- [x] **Task 10: Leaver trigger, rebuild, undo, joiners (R7b)**
 
 - [ ] **Task 11: Checkpoint (R8)**
 
@@ -38,3 +38,4 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 - Task 5 merged (PR 67, migration `20261119000000_rota_schedule.sql` applied; the owner deploys the `rota-generate` Edge Function). Task 6 (this PR, no migration): `/rota`, the assignment page, checklist ticking and the first rota end-to-end test, which found and fixed a real bug in Generate now. Next: Task 7, swaps and admin reassign.
 - Task 6 merged (PR 68, no migration): the rota page, assignment page, checklist ticking and the first e2e. Task 7 (this PR, migration `20261120000000_rota_swaps.sql`): swap requests (with optional exchange), accept, decline, withdraw, and admin reassign with their name on it; nothing is rewritten, the old assignment is marked replaced. Next: Task 8, the fairness view.
 - Task 7 merged (PR 69, migration `20261120000000_rota_swaps.sql` applied): swap requests, accept/decline/withdraw, admin reassign. Task 8 (this PR, no migration): the read-only fairness page at `/rota/fairness` with 4 week, 12 week and 6 month periods, computed from the stored rows. Next: Task 9, the pure rebalance function, then Task 10, the leaver trigger, rebuild and undo.
+- Task 8 and Task 9 merged (PRs 70 and 71, no migrations): the fairness page and the pure `rebalanceAfterLeave`. Task 10 (this PR, migration `20261121000000_rota_leaving.sql`): a trigger on `memberships.left_at` records a rebuild for leave, removal and account deletion (pgTAP proves each); the rota-generate Edge Function (also run every ten minutes by `rota-rebalance`) applies it with the pure rebalance; each moved chore is a new assignment linked to the old one with ticks carried, chores within 24 hours or started are locked, admins see "After someone left" with a 24-hour undo that puts chores back with whoever they were taken from if that person is still here, joiners start at the flat's average load. The owner must redeploy `rota-generate`. Next: Task 11, the checkpoint.

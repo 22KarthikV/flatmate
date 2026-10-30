@@ -32,6 +32,9 @@ const MESSAGES: Record<string, string> = {
   invalid_exchange: "The chore offered in return is no longer theirs to swap.",
   swap_not_found: "We couldn’t find that swap request.",
   swap_not_pending: "That swap request has already been answered.",
+  undo_expired:
+    "It is more than 24 hours since the chores were moved, so it can no longer be undone.",
+  nothing_to_undo: "There is nothing to undo.",
   invalid_days: "Please answer for all seven days.",
 };
 

@@ -310,6 +310,29 @@ describe("privacy notice", () => {
       "status",
       "to_profile",
     ]);
+    expect(columnsOf("rota_rebuilds")).toEqual([
+      "applied_at",
+      "household_id",
+      "id",
+      "left_profile",
+      "left_reason",
+      "requested_at",
+      "status",
+      "unassigned",
+      "undo_until",
+      "undone_at",
+      "undone_by",
+    ]);
+    expect(columnsOf("rota_rebuild_moves")).toEqual([
+      "created_at",
+      "from_profile",
+      "id",
+      "new_assignment_id",
+      "old_assignment_id",
+      "reason",
+      "rebuild_id",
+      "to_profile",
+    ]);
     expect(columnsOf("assignment_items")).toEqual([
       "assignment_id",
       "done_at",
@@ -338,6 +361,7 @@ describe("privacy notice", () => {
       "chore given to you",
       "passed over for it",
       "swap requests",
+      "chores moved when a flatmate left",
       "Everyone in your flat can see everyone’s availability",
       "never carry a chore or a person in a push",
     ]) {

@@ -184,6 +184,11 @@ export default function PrivacyPage() {
             moved a chore directly;
           </li>
           <li>
+            a record of the <strong>chores moved when a flatmate left</strong> (which chore, who it
+            came from and who it went to, and who undid it), kept so an admin can undo it within 24
+            hours;
+          </li>
+          <li>
             a note of when you last had each chore and whether you were passed over for it, which is
             how the rota keeps turns fair;
           </li>

@@ -426,6 +426,22 @@ describe("fairness helpers", () => {
     expect(loads.new).toBe(0);
   });
 
+  it("starts a joiner at the flat's average, not at zero", () => {
+    const loads = carriedLoads(
+      ["a", "b", "new"],
+      [
+        {
+          members: ["a", "b", "gone"],
+          assignments: [
+            { assignee: "a", effort: 3 },
+            { assignee: "b", effort: 3 },
+          ],
+        },
+      ],
+    );
+    expect(loads).toEqual({ a: 1, b: 1, new: 1 });
+  });
+
   it("finds the latest date per person and chore", () => {
     expect(
       lastDoneFrom([

@@ -26,7 +26,8 @@ export type NotificationType =
   | "chore_due"
   | "chore_overdue"
   | "swap_requested"
-  | "swap_decided";
+  | "swap_decided"
+  | "rota_rebuilt";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -250,6 +251,15 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
     description: "When your swap is accepted or declined, or an admin moves one of your chores.",
     defaultInApp: true,
     defaultPush: false,
+    snoozable: false,
+  },
+  {
+    type: "rota_rebuilt",
+    label: "Chores are moved after someone leaves",
+    description:
+      "When a flatmate leaves and their chores are given to others, or an admin undoes it.",
+    defaultInApp: true,
+    defaultPush: true,
     snoozable: false,
   },
 ];
