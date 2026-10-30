@@ -1,6 +1,6 @@
 # Spec: the home page
 
-Status: approved by owner for the owner to approve. Depends on: `household`, `notifications`, `ledger` and `recurring` (built) and `rota` (built; away periods in `SPEC-rota-away.md` land separately). It adds no new module. It only reads what the others already hold.
+Status: approved by owner. Depends on: `household`, `notifications`, `ledger` and `recurring` (built) and `rota` (built; away periods in `SPEC-rota-away.md` land separately). It adds no new module. It only reads what the others already hold.
 
 ## Objective
 
