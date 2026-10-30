@@ -9,6 +9,9 @@
 // library's own behaviour (404/410/429/503 as WebPushError.statusCode, VAPID, aes128gcm) was
 // checked against web-push@3.6.7 directly.
 //
+// It borrows the stack's function runtime and removes it on exit: afterwards run
+// `pnpm db:stop && pnpm db:start` so the end-to-end tests have `delete-account` again.
+//
 // Needs the local stack running (`pnpm db:start`) and Docker. It talks only to localhost and the
 // local database container. It makes a throwaway VAPID pair and device keys, writes the function's
 // env file to the OS temp folder (never the repo), and cleans up after itself.

@@ -90,10 +90,10 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-not
 - [ ] **Task 8: Account deletion, privacy notice, hosted rollout, phone checks** (Medium)
   - Description: Extend `delete-account` so notifications, preferences and push subscriptions go with the account (rows already cascade; handler test proves it). Privacy page names the new data and `privacy-matches-data` covers the four tables. Hosted rollout in order: migrations, VAPID secrets (Supabase) and public key (Vercel), `deliver-push` deploy, `delete-account` redeploy, advisors check. Owner device checks.
   - Acceptance:
-    - [ ] Handler test: deleting an account removes the person's notifications, preferences and subscriptions
-    - [ ] Privacy test fails if the tables change without the notice
-    - [ ] Hosted: `list_migrations` matches the repo; advisors show no new warnings beyond the intended function ones
-    - [ ] Owner on real phones: install the app, turn on push, an admin makes them an admin and the push arrives with the app closed; tapping opens the right screen; push off on one device leaves others on; Safari shows the install explanation
+    - [x] Deleting an account removes the person's notifications, preferences and subscriptions. **Not by cascade, and not in the handler:** `anonymise_profile` keeps the profile row, so the cascades never fire. It is now done inside `anonymise_profile` itself (one transaction), proven by pgTAP `account-deletion-notifications.test.sql` and an end-to-end test through the real `delete-account` function. The same change rewrites the deleted person's name in other members' joined/left notifications to "Deleted user" and stops role-change messages naming the admin. `delete-account` needs no redeploy.
+    - [x] Privacy test fails if the tables change without the notice (`privacy-matches-data.test.tsx` now pins all four notification tables and the notice's wording)
+    - [ ] Hosted: `list_migrations` matches the repo; advisors show no new warnings beyond the intended function ones (checklist in `docs/DEPLOY.md`)
+    - [ ] Owner on real phones (checklist in `docs/DEPLOY.md`; **not done, needs the owner's devices**): install the app, turn on push, an admin makes them an admin and the push arrives with the app closed; tapping opens the right screen; push off on one device leaves others on; Safari shows the install explanation
   - Verify: `pnpm check`, `pnpm db:test`, `pnpm test:e2e`, production `/api/health`
   - Dependencies: Tasks 1 to 7
   - Files: `supabase/functions/delete-account/*`, `src/app/(public)/privacy/page.tsx`, `src/features/legal/privacy-matches-data.test.tsx`, `docs/DEPLOY.md`

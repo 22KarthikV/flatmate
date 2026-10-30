@@ -19,6 +19,35 @@ function literal(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
 }
 
+/** The profile id for an email, read before the account is deleted (afterwards the link is gone). */
+export function profileIdFor(email: string): string {
+  return runLocalSql(`
+    select p.id from public.profiles p join auth.users u on u.id = p.user_id
+     where u.email = ${literal(email)}
+  `);
+}
+
+/** Registers a fake push device for the person with this email. Local only. */
+export function seedPushDevice(email: string, endpoint: string): void {
+  runLocalSql(`
+    insert into public.push_subscriptions (profile_id, endpoint, p256dh, auth)
+    select p.id, ${literal(endpoint)}, 'e2e_p256dh', 'e2e_auth'
+      from public.profiles p join auth.users u on u.id = p.user_id
+     where u.email = ${literal(email)}
+  `);
+}
+
+/** How many notifications, saved choices and push devices exist for a profile id. */
+export function notificationDataCount(profileId: string): number {
+  return Number(
+    runLocalSql(`
+      select (select count(*) from public.notifications where recipient_id = ${literal(profileId)})
+           + (select count(*) from public.notification_preferences where profile_id = ${literal(profileId)})
+           + (select count(*) from public.push_subscriptions where profile_id = ${literal(profileId)})
+    `),
+  );
+}
+
 /** How many push devices the person with this email has registered. */
 export function countPushDevices(email: string): number {
   return Number(

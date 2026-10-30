@@ -65,6 +65,43 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
+      <Section title="What we store about your notifications">
+        <p>
+          When something happens in your flat (someone joins or leaves, or your role changes),
+          FlatMate can tell you. It stores:
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            each <strong>notification</strong> sent to you: a title, a short line, the screen it
+            opens, when it arrived, and whether you have read or snoozed it. Only you can see your
+            own; not even your flatmates can. Unread ones are kept, and read ones are deleted after
+            90 days;
+          </li>
+          <li>
+            your <strong>choices</strong>: for each kind of notification, whether you want it in the
+            app and as a push;
+          </li>
+          <li>
+            for each device where you turn on push, a <strong>push address</strong> and two
+            encryption keys. These come from your browser&rsquo;s push service and are what lets
+            FlatMate send to that device and no other. We also keep a rough label such as
+            &ldquo;Safari on iPhone&rdquo;, when it was added, and when a push last worked or
+            failed;
+          </li>
+          <li>
+            a short-lived <strong>delivery record</strong> of each push that was queued or sent,
+            deleted after 14 days.
+          </li>
+        </ul>
+        <p>
+          A push carries only a title, one short line and a link, never amounts or other private
+          detail. It travels through the push service your browser uses, run by Apple, Google,
+          Microsoft or Mozilla, which can see that a message was sent to your device but not what it
+          says. Push is always your choice: your browser asks first, and you can turn push off for
+          one device on the notification settings page without affecting your others.
+        </p>
+      </Section>
+
       <Section title="Why we use it">
         <p>
           Only to run the service you asked for: signing you in, showing your flatmates who you are,
@@ -110,6 +147,10 @@ export default function PrivacyPage() {
             <strong>Google</strong> signs you in. Their handling of your Google account is covered
             by Google&rsquo;s own privacy policy.
           </li>
+          <li>
+            <strong>Your browser&rsquo;s push service</strong> (Apple, Google, Microsoft or Mozilla)
+            delivers push notifications, only if you turn them on.
+          </li>
         </ul>
         <p>
           These providers act on our instructions, and where data leaves the UK they rely on
@@ -121,11 +162,14 @@ export default function PrivacyPage() {
         <p>
           For as long as you have an account. When you delete your account, your sign-in record is
           removed, your name and photo are replaced by &ldquo;Deleted user&rdquo;, and you are
-          signed out everywhere. Your place in your flat ends. If you owned a flat with no one else
-          in it, that flat is closed. Records you added to a flat (for example an expense) may
-          remain for your flatmates&rsquo; history without your name. A closed flat&rsquo;s records
-          are kept but nobody can open it. Technical logs are kept by our providers for a short time
-          and then removed.
+          signed out everywhere. Your notifications, notification choices and push devices are
+          deleted at the same moment, so nothing can be sent to your phone afterwards. Messages
+          other people already received about you will say &ldquo;Deleted user&rdquo; instead of
+          your name. Your place in your flat ends. If you owned a flat with no one else in it, that
+          flat is closed. Records you added to a flat (for example an expense) may remain for your
+          flatmates&rsquo; history without your name. A closed flat&rsquo;s records are kept but
+          nobody can open it. Technical logs are kept by our providers for a short time and then
+          removed.
         </p>
       </Section>
 
