@@ -13,6 +13,19 @@ const MESSAGES: Record<string, string> = {
   window_closed: "The deadline for that week has passed, so your answers can no longer change.",
   window_not_open: "That week is not open for answers yet.",
   invalid_week: "We couldn’t tell which week that was.",
+  assignment_not_found: "We couldn’t find that chore.",
+  assignment_superseded:
+    "The rota was rebuilt, so that chore has moved. Refresh to see the new one.",
+  has_checklist: "Tick the steps to finish this chore.",
+  not_completed: "That chore isn’t finished yet.",
+  no_signoff_needed: "That chore doesn’t need a sign-off.",
+  assignee_unavailable: "Someone is away on the day they were given a chore.",
+  week_too_far: "That week is too far ahead.",
+  week_in_past: "That week has already finished.",
+  invalid_reason: "We couldn’t do that.",
+  invalid_assignment: "The rota had a problem, so nothing was saved.",
+  invalid_date: "A chore had a date outside its week.",
+  not_a_member: "Someone is no longer in the flat.",
   invalid_days: "Please answer for all seven days.",
 };
 

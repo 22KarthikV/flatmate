@@ -267,6 +267,54 @@ describe("privacy notice", () => {
     ]);
   });
 
+  it("covers every column of the rota week tables as they stand today", () => {
+    expect(columnsOf("rota_weeks")).toEqual([
+      "created_at",
+      "created_by",
+      "household_id",
+      "id",
+      "member_ids",
+      "reason",
+      "revision",
+      "superseded_at",
+      "week_start",
+    ]);
+    expect(columnsOf("chore_assignments")).toEqual([
+      "assignee",
+      "chore_id",
+      "chore_name",
+      "completed_at",
+      "created_at",
+      "due_on",
+      "effort",
+      "explanation",
+      "household_id",
+      "id",
+      "needs_signoff",
+      "reopened_at",
+      "reopened_by",
+      "replaces_id",
+      "rota_week_id",
+      "signed_off_by",
+      "superseded_at",
+    ]);
+    expect(columnsOf("assignment_items")).toEqual([
+      "assignment_id",
+      "done_at",
+      "done_by",
+      "id",
+      "position",
+      "text",
+    ]);
+    expect(columnsOf("rotation_state")).toEqual([
+      "chore_id",
+      "household_id",
+      "last_done_on",
+      "owed_turns",
+      "profile_id",
+    ]);
+  });
+
   it("explains the rota: what availability is, who sees it and that pushes name nothing", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";
@@ -275,6 +323,8 @@ describe("privacy notice", () => {
       "What we store about the chore rota",
       "your availability",
       "filled it in as around",
+      "chore given to you",
+      "passed over for it",
       "Everyone in your flat can see everyone’s availability",
       "never carry a chore or a person in a push",
     ]) {

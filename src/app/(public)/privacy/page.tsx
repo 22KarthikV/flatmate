@@ -174,6 +174,15 @@ export default function PrivacyPage() {
             because you did not answer by the deadline;
           </li>
           <li>
+            each <strong>chore given to you</strong>: which chore, the day, why it was yours, which
+            steps you ticked and when, whether it was finished, reopened or signed off, and who
+            reopened or signed it off;
+          </li>
+          <li>
+            a note of when you last had each chore and whether you were passed over for it, which is
+            how the rota keeps turns fair;
+          </li>
+          <li>
             the flat&rsquo;s chores and checklists, which are about the flat and not about you.
           </li>
         </ul>
