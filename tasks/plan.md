@@ -1,62 +1,64 @@
-# Implementation Plan: notifications
+# Implementation Plan: ledger
 
-Spec: [docs/SPEC-notifications.md](../docs/SPEC-notifications.md) (approved 2026-10-29; email deferred, no quiet hours, joined/left inbox only, push library chosen in Task 6). Task list: [tasks/todo.md](todo.md). Earlier plans are archived in [tasks/archive](archive/).
+Spec: [docs/SPEC-ledger.md](../docs/SPEC-ledger.md) (approved 2026-10-30, on the default decisions). Task list: [tasks/todo.md](todo.md). Earlier plans are archived in [tasks/archive](archive/).
 
 ## Overview
 
-One way for any module to tell a person something: a notification row written in the same transaction as the event, shown in an inbox with a live bell, and optionally delivered as a phone push through an outbox and worker. The first real events come from `household`, which proves the pipeline before `ledger` depends on it.
+Shared expenses and settle-up for a flat: add an expense with a split, see who owes whom in the fewest payments, record a payment that the receiver confirms, and be nudged gently. No money moves through the app. The module also fills in the `can_leave` hook that `household` reserved, and gives `recurring` the expenses and settlements it will build rent and bills on.
 
 ## Architecture decisions
 
-- **Inbox first, push last.** Tasks 1 to 5 deliver a complete, useful in-app feature with no push code. Push (Tasks 6 and 7) is added on top and can fail without affecting the inbox.
-- **Database first inside each slice,** as in household: pgTAP before the migration, then the action and screen, then E2E. One migration file per slice so each can be applied to hosted on its own.
-- **Only `private.notify` writes notifications.** The browser can read its own rows and call `mark_read`, `mark_all_read`, `snooze`. Nothing else.
-- **Dedupe is a unique key,** `(recipient_id, dedupe_key)`, and the outbox has `(notification_id, subscription_id)` unique, so retries can never duplicate.
-- **Defaults live in code** (`types.ts`); a saved preference row overrides them. No migration is needed to add a type's defaults, only the type's check-constraint entry.
-- **Reuse, don't invent:** the Realtime pattern from `LiveFlat` (set auth, lazy import, debounced refresh), the heartbeat/`job_runs` pipeline for scheduling, the `authz` schema for any policy helper.
-- **Bundle budgets are not raised.** The live bell listener is lazily imported.
-- **Rollout rule (unchanged):** apply each migration to hosted before merging code that needs it; deploy Edge Functions after their migration.
+- **Pure logic first, then the database, then screens.** Splitting, rounding and debt simplification are plain functions with property tests (Task 1) before any table exists. The database re-checks what code computes, so a bug in one cannot silently corrupt money.
+- **Append-only, derived balances.** Expenses, shares and settlements are never rewritten; an edit is "void and replace". Balances are always summed from the rows, so they cannot drift and the zero-sum rule is easy to prove. No cached balance table until measurement asks for one.
+- **The database enforces the rules.** Every write goes through a `security definer` function that derives the caller from `auth.uid()`; tables have no write policies. The pgTAP suite is the main safety net, as in `household` and `notifications`.
+- **Notifications are written in the same transaction** with `private.notify`, using dedupe keys. Money types push a **generic** text, so no amount reaches a lock screen.
+- **Reuse, don't invent:** the live bell already refreshes the screen when a notification arrives, so balances update with no new Realtime channel; the `job_runs`/cron pattern runs the nudge job; the `authz` helpers do membership and role checks.
+- **One migration per slice,** so each can be applied to hosted on its own, before the code that needs it is merged. Bundle budgets are not raised; new routes get their own entries.
 
 ```
-1 data model, notify(), registry, isolation tests
-      ├─ 2 inbox page + bell (server-rendered count)
-      │       ├─ 3 household events -> notifications (join, leave, remove, role)
-      │       │        └─ 4 live bell (Realtime)
-      │       └─ 5 preferences + snooze
-      └─ 6 push client: service worker, subscribe, settings card (needs 5)
-              └─ 7 deliver-push worker, outbox drain, retention job (needs 6)
-                      └─ 8 account deletion, privacy notice, hosted rollout, phone checks
+1 pure logic: money, splits, simplify (no database)
+2 data model, RLS, balances function, types, isolation tests
+      ├─ 3 add / edit / void functions + notifications + generic push text
+      │       └─ 4 add expense screen, expense list and detail, privacy notice
+      │               └─ 5 balances screen, suggested payments
+      │                       └─ 6 settle-up: record, confirm, decline, cancel
+      │                               ├─ 7 leaving and account deletion rules, admin settles on behalf
+      │                               └─ 8 nudges and pending-settlement reminders
+      └───────────────────────────────────────────────────────── 9 hosted rollout and phone checks
 ```
+
+Tasks 1 and 2 are independent and can be built in either order; 3 needs 2; 4 needs 1 and 3; 5 needs 4; 6 needs 5; 7 and 8 need 6; 9 needs all.
 
 ## Task list
 
-- [x] Task 1: Tables, `private.notify`, read/snooze functions, type registry, isolation tests
-- [x] Task 2: Inbox page and bell
-- [x] Task 3: Household events create notifications
-- [x] Task 4: Live bell (no navigation needed)
-- [x] Task 5: Preferences and snooze
-- [x] Task 6: Push on the device (service worker, subscribe, settings card, library choice)
-- [x] Task 7: `deliver-push` worker, outbox drain, retention
-- [ ] Task 8: Account deletion, privacy notice, hosted rollout, phone checks
+- [ ] Task 1: Money, splits and debt simplification (pure code, property-tested)
+- [ ] Task 2: Ledger tables, RLS, `household_balances`, notification types, isolation tests
+- [ ] Task 3: Add, edit and void expenses in the database, with notifications and generic push text
+- [ ] Task 4: Add expense screen, expense list and detail, privacy notice
+- [ ] Task 5: Balances screen and suggested payments
+- [ ] Task 6: Settle-up: record, confirm, decline, cancel
+- [ ] Task 7: Leaving and account deletion rules; admin settles on behalf
+- [ ] Task 8: Nudges and pending-settlement reminders
+- [ ] Task 9: Hosted rollout, phone checks, wrap-up
 
-### Checkpoint: after Task 5 (inbox complete)
+### Checkpoint: after Task 5 (usable for tracking)
 
-- [ ] A flatmate joining shows in the other members' inbox and live bell; preferences and snooze work; `pnpm check`, `pnpm db:test`, `pnpm test:e2e` green. Push is still absent, and that is fine to ship.
+- [ ] A flat can add expenses in every split mode, see balances and suggested payments, and everyone is told. `pnpm check`, `pnpm db:test`, `pnpm test:e2e` green. Settle-up is still manual outside the app, and that is fine to ship.
 
-### Checkpoint: Notifications complete
+### Checkpoint: Ledger complete
 
 - [ ] Every success criterion in the spec is met
 
 ## Risks
 
-| Risk                                                    | Mitigation                                                                                          |
-| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| iPhone push only works for the installed app            | Inbox is the source of truth; install guidance in Task 6; phone check is a ship criterion in Task 8 |
-| Push library does not run on Deno or is unmaintained    | Task 6 starts with a small spike against the real runtime; owner confirms the choice before adding  |
-| Duplicate or lost notifications                         | Unique dedupe key and outbox pair; row commits with the event; delivery is separate and idempotent  |
-| Household function changes in Task 3 regress join/leave | Existing household pgTAP and E2E suites must stay green; new assertions added beside them           |
-| Realtime inbox adds bundle weight                       | Lazy import (Task 4); budgets checked in CI                                                         |
-| VAPID private key leaks                                 | Secret store only; generation script prints, never writes; rotation documented in `docs/DEPLOY.md`  |
-| Worker down or push service rate-limits                 | Outbox waits and drains later; backoff and attempt cap; `job_runs` shows gaps                       |
-| Cross-flat leak through notification text               | `notify` checks the recipient belongs to the household; text built only from that flat's own data   |
-| Owner checks from identity and household are still open | Carried over in `tasks/todo.md`; none block this module                                             |
+| Risk                                             | Mitigation                                                                                      |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| Rounding makes shares not add up                 | One split function, property tests, and a database constraint on the sum                        |
+| Balances drift from the rows                     | Never stored; always summed from the rows; zero-sum proven in pgTAP after a mixed run           |
+| History edited to change who owes what           | Append-only tables, no write policies, tests that update and delete fail                        |
+| An amount appears on a lock screen               | Generic push text per money type; test that no payload contains an amount                       |
+| Push worker change breaks other notifications    | The change is a per-type override only; existing push tests must stay green; redeploy in Task 9 |
+| Leaving with debts strands money                 | `can_leave` blocks it (Task 7); admin settles on behalf for removed people; no hidden write-off |
+| Money form is heavy on a phone                   | Client component only on `/money/add`; budgets checked in CI; no existing budget raised         |
+| Scope creep into rent and bills                  | Recurring generation is the next module; the ledger only exposes expenses and settlements       |
+| Owner checks from earlier modules are still open | Carried over in `tasks/todo.md`; none block this module                                         |
