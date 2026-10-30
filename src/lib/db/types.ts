@@ -23,6 +23,84 @@ export type Database = {
   };
   public: {
     Tables: {
+      chore_checklist_items: {
+        Row: {
+          chore_id: string;
+          id: string;
+          position: number;
+          text: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          chore_id: string;
+          id?: string;
+          position: number;
+          text: string;
+        };
+        Update: {
+          chore_id?: string;
+          id?: string;
+          position?: number;
+          text?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chore_checklist_items_chore_id_fkey";
+            columns: ["chore_id"];
+            isOneToOne: false;
+            referencedRelation: "chores";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      chores: {
+        Row: {
+          archived_at: string | null;
+          cadence: string;
+          created_at: string;
+          effort: number;
+          every_n_days: number | null;
+          household_id: string;
+          id: string;
+          name: string;
+          needs_signoff: boolean;
+          preferred_dow: number | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          cadence: string;
+          created_at?: string;
+          effort?: number;
+          every_n_days?: number | null;
+          household_id: string;
+          id?: string;
+          name: string;
+          needs_signoff?: boolean;
+          preferred_dow?: number | null;
+        };
+        Update: {
+          archived_at?: string | null;
+          cadence?: string;
+          created_at?: string;
+          effort?: number;
+          every_n_days?: number | null;
+          household_id?: string;
+          id?: string;
+          name?: string;
+          needs_signoff?: boolean;
+          preferred_dow?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chores_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       expense_shares: {
         Row: {
           expense_id: string;
@@ -649,6 +727,7 @@ export type Database = {
         Returns: string;
       };
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
+      archive_chore: { Args: { p_chore_id: string }; Returns: undefined };
       cancel_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       claim_push_outbox: {
         Args: { p_limit?: number };
@@ -701,6 +780,7 @@ export type Database = {
       };
       join_household: { Args: { p_token: string }; Returns: string };
       leave_household: { Args: Record<PropertyKey, never>; Returns: undefined };
+      load_default_chores: { Args: Record<PropertyKey, never>; Returns: number };
       mark_all_read: { Args: Record<PropertyKey, never>; Returns: undefined };
       mark_read: { Args: { p_id: string }; Returns: undefined };
       notify: {
@@ -727,6 +807,19 @@ export type Database = {
       remove_member: { Args: { p_profile_id: string }; Returns: undefined };
       rename_household: { Args: { p_name: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
+      save_chore: {
+        Args: {
+          p_cadence?: string;
+          p_chore_id?: string;
+          p_effort?: number;
+          p_every_n_days?: number;
+          p_items?: string[];
+          p_name?: string;
+          p_needs_signoff?: boolean;
+          p_preferred_dow?: number;
+        };
+        Returns: string;
+      };
       save_push_subscription: {
         Args: { p_auth: string; p_endpoint: string; p_p256dh: string; p_user_agent: string };
         Returns: string;

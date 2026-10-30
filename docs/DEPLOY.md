@@ -109,3 +109,13 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 - `GET /api/health` returns 200 with `app` and `database` both `ok`.
 - A `heartbeat` row appears in `job_runs` within the hour.
 - A `deliver-push` row appears in `job_runs` within the minute (once the function is deployed and the scheduler secrets exist).
+
+## Rota
+
+**Rollout order** for each rota migration (`rota`, `rota_availability`, `rota_weeks`, `rota_schedule`, `rota_swaps`, `rota_leaving`): the orchestrating session applies it to the hosted project before the pull request that needs it merges, then fixes the recorded version so `list_migrations` matches `supabase/migrations/`.
+
+**Things to know**
+
+- Chores and checklists are templates only admins edit. Weeks copy a chore's name, effort and checklist when generated, so editing a template never changes a week that already exists.
+- A flat with no chores sees "Load the usual five" on `/rota/chores`: Bins 1, Kitchen 3, Living room 4, Bathroom 2, Hallway 1 (effort), all editable.
+- Rota never touches money.
