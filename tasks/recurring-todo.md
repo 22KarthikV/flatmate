@@ -73,10 +73,10 @@ Plan: [recurring-plan.md](recurring-plan.md). Spec: [../docs/SPEC-recurring.md](
   - Dependencies: Task 4
   - Files: `src/features/recurring/*`, `src/app/(app)/money/recurring/*`, Money page, budgets
 
-- [ ] **Task 8: Template form, detail and edit** (Large)
+- [x] **Task 8: Template form, detail and edit** (Large)
   - Description: `template-form.tsx` (rent with rooms, bill with fixed or variable, months, people, live total), `new`, `[id]`, `[id]/edit` pages, pause, resume, skip, end buttons.
   - Acceptance:
-    - [ ] Unit: form behaviour and validation messages, live total; a member opening a rent template gets not-found
+    - [x] Unit: form behaviour and validation messages, live total; a member opening a rent template gets not-found
   - Verify: `pnpm check`
   - Dependencies: Tasks 3, 7
   - Files: as spec, budgets
