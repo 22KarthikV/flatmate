@@ -4,14 +4,14 @@ Plan: [recurring-plan.md](recurring-plan.md). Spec: [../docs/SPEC-recurring.md](
 
 ---
 
-- [ ] **Task 1: Pure logic: dates, rooms, shares, schemas, parity vectors** (Medium)
+- [x] **Task 1: Pure logic: dates, rooms, shares, schemas, parity vectors** (Medium)
   - Description: `src/features/recurring/dates.ts`, `rooms.ts`, `shares.ts`, `schemas.ts`, `parity-vectors.ts`, each with tests written first. No database, no screens.
   - Acceptance:
-    - [ ] `dates`: due date for a period and day; generation date 7 days before (rent, fixed bill) and 14 (variable); reminder dates (7, 3, 2, 1 before, the day, daily after); active months; December/January boundary; no backfill (a due date already past is not generated; rent due the 7th set up on the 30th starts with the next 7th)
-    - [ ] `rooms.roomShares`: the first flat (two shared rooms, one private, five people) gives the expected pence; odd pence by largest remainder with ties by profile id; sums to the total; independent of input order; a person in no room or two rooms rejected; property test
-    - [ ] `shares.equalShares`: spread over exactly who is in the flat; property test sums to the total
-    - [ ] `schemas`: due day 1 to 28, fixed needs an amount, variable must not, percentages add to 100, room rent and person amount 1p to £10,000, name up to 50, rent payment at least 1p
-    - [ ] `parity-vectors` checked against the ledger's `splitExpense` (the SQL side is checked in Task 2)
+    - [x] `dates`: due date for a period and day; generation date 7 days before (rent, fixed bill) and 14 (variable); reminder dates (7, 3, 2, 1 before, the day, daily after); active months; December/January boundary; no backfill (a due date already past is not generated; rent due the 7th set up on the 30th starts with the next 7th)
+    - [x] `rooms.roomShares`: the first flat (two shared rooms, one private, five people) gives the expected pence; odd pence by largest remainder with ties by profile id; sums to the total; independent of input order; a person in no room or two rooms rejected; property test
+    - [x] `shares.equalShares`: spread over exactly who is in the flat; property test sums to the total
+    - [x] `schemas`: due day 1 to 28, fixed needs an amount, variable must not, percentages add to 100, room rent and person amount 1p to £10,000, name up to 50, rent payment at least 1p
+    - [x] `parity-vectors` checked against the ledger's `splitExpense` (the SQL side is checked in Task 2)
   - Verify: `pnpm check`
   - Dependencies: none
   - Files: `src/features/recurring/*` and tests

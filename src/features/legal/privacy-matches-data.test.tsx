@@ -172,6 +172,106 @@ describe("privacy notice", () => {
     }
   });
 
+  it("covers every column of the recurring rent and bills tables as they stand today", () => {
+    expect(columnsOf("recurring_templates")).toEqual([
+      "active_months",
+      "amount_mode",
+      "amount_pence",
+      "created_at",
+      "created_by",
+      "due_day",
+      "ended_at",
+      "household_id",
+      "id",
+      "kind",
+      "name",
+      "paid_by",
+      "paused_at",
+      "paused_reason",
+      "split_mode",
+      "updated_at",
+    ]);
+    expect(columnsOf("recurring_rooms")).toEqual([
+      "household_id",
+      "id",
+      "name",
+      "rent_pence",
+      "template_id",
+    ]);
+    expect(columnsOf("recurring_template_shares")).toEqual([
+      "household_id",
+      "profile_id",
+      "room_id",
+      "share_value",
+      "template_id",
+    ]);
+    expect(columnsOf("recurring_instances")).toEqual([
+      "created_at",
+      "due_on",
+      "expense_id",
+      "household_id",
+      "id",
+      "period",
+      "status",
+      "template_id",
+    ]);
+    expect(columnsOf("rent_charges")).toEqual([
+      "amount_pence",
+      "collector_id",
+      "created_at",
+      "due_on",
+      "household_id",
+      "id",
+      "instance_id",
+      "period",
+      "profile_id",
+      "room_name",
+      "template_id",
+    ]);
+    expect(columnsOf("rent_payments")).toEqual([
+      "amount_pence",
+      "collector_id",
+      "created_at",
+      "decided_at",
+      "decided_by",
+      "household_id",
+      "id",
+      "kind",
+      "payer_id",
+      "reason",
+      "status",
+      "template_id",
+      "voided_at",
+      "voided_by",
+    ]);
+    expect(columnsOf("recurring_template_log")).toEqual([
+      "change",
+      "changed_by",
+      "created_at",
+      "detail",
+      "household_id",
+      "id",
+      "template_id",
+    ]);
+  });
+
+  it("explains rent and bills, who sees rent, and what is kept", () => {
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+
+    for (const phrase of [
+      "What we store about rent and bills",
+      "the rooms with their rent",
+      "Rent is private",
+      "you can see only your own rent and payments",
+      "The person who collects the rent and the flat’s owner and admins can see everyone’s",
+      "Deleted user",
+      "never in a push to your phone",
+    ]) {
+      expect(text, `the notice should mention "${phrase}"`).toContain(phrase);
+    }
+  });
+
   it("explains the flat data, who sees it and what happens when someone leaves", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";

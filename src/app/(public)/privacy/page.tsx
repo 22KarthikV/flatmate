@@ -129,6 +129,39 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
+      <Section title="What we store about rent and bills">
+        <p>
+          When an admin sets up the rent or a monthly bill such as gas, electricity, Wi-Fi or
+          council tax, FlatMate stores:
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            the <strong>template</strong>: its name, who collects or pays it, the day it is due, the
+            months it applies to, and whether it is paused or ended;
+          </li>
+          <li>
+            for rent, the <strong>rooms</strong> with their rent and who lives in each, and each
+            person&rsquo;s amount; for a bill, who shares it;
+          </li>
+          <li>
+            each <strong>month</strong> that was created, and for rent each person&rsquo;s{" "}
+            <strong>charge</strong> and each <strong>rent payment</strong> they record, with whether
+            the collector confirmed it;
+          </li>
+          <li>a short log of who changed a template and when.</li>
+        </ul>
+        <p>
+          Bills are shared money, so a bill each month appears as an ordinary expense that everyone
+          in your flat can see. Rent is private: you can see only your own rent and payments, and
+          nobody else in the flat can see what you pay. The person who collects the rent and the
+          flat&rsquo;s owner and admins can see everyone&rsquo;s, so they can run it. Nothing here
+          is overwritten or deleted once created. If you leave, your past rent rows stay for the
+          admins as history; if you delete your account, your name on them becomes &ldquo;Deleted
+          user&rdquo;. Amounts appear in the app and in your inbox, but never in a push to your
+          phone.
+        </p>
+      </Section>
+
       <Section title="Why we use it">
         <p>
           Only to run the service you asked for: signing you in, showing your flatmates who you are,
