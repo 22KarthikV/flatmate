@@ -47,11 +47,11 @@ Plan: [recurring-plan.md](recurring-plan.md). Spec: [../docs/SPEC-recurring.md](
   - Dependencies: Task 3
   - Files: migration, `recurring-generate.test.sql`, `types.ts`
 
-- [ ] **Task 5: Rent payments, status, my rent, dashboard** (Large)
+- [x] **Task 5: Rent payments, status, my rent, dashboard** (Large)
   - Description: Migration `20261104120000_recurring_rent.sql`: `record_rent_payment`, `confirm_`, `decline_`, `cancel_`, `void_rent_payment`, `waive_rent`, `rent_status`, `my_rent`, `rent_dashboard`, leaver unpaid-rent notice. pgTAP first.
   - Acceptance:
-    - [ ] pgTAP: payment capped at what is owed; pending shows pending; only confirmed reduces outstanding; oldest charge first; decline, cancel change nothing; payer cannot confirm their own; once-only decisions, void and waiver behave per R22
-    - [ ] pgTAP: `my_rent` returns only the caller's rows; `rent_dashboard` raises for non-admins; leaving with unpaid rent is not blocked and admins are told the amount
+    - [x] pgTAP: payment capped at what is owed; pending shows pending; only confirmed reduces outstanding; oldest charge first; decline, cancel change nothing; payer cannot confirm their own; once-only decisions, void and waiver behave per R22
+    - [x] pgTAP: `my_rent` returns only the caller's rows; `rent_dashboard` raises for non-admins; leaving with unpaid rent is not blocked and admins are told the amount
   - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types`
   - Dependencies: Task 4
   - Files: migration, `recurring-rent.test.sql`, `types.ts`
