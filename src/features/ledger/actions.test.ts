@@ -43,6 +43,7 @@ import {
   declineSettlement,
   editExpense,
   recordSettlement,
+  saveNudgeInterval,
   voidExpense,
 } from "./actions";
 import { londonToday } from "./form";
@@ -259,6 +260,41 @@ describe("settlement decisions", () => {
     expect(await cancelSettlement(IDLE, form(SETTLEMENT))).toEqual({
       status: "error",
       message: "You can’t do that in this flat.",
+    });
+  });
+});
+
+describe("saveNudgeInterval", () => {
+  const form = (value: string) => {
+    const data = new FormData();
+    data.set("interval", value);
+    return data;
+  };
+
+  it("refuses an interval that is not offered, without calling the database", async () => {
+    expect(await saveNudgeInterval({ status: "idle" }, form("5"))).toEqual({
+      status: "error",
+      message: "Choose how often to remind people.",
+    });
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["off", null],
+    ["3", 3],
+    ["14", 14],
+  ])("saves %s", async (value, days) => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null });
+    expect(await saveNudgeInterval({ status: "idle" }, form(value))).toEqual({ status: "saved" });
+    expect(mocks.rpc).toHaveBeenCalledWith("set_nudge_interval", { p_days: days });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/more/flat");
+  });
+
+  it("says when only admins can change it", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "42501", message: "not_allowed" } });
+    expect(await saveNudgeInterval({ status: "idle" }, form("7"))).toEqual({
+      status: "error",
+      message: "Only the owner and admins can change this.",
     });
   });
 });

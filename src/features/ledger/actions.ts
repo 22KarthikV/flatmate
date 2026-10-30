@@ -11,6 +11,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ExpenseFormState } from "./constants";
 import { expenseErrorMessage, isExpectedExpenseError } from "./errors";
 import { londonToday, parseExpenseFields, parseExpenseId, rawFromFormData } from "./form";
+import { parseNudgeChoice, type NudgeState } from "./nudge";
 import { getSettlementRecipients } from "./recipients";
 import { parseSettlementFields, rawSettlementFromFormData } from "./settle";
 
@@ -93,6 +94,28 @@ export async function editExpense(
 
   revalidatePath("/money");
   redirect(`/money/expenses/${id}`);
+}
+
+/** An owner or admin chooses how long someone owes before a gentle reminder (or never). */
+export async function saveNudgeInterval(
+  _previous: NudgeState,
+  formData: FormData,
+): Promise<NudgeState> {
+  const choice = parseNudgeChoice(formData.get("interval"));
+  if (!choice.ok) return { status: "error", message: "Choose how often to remind people." };
+
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("set_nudge_interval", { p_days: choice.days as number });
+  if (error) {
+    if (error.code === "42501") {
+      return { status: "error", message: "Only the owner and admins can change this." };
+    }
+    logger.error("ledger.set_nudge_interval_failed", { error });
+    return { status: "error", message: "We couldn’t save that. Please try again." };
+  }
+
+  revalidatePath("/more/flat");
+  return { status: "saved" };
 }
 
 /** Cancels an expense. It stays visible as history and stops counting. */

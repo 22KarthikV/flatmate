@@ -38,7 +38,7 @@ Tasks 1 and 2 are independent and can be built in either order; 3 needs 2; 4 nee
 - [x] Task 5: Balances screen and suggested payments
 - [x] Task 6: Settle-up: record, confirm, decline, cancel
 - [x] Task 7: Leaving and account deletion rules; admin settles on behalf
-- [ ] Task 8: Nudges and pending-settlement reminders
+- [x] Task 8: Nudges and pending-settlement reminders
 - [ ] Task 9: Hosted rollout, phone checks, wrap-up
 
 ### Checkpoint: after Task 5 (usable for tracking)

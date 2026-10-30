@@ -8,6 +8,8 @@ import { LeaveSection } from "@/features/household/leave-section";
 import { MembersCard } from "@/features/household/members-card";
 import { getMembers } from "@/features/household/members";
 import { getLiveInviteExpiry } from "@/features/household/live-invite";
+import { NudgeCard } from "@/features/ledger/nudge-card";
+import { getNudgeInterval } from "@/features/ledger/nudge-interval";
 import { hasOpenMoney } from "@/features/ledger/open-money";
 
 export const metadata = { title: "Your flat | FlatMate" };
@@ -32,10 +34,11 @@ async function FlatContent() {
   }
 
   const canInvite = membership.role === "owner" || membership.role === "admin";
-  const [members, activeUntil, moneyOpen] = await Promise.all([
+  const [members, activeUntil, moneyOpen, nudge] = await Promise.all([
     getMembers(),
     canInvite ? getLiveInviteExpiry() : Promise.resolve(null),
     hasOpenMoney(membership.householdId, membership.profileId),
+    canInvite ? getNudgeInterval(membership.householdId) : Promise.resolve(7),
   ]);
 
   return (
@@ -53,6 +56,7 @@ async function FlatContent() {
       {canInvite ? (
         <InviteCard activeUntil={activeUntil} flatName={membership.householdName} />
       ) : null}
+      {canInvite ? <NudgeCard current={nudge} /> : null}
       <LeaveSection
         role={membership.role}
         moneyOpen={moneyOpen}

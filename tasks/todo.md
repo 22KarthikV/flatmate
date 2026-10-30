@@ -89,12 +89,12 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
   - Dependencies: Task 6
   - Files: migration, `ledger-leaving.test.sql`, `src/features/household/leave-section.tsx`, identity delete-account screens
 
-- [ ] **Task 8: Nudges and pending-settlement reminders** (Medium)
+- [x] **Task 8: Nudges and pending-settlement reminders** (Medium)
   - Description: Migration `*_ledger_nudges.sql`: an admin setting for the nudge interval (off, 3, 7 default, 14 days) on Your flat, a daily job that creates `payment_nudge` for each person who owes more than £1 and has owed for at least that long, and a daily job that reminds the receiver of a settlement pending over 2 days (up to 3 times). Dedupe keys make each period send once. Both appear in the notification preferences, snoozable.
   - Acceptance:
-    - [ ] pgTAP: nudges go only to people who owe over £1 past the interval; one per person per period; off means none; reminders stop after 3 or when the settlement is decided; running a job twice duplicates nothing
-    - [ ] Unit: the settings form and its schema; the preferences list shows the new types
-    - [ ] E2E: an admin changes the interval and sees it saved; a seeded old debt produces one nudge
+    - [x] pgTAP: nudges go only to people who owe over £1 past the interval; one per person per period; off means none; reminders stop after 3 or when the settlement is decided; running a job twice duplicates nothing
+    - [x] Unit: the settings form and its schema; the preferences list shows the new types
+    - [x] E2E: an admin changes the interval and sees it saved; a seeded old debt produces one nudge
   - Verify: `pnpm db:test`, `pnpm test`, `pnpm test:e2e`
   - Dependencies: Task 6
   - Files: migration, `ledger-nudges.test.sql`, `src/features/household` (setting), `src/features/notifications/types.ts`

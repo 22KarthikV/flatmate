@@ -7,7 +7,7 @@ import {
   newTestUser,
   signUpAndIn,
 } from "./support/session";
-import { profileIdFor } from "./support/database";
+import { profileIdFor, runLocalSql } from "./support/database";
 
 // Two people in the shared local database, so one project only.
 test.beforeEach(() => {
@@ -208,6 +208,76 @@ test.describe("settling up", () => {
     await joinerPage.getByLabel("Amount (£)").fill("10000.01");
     await joinerPage.getByRole("button", { name: "Record payment" }).click();
     await expect(joinerPage.locator('p[role="alert"]')).toContainText("at most £10,000.00");
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+});
+
+test.describe("reminders", () => {
+  test("an admin can change how long before people are nudged, and a member cannot see the setting", async ({
+    browser,
+    baseURL,
+  }) => {
+    const { hostPage, joinerPage, hostContext, joinerContext } = await twoFlatmates(
+      browser,
+      baseURL!,
+    );
+
+    await hostPage.goto("/more/flat");
+    const select = hostPage.getByLabel("Remind people who owe money");
+    await expect(select).toHaveValue("7");
+    await select.selectOption("14");
+    await hostPage.getByRole("button", { name: "Save" }).click();
+    await expect(hostPage.getByText("Saved.")).toBeVisible();
+
+    await hostPage.reload();
+    await expect(hostPage.getByLabel("Remind people who owe money")).toHaveValue("14");
+    await hostPage.getByLabel("Remind people who owe money").selectOption("off");
+    await hostPage.getByRole("button", { name: "Save" }).click();
+    await expect(hostPage.getByText("Saved.")).toBeVisible();
+    await hostPage.reload();
+    await expect(hostPage.getByLabel("Remind people who owe money")).toHaveValue("off");
+
+    // A plain member does not get the setting.
+    await joinerPage.goto("/more/flat");
+    await expect(joinerPage.getByText("Money reminders")).toHaveCount(0);
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+
+  test("someone who has owed money for a week gets one gentle reminder", async ({
+    browser,
+    baseURL,
+  }) => {
+    const { host, joiner, hostContext, joinerContext, joinerPage } = await twoFlatmates(
+      browser,
+      baseURL!,
+    );
+    const hostId = profileIdFor(host.user.email);
+    const joinerId = profileIdFor(joiner.user.email);
+    const householdId = runLocalSql(
+      `select household_id from public.memberships where profile_id = '${hostId}' and left_at is null`,
+    );
+    const expenseId = crypto.randomUUID();
+
+    // A debt from ten days ago, written straight into the local database so it is already old.
+    runLocalSql(`
+      set constraints all deferred;
+      insert into public.expenses (id, household_id, paid_by, created_by, amount_pence, description, category, occurred_on, created_at)
+      values ('${expenseId}', '${householdId}', '${hostId}', '${hostId}', 1000, 'Old shopping', 'groceries', current_date - 10, now() - interval '10 days');
+      insert into public.expense_shares (expense_id, household_id, profile_id, share_pence) values
+        ('${expenseId}', '${householdId}', '${hostId}', 500),
+        ('${expenseId}', '${householdId}', '${joinerId}', 500);
+    `);
+
+    runLocalSql("select private.ledger_send_nudges(now())");
+    await joinerPage.goto("/notifications");
+    await expect(joinerPage.getByText("Gentle reminder: you owe £5.00")).toBeVisible();
+
+    // Running it again the same day does not nudge twice.
+    runLocalSql("select private.ledger_send_nudges(now())");
+    await joinerPage.reload();
+    await expect(joinerPage.getByText("Gentle reminder: you owe £5.00")).toHaveCount(1);
 
     await Promise.all([hostContext.close(), joinerContext.close()]);
   });
