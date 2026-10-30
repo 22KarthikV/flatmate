@@ -112,7 +112,7 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 
 ## Rota
 
-**Rollout order** for each rota migration (`rota`, `rota_availability`, `rota_weeks`, `rota_schedule`, `rota_swaps`, `rota_leaving`): the orchestrating session applies it to the hosted project before the pull request that needs it merges, then fixes the recorded version so `list_migrations` matches `supabase/migrations/`.
+**Rollout order** for each rota migration (`rota`, `rota_availability`, `rota_weeks`, `rota_schedule`, `rota_swaps`, `rota_leaving`, `rota_away`): the orchestrating session applies it to the hosted project before the pull request that needs it merges, then fixes the recorded version so `list_migrations` matches `supabase/migrations/`.
 
 **Things to know**
 
@@ -134,6 +134,14 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 - Chores that start within 24 hours, or that someone has already ticked, are locked: only the leaver's own are moved. Nothing is rewritten: each moved chore becomes a new assignment pointing at the old one, with ticks carried across, and every move is recorded in `rota_rebuild_moves`.
 - An owner or admin sees "After someone left" on `/rota` for 24 hours and can undo. Undo puts a chore back with the person it was taken from if they are still in the flat; a leaver's own chores cannot go back to someone who is gone, so they stay with their new person.
 - A joiner is in the rota from the next week that is generated, with a starting load equal to the flat's average. Weeks already generated are not changed.
+
+### Rota: away periods
+
+- Migration `20261126000000_rota_away.sql` adds `away_periods` (read by flatmates, written only by `set_away` and `end_away`). Every day in a period counts as not available in every week it touches, replacing "assumed available"; a day the person marks available again wins. The scheduler input, the leaver-rebuild input and the screens all read the same combined view, so they agree.
+- Money never reads this table: rent, bills and the ledger are unchanged. There is no admin alert for long periods, and a period is never treated as a move-out.
+- A period set or extended over days that already have chores queues a rebuild of kind `away` (same table, same job, same 24-hour lock and 24-hour undo as a leaver). No new job and **no further Edge Function deploy** beyond the `rota-generate` redeploy for the leaver rebuild: the redeployed function reads the new `cause` field. Deploy that function after this migration is applied, not before.
+- Fair shares are weighted by days around, so away days do not count against anyone and nobody returns to a pile of owed chores.
+- Leaving the flat ends any open period.
 
 ## Rent and bills (recurring)
 

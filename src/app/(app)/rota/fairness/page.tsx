@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { getMembers } from "@/features/household/members";
 import { getMembership } from "@/features/household/membership";
 import { RequireFlat } from "@/features/household/require-flat";
-import { getOwedTurns, getPastAssignments } from "@/features/rota/fairness-data";
+import { getAwaySpans, getOwedTurns, getPastAssignments } from "@/features/rota/fairness-data";
 import { FairnessList } from "@/features/rota/fairness-list";
 import {
   PERIODS,
@@ -27,12 +27,13 @@ async function FairnessContent({ searchParams }: { searchParams: SearchParams })
   const period = parsePeriod(Array.isArray(raw) ? raw[0] : raw);
   const today = londonDate(new Date());
   const start = periodStart(today, period.weeks);
-  const [members, assignments, owed] = await Promise.all([
+  const [members, assignments, owed, away] = await Promise.all([
     getMembers(),
     getPastAssignments(start, today),
     getOwedTurns(),
+    getAwaySpans(start, today),
   ]);
-  const people = summariseFairness({ people: members, assignments, owed, start, today });
+  const people = summariseFairness({ people: members, assignments, owed, away, start, today });
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-8">

@@ -109,6 +109,65 @@ export type Database = {
           },
         ];
       };
+      away_periods: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          ended_at: string | null;
+          ends_on: string;
+          household_id: string;
+          id: string;
+          note: string | null;
+          profile_id: string;
+          starts_on: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          ended_at?: string | null;
+          ends_on: string;
+          household_id: string;
+          id?: string;
+          note?: string | null;
+          profile_id: string;
+          starts_on: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          ended_at?: string | null;
+          ends_on?: string;
+          household_id?: string;
+          id?: string;
+          note?: string | null;
+          profile_id?: string;
+          starts_on?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "away_periods_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "away_periods_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "away_periods_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       chore_assignments: {
         Row: {
           assignee: string | null;
@@ -1385,6 +1444,7 @@ export type Database = {
           applied_at: string | null;
           household_id: string;
           id: string;
+          kind: string;
           left_profile: string;
           left_reason: string | null;
           requested_at: string;
@@ -1399,6 +1459,7 @@ export type Database = {
           applied_at?: string | null;
           household_id: string;
           id?: string;
+          kind?: string;
           left_profile: string;
           left_reason?: string | null;
           requested_at?: string;
@@ -1412,6 +1473,7 @@ export type Database = {
           applied_at?: string | null;
           household_id?: string;
           id?: string;
+          kind?: string;
           left_profile?: string;
           left_reason?: string | null;
           requested_at?: string;
@@ -1749,6 +1811,7 @@ export type Database = {
         };
         Returns: string;
       };
+      end_away: { Args: { p_id: string; p_last_day?: string }; Returns: undefined };
       end_memberships_for_account: { Args: { p_user_id: string }; Returns: string };
       end_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
       enter_bill_amount: { Args: { p_amount_pence: number; p_instance: string }; Returns: string };
@@ -1835,6 +1898,15 @@ export type Database = {
       resume_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
       rota_apply_rebuild: { Args: { p_moves: Json; p_rebuild: string }; Returns: string };
+      rota_availability: {
+        Args: { p_from: string; p_to: string };
+        Returns: {
+          assumed: boolean;
+          available: boolean;
+          on_date: string;
+          profile_id: string;
+        }[];
+      };
       rota_due_generations: {
         Args: { p_now: string };
         Returns: {
@@ -1877,6 +1949,10 @@ export type Database = {
         Returns: string;
       };
       set_availability: { Args: { p_days: boolean[]; p_week_start: string }; Returns: undefined };
+      set_away: {
+        Args: { p_ends: string; p_note?: string; p_profile?: string; p_starts: string };
+        Returns: string;
+      };
       set_member_role: {
         Args: { p_profile_id: string; p_role: Database["public"]["Enums"]["household_role"] };
         Returns: undefined;

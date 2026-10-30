@@ -28,6 +28,8 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 
 - [x] **Task 10: Leaver trigger, rebuild, undo, joiners (R7b)**
 
+- [x] **Task 10b: Away periods (SPEC-rota-away)**
+
 - [ ] **Task 11: Checkpoint (R8)**
 
 ## Progress notes
@@ -39,3 +41,4 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 - Task 6 merged (PR 68, no migration): the rota page, assignment page, checklist ticking and the first e2e. Task 7 (this PR, migration `20261120000000_rota_swaps.sql`): swap requests (with optional exchange), accept, decline, withdraw, and admin reassign with their name on it; nothing is rewritten, the old assignment is marked replaced. Next: Task 8, the fairness view.
 - Task 7 merged (PR 69, migration `20261120000000_rota_swaps.sql` applied): swap requests, accept/decline/withdraw, admin reassign. Task 8 (this PR, no migration): the read-only fairness page at `/rota/fairness` with 4 week, 12 week and 6 month periods, computed from the stored rows. Next: Task 9, the pure rebalance function, then Task 10, the leaver trigger, rebuild and undo.
 - Task 8 and Task 9 merged (PRs 70 and 71, no migrations): the fairness page and the pure `rebalanceAfterLeave`. Task 10 (this PR, migration `20261121000000_rota_leaving.sql`): a trigger on `memberships.left_at` records a rebuild for leave, removal and account deletion (pgTAP proves each); the rota-generate Edge Function (also run every ten minutes by `rota-rebalance`) applies it with the pure rebalance; each moved chore is a new assignment linked to the old one with ticks carried, chores within 24 hours or started are locked, admins see "After someone left" with a 24-hour undo that puts chores back with whoever they were taken from if that person is still here, joiners start at the flat's average load. The owner must redeploy `rota-generate`. Next: Task 11, the checkpoint.
+- Task 10b (this PR, migration `20261126000000_rota_away.sql`, stacked on Task 10): away periods. A date range, set by the person or an admin, counts as not available for every week it touches; fair shares are weighted by days around; a late change queues a rebuild of kind `away` that reuses the leaver job, 24-hour lock and 24-hour undo; leaving ends open periods; money is untouched. Next: Task 11, the checkpoint.

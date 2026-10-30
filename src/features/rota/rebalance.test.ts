@@ -189,6 +189,14 @@ describe("rebalanceAfterLeave: the basics", () => {
   });
 });
 
+describe("rebalanceAfterLeave: someone who is away", () => {
+  it("says the person is away, not that they left", () => {
+    const tasks = [task("a", { effort: 3 }), task("b", { assignee: "amy", effort: 1 })];
+    const result = rebalanceAfterLeave(input({ tasks, cause: "away" }));
+    expect(result.moves[0]!.explanation).toBe("Moved to you because Sam is away.");
+  });
+});
+
 describe("rebalanceAfterLeave: properties over random flats", () => {
   const seeds = Array.from({ length: 300 }, (_, i) => i + 1);
 
