@@ -24,12 +24,18 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 import {
+  cancelRentPayment,
+  confirmRentPayment,
+  declineRentPayment,
   endTemplate,
   enterBillAmount,
   pauseTemplate,
+  recordRentPayment,
   resumeTemplate,
   saveTemplate,
   skipMonth,
+  voidRentPayment,
+  waiveRent,
 } from "./actions";
 
 const INSTANCE = "e1000000-0000-0000-0000-000000000001";
@@ -232,6 +238,73 @@ describe("pause, resume, end and skip", () => {
   it("refuses a bad template id", async () => {
     expect(await pauseTemplate(IDLE, form({ templateId: "nope" }))).toMatchObject({
       status: "error",
+    });
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+});
+
+describe("rent actions", () => {
+  const PAYMENT = "a1000000-0000-0000-0000-000000000001";
+
+  it("records a payment in pence and returns to Your rent", async () => {
+    mocks.rpc.mockResolvedValue({ data: PAYMENT, error: null });
+    await expect(recordRentPayment(IDLE, form({ amount: "520.00" }))).rejects.toThrow(
+      "REDIRECT:/money/rent",
+    );
+    expect(mocks.rpc).toHaveBeenCalledWith("record_rent_payment", { p_amount_pence: 52_000 });
+  });
+
+  it("refuses a bad amount before the database, and shows why one is refused by it", async () => {
+    expect(await recordRentPayment(IDLE, form({ amount: "4.205" }))).toMatchObject({
+      status: "error",
+    });
+    expect(mocks.rpc).not.toHaveBeenCalled();
+    mocks.rpc.mockResolvedValue({ data: null, error: { message: "amount_exceeds_owed" } });
+    expect(await recordRentPayment(IDLE, form({ amount: "9999" }))).toEqual({
+      status: "error",
+      message: "That is more than you still owe.",
+    });
+  });
+
+  it("confirm, decline, cancel and reverse each call their own function", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null });
+    for (const [action, name] of [
+      [confirmRentPayment, "confirm_rent_payment"],
+      [declineRentPayment, "decline_rent_payment"],
+      [cancelRentPayment, "cancel_rent_payment"],
+      [voidRentPayment, "void_rent_payment"],
+    ] as const) {
+      mocks.rpc.mockClear();
+      await expect(action(IDLE, form({ paymentId: PAYMENT }))).rejects.toThrow("REDIRECT");
+      expect(mocks.rpc).toHaveBeenCalledWith(name, { p_payment_id: PAYMENT });
+    }
+    expect(await confirmRentPayment(IDLE, form({ paymentId: "nope" }))).toMatchObject({
+      status: "error",
+    });
+  });
+
+  it("shows when a payment has already been dealt with", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { message: "already_decided" } });
+    expect(await confirmRentPayment(IDLE, form({ paymentId: PAYMENT }))).toEqual({
+      status: "error",
+      message: "That payment has already been dealt with.",
+    });
+  });
+
+  it("waives rent with a reason, and refuses a missing one", async () => {
+    mocks.rpc.mockResolvedValue({ data: PAYMENT, error: null });
+    await expect(
+      waiveRent(IDLE, form({ payerId: A, amount: "100", reason: "Agreed with the landlord" })),
+    ).rejects.toThrow("REDIRECT:/money/rent");
+    expect(mocks.rpc).toHaveBeenCalledWith("waive_rent", {
+      p_payer_id: A,
+      p_amount_pence: 10_000,
+      p_reason: "Agreed with the landlord",
+    });
+    mocks.rpc.mockClear();
+    expect(await waiveRent(IDLE, form({ payerId: A, amount: "100", reason: "  " }))).toMatchObject({
+      status: "error",
+      message: "Say why.",
     });
     expect(mocks.rpc).not.toHaveBeenCalled();
   });

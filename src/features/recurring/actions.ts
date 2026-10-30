@@ -11,7 +11,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import type { RecurringFormState } from "./constants";
 import { isExpectedRecurringError, recurringErrorMessage } from "./errors";
-import { parseSkip, parseTemplate } from "./schemas";
+import { parseRentPayment, parseSkip, parseTemplate, parseWaiver } from "./schemas";
 import { toRpcPayload } from "./template-input";
 
 async function signedInClient() {
@@ -171,4 +171,96 @@ export async function skipMonth(
   revalidatePath("/money/recurring");
   revalidatePath(`/money/recurring/${parsed.value.templateId}`);
   redirect(`/money/recurring/${parsed.value.templateId}`);
+}
+
+/** "I paid my rent". It stays pending until the collector or another admin confirms it. */
+export async function recordRentPayment(
+  _previous: RecurringFormState,
+  formData: FormData,
+): Promise<RecurringFormState> {
+  const amount = parsePounds(String(formData.get("amount") ?? ""));
+  if (!amount.ok) return { status: "error", message: amount.message };
+  const parsed = parseRentPayment({ amountPence: amount.pence });
+  if (!parsed.ok) return { status: "error", message: parsed.error };
+
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("record_rent_payment", {
+    p_amount_pence: parsed.value.amountPence,
+  });
+  if (error) return failure("record_rent_payment", error);
+
+  revalidatePath("/money/rent");
+  redirect("/money/rent");
+}
+
+async function decide(
+  name:
+    "confirm_rent_payment" | "decline_rent_payment" | "cancel_rent_payment" | "void_rent_payment",
+  formData: FormData,
+): Promise<RecurringFormState> {
+  const paymentId = parseExpenseId(formData.get("paymentId"));
+  if (!paymentId) {
+    return { status: "error", message: recurringErrorMessage({ message: "payment_not_found" }) };
+  }
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc(name, { p_payment_id: paymentId });
+  if (error) return failure(name, error);
+
+  revalidatePath("/money/rent");
+  redirect("/money/rent");
+}
+
+export async function confirmRentPayment(
+  _previous: RecurringFormState,
+  formData: FormData,
+): Promise<RecurringFormState> {
+  return decide("confirm_rent_payment", formData);
+}
+
+export async function declineRentPayment(
+  _previous: RecurringFormState,
+  formData: FormData,
+): Promise<RecurringFormState> {
+  return decide("decline_rent_payment", formData);
+}
+
+export async function cancelRentPayment(
+  _previous: RecurringFormState,
+  formData: FormData,
+): Promise<RecurringFormState> {
+  return decide("cancel_rent_payment", formData);
+}
+
+/** An admin reverses a confirmation made by mistake. */
+export async function voidRentPayment(
+  _previous: RecurringFormState,
+  formData: FormData,
+): Promise<RecurringFormState> {
+  return decide("void_rent_payment", formData);
+}
+
+/** An admin closes rent that will not be paid, with a reason that is kept. */
+export async function waiveRent(
+  _previous: RecurringFormState,
+  formData: FormData,
+): Promise<RecurringFormState> {
+  const amount = parsePounds(String(formData.get("amount") ?? ""));
+  if (!amount.ok) return { status: "error", message: amount.message };
+  const parsed = parseWaiver({
+    payerId: formData.get("payerId"),
+    amountPence: amount.pence,
+    reason: String(formData.get("reason") ?? ""),
+  });
+  if (!parsed.ok) return { status: "error", message: parsed.error };
+
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("waive_rent", {
+    p_payer_id: parsed.value.payerId,
+    p_amount_pence: parsed.value.amountPence,
+    p_reason: parsed.value.reason,
+  });
+  if (error) return failure("waive_rent", error);
+
+  revalidatePath("/money/rent");
+  redirect("/money/rent");
 }

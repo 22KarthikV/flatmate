@@ -28,7 +28,10 @@
     "/money/recurring/instances/[id]/amount": 200,
     "/money/recurring/new": 200,
     "/money/recurring/[id]": 200,
-    "/money/recurring/[id]/edit": 200
+    "/money/recurring/[id]/edit": 200,
+    "/money/rent": 200,
+    "/money/rent/pay": 200,
+    "/money/rent/history": 200
   },
   "lazyMotionKb": 60
 }
