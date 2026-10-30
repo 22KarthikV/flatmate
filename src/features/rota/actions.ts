@@ -6,9 +6,14 @@ import { redirect } from "next/navigation";
 import { logger } from "@/lib/logger";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-import type { ChoreFormState } from "./constants";
+import type { AvailabilityFormState, ChoreFormState } from "./constants";
 import { isExpectedRotaError, rotaErrorMessage } from "./errors";
-import { parseChoreFields, parseChoreId, rawChoreFromFormData } from "./schemas";
+import {
+  parseAvailabilityForm,
+  parseChoreFields,
+  parseChoreId,
+  rawChoreFromFormData,
+} from "./schemas";
 
 async function signedInClient() {
   const supabase = await createSupabaseServerClient();
@@ -65,4 +70,26 @@ export async function loadDefaultChores(): Promise<void> {
   const { error } = await supabase.rpc("load_default_chores");
   if (error && !isExpectedRotaError(error)) logger.error("rota.load_defaults_failed", { error });
   revalidatePath("/rota/chores");
+}
+
+/** Saves the signed-in person's seven answers for a week. The database checks the deadline. */
+export async function saveAvailability(
+  _previous: AvailabilityFormState,
+  formData: FormData,
+): Promise<AvailabilityFormState> {
+  const parsed = parseAvailabilityForm(formData);
+  if (!parsed.ok) return { status: "error", message: parsed.message };
+
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("set_availability", {
+    p_week_start: parsed.weekStart,
+    p_days: parsed.days,
+  });
+  if (error) {
+    if (!isExpectedRotaError(error)) logger.error("rota.set_availability_failed", { error });
+    return { status: "error", message: rotaErrorMessage(error) };
+  }
+
+  revalidatePath("/rota/availability");
+  return { status: "saved" };
 }

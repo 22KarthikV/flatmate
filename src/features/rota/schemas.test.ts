@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { parseChoreFields, parseChoreId, rawChoreFromFormData, type RawChore } from "./schemas";
+import {
+  parseAvailabilityForm,
+  parseChoreFields,
+  parseChoreId,
+  rawChoreFromFormData,
+  type RawChore,
+} from "./schemas";
 
 const base: RawChore = {
   name: "Kitchen",
@@ -91,5 +97,37 @@ describe("parseChoreId", () => {
     );
     expect(parseChoreId("nope")).toBeNull();
     expect(parseChoreId(null)).toBeNull();
+  });
+});
+
+describe("parseAvailabilityForm", () => {
+  it("turns ticked dates into seven answers, Sunday first", () => {
+    const form = new FormData();
+    form.set("weekStart", "2026-11-08");
+    form.append("day", "2026-11-08");
+    form.append("day", "2026-11-10");
+    form.append("day", "2026-11-14");
+    expect(parseAvailabilityForm(form)).toEqual({
+      ok: true,
+      weekStart: "2026-11-08",
+      days: [true, false, true, false, false, false, true],
+    });
+  });
+
+  it("gives all false when nothing is ticked, and ignores dates outside the week", () => {
+    const form = new FormData();
+    form.set("weekStart", "2026-11-08");
+    form.append("day", "2026-12-25");
+    expect(parseAvailabilityForm(form)).toMatchObject({ ok: true, days: Array(7).fill(false) });
+  });
+
+  it.each([["nope"], ["2026-11-09"], [""]])("refuses a week start of %j", (weekStart) => {
+    const form = new FormData();
+    form.set("weekStart", weekStart);
+    expect(parseAvailabilityForm(form).ok).toBe(false);
+  });
+
+  it("refuses a missing week start", () => {
+    expect(parseAvailabilityForm(new FormData()).ok).toBe(false);
   });
 });

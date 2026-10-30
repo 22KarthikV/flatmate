@@ -23,6 +23,49 @@ export type Database = {
   };
   public: {
     Tables: {
+      availability: {
+        Row: {
+          assumed: boolean;
+          available: boolean;
+          household_id: string;
+          on_date: string;
+          profile_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assumed?: boolean;
+          available: boolean;
+          household_id: string;
+          on_date: string;
+          profile_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          assumed?: boolean;
+          available?: boolean;
+          household_id?: string;
+          on_date?: string;
+          profile_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "availability_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "availability_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       chore_checklist_items: {
         Row: {
           chore_id: string;
@@ -222,6 +265,7 @@ export type Database = {
       };
       households: {
         Row: {
+          availability_deadline: string;
           closed_at: string | null;
           created_at: string;
           created_by: string;
@@ -233,6 +277,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          availability_deadline?: string;
           closed_at?: string | null;
           created_at?: string;
           created_by: string;
@@ -243,6 +288,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          availability_deadline?: string;
           closed_at?: string | null;
           created_at?: string;
           created_by?: string;
@@ -1281,6 +1327,7 @@ export type Database = {
         Args: { p_auth: string; p_endpoint: string; p_p256dh: string; p_user_agent: string };
         Returns: string;
       };
+      set_availability: { Args: { p_days: boolean[]; p_week_start: string }; Returns: undefined };
       set_member_role: {
         Args: { p_profile_id: string; p_role: Database["public"]["Enums"]["household_role"] };
         Returns: undefined;

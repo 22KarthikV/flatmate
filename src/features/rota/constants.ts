@@ -57,3 +57,6 @@ export function describeCadence(chore: Pick<Chore, "cadence" | "preferredDow" | 
 
 export type ChoreFormState =
   { status: "idle" } | { status: "error"; message: string } | { status: "saved" };
+
+export type AvailabilityFormState =
+  { status: "idle" } | { status: "error"; message: string } | { status: "saved" };

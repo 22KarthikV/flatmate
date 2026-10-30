@@ -145,3 +145,19 @@ describe("availability window (T5)", () => {
     expect(DEADLINE_SENTENCE).toContain("any chore");
   });
 });
+
+describe("shortDate", () => {
+  it("writes a day and month", async () => {
+    const { shortDate } = await import("./week");
+    expect(shortDate("2026-11-08")).toBe("8 Nov");
+    expect(shortDate("2027-03-28")).toBe("28 Mar");
+  });
+});
+
+describe("the deadline sentence in the database", () => {
+  it("is word for word the one the nudges send", async () => {
+    const { readFileSync } = await import("node:fs");
+    const sql = readFileSync("supabase/migrations/20261117000000_rota_availability.sql", "utf8");
+    expect(sql).toContain(DEADLINE_SENTENCE);
+  });
+});

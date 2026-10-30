@@ -32,6 +32,7 @@ describe("privacy notice", () => {
 
   it("covers every column of the household tables as they stand today", () => {
     expect(columnsOf("households")).toEqual([
+      "availability_deadline",
       "closed_at",
       "created_at",
       "created_by",
@@ -253,6 +254,32 @@ describe("privacy notice", () => {
       "id",
       "template_id",
     ]);
+  });
+
+  it("covers every column of the rota availability table as it stands today", () => {
+    expect(columnsOf("availability")).toEqual([
+      "assumed",
+      "available",
+      "household_id",
+      "on_date",
+      "profile_id",
+      "updated_at",
+    ]);
+  });
+
+  it("explains the rota: what availability is, who sees it and that pushes name nothing", () => {
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+
+    for (const phrase of [
+      "What we store about the chore rota",
+      "your availability",
+      "filled it in as around",
+      "Everyone in your flat can see everyone’s availability",
+      "never carry a chore or a person in a push",
+    ]) {
+      expect(text, `the notice should mention "${phrase}"`).toContain(phrase);
+    }
   });
 
   it("explains rent and bills, who sees rent, and what is kept", () => {
