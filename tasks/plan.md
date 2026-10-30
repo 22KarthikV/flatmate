@@ -1,6 +1,6 @@
 # Implementation Plan: ledger
 
-Spec: [docs/SPEC-ledger.md](../docs/SPEC-ledger.md) (draft for approval, 2026-10-30). Task list: [tasks/todo.md](todo.md). Earlier plans are archived in [tasks/archive](archive/).
+Spec: [docs/SPEC-ledger.md](../docs/SPEC-ledger.md) (approved 2026-10-30, on the default decisions). Task list: [tasks/todo.md](todo.md). Earlier plans are archived in [tasks/archive](archive/).
 
 ## Overview
 

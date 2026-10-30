@@ -1,6 +1,6 @@
 # Spec: ledger
 
-Status: **draft for the owner's approval** (2026-10-30). Depends on: `household` and `notifications` (both complete). Unlocks: `recurring` (rent and bills are built on top of this).
+Status: **approved by the owner** (2026-10-30, on the default decisions below). Depends on: `household` and `notifications` (both complete). Unlocks: `recurring` (rent and bills are built on top of this).
 
 ## Objective
 
