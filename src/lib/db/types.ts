@@ -23,6 +23,125 @@ export type Database = {
   };
   public: {
     Tables: {
+      expense_shares: {
+        Row: {
+          expense_id: string;
+          household_id: string;
+          profile_id: string;
+          share_pence: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          expense_id: string;
+          household_id: string;
+          profile_id: string;
+          share_pence: number;
+        };
+        Update: {
+          expense_id?: string;
+          household_id?: string;
+          profile_id?: string;
+          share_pence?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "expense_shares_expense_id_household_id_fkey";
+            columns: ["expense_id", "household_id"];
+            isOneToOne: false;
+            referencedRelation: "expenses";
+            referencedColumns: ["id", "household_id"];
+          },
+          {
+            foreignKeyName: "expense_shares_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      expenses: {
+        Row: {
+          amount_pence: number;
+          category: string;
+          created_at: string;
+          created_by: string;
+          description: string;
+          household_id: string;
+          id: string;
+          occurred_on: string;
+          paid_by: string;
+          replaces_id: string | null;
+          voided_at: string | null;
+          voided_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_pence: number;
+          category: string;
+          created_at?: string;
+          created_by: string;
+          description: string;
+          household_id: string;
+          id?: string;
+          occurred_on: string;
+          paid_by: string;
+          replaces_id?: string | null;
+          voided_at?: string | null;
+          voided_by?: string | null;
+        };
+        Update: {
+          amount_pence?: number;
+          category?: string;
+          created_at?: string;
+          created_by?: string;
+          description?: string;
+          household_id?: string;
+          id?: string;
+          occurred_on?: string;
+          paid_by?: string;
+          replaces_id?: string | null;
+          voided_at?: string | null;
+          voided_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "expenses_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "expenses_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "expenses_paid_by_fkey";
+            columns: ["paid_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "expenses_replaces_id_fkey";
+            columns: ["replaces_id"];
+            isOneToOne: false;
+            referencedRelation: "expenses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "expenses_voided_by_fkey";
+            columns: ["voided_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       households: {
         Row: {
           closed_at: string | null;
@@ -30,6 +149,7 @@ export type Database = {
           created_by: string;
           id: string;
           name: string;
+          nudge_after_days: number | null;
           timezone: string;
           updated_at: string;
         };
@@ -40,6 +160,7 @@ export type Database = {
           created_by: string;
           id?: string;
           name: string;
+          nudge_after_days?: number | null;
           timezone?: string;
           updated_at?: string;
         };
@@ -49,6 +170,7 @@ export type Database = {
           created_by?: string;
           id?: string;
           name?: string;
+          nudge_after_days?: number | null;
           timezone?: string;
           updated_at?: string;
         };
@@ -232,6 +354,8 @@ export type Database = {
         Row: {
           default_in_app: boolean;
           default_push: boolean;
+          push_body: string | null;
+          push_title: string | null;
           snoozable: boolean;
           type: string;
         };
@@ -239,12 +363,16 @@ export type Database = {
         Insert: {
           default_in_app: boolean;
           default_push: boolean;
+          push_body?: string | null;
+          push_title?: string | null;
           snoozable?: boolean;
           type: string;
         };
         Update: {
           default_in_app?: boolean;
           default_push?: boolean;
+          push_body?: string | null;
+          push_title?: string | null;
           snoozable?: boolean;
           type?: string;
         };
@@ -437,6 +565,72 @@ export type Database = {
           },
         ];
       };
+      settlements: {
+        Row: {
+          amount_pence: number;
+          confirmed_by: string | null;
+          created_at: string;
+          decided_at: string | null;
+          from_profile: string;
+          household_id: string;
+          id: string;
+          status: string;
+          to_profile: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_pence: number;
+          confirmed_by?: string | null;
+          created_at?: string;
+          decided_at?: string | null;
+          from_profile: string;
+          household_id: string;
+          id?: string;
+          status?: string;
+          to_profile: string;
+        };
+        Update: {
+          amount_pence?: number;
+          confirmed_by?: string | null;
+          created_at?: string;
+          decided_at?: string | null;
+          from_profile?: string;
+          household_id?: string;
+          id?: string;
+          status?: string;
+          to_profile?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "settlements_confirmed_by_fkey";
+            columns: ["confirmed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "settlements_from_profile_fkey";
+            columns: ["from_profile"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "settlements_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "settlements_to_profile_fkey";
+            columns: ["to_profile"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -470,6 +664,13 @@ export type Database = {
       create_invite: { Args: Record<PropertyKey, never>; Returns: string };
       end_memberships_for_account: { Args: { p_user_id: string }; Returns: string };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
+      household_balances: {
+        Args: { p_household_id: string };
+        Returns: {
+          balance_pence: number;
+          profile_id: string;
+        }[];
+      };
       join_household: { Args: { p_token: string }; Returns: string };
       leave_household: { Args: Record<PropertyKey, never>; Returns: undefined };
       mark_all_read: { Args: Record<PropertyKey, never>; Returns: undefined };

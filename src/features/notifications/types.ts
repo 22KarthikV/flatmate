@@ -1,6 +1,16 @@
 // Kept free of imports so client components can use it without pulling in zod.
 
-export type NotificationType = "member_joined" | "member_left" | "role_changed";
+export type NotificationType =
+  | "member_joined"
+  | "member_left"
+  | "role_changed"
+  | "expense_added"
+  | "expense_changed"
+  | "expense_voided"
+  | "settlement_pending"
+  | "settlement_confirmed"
+  | "settlement_declined"
+  | "payment_nudge";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -41,6 +51,62 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
     defaultInApp: true,
     defaultPush: true,
     snoozable: false,
+  },
+  {
+    type: "expense_added",
+    label: "A shared expense includes you",
+    description: "When a flatmate adds an expense with a share for you.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "expense_changed",
+    label: "An expense is corrected",
+    description: "When an expense that includes you is corrected.",
+    defaultInApp: true,
+    defaultPush: false,
+    snoozable: false,
+  },
+  {
+    type: "expense_voided",
+    label: "An expense is cancelled",
+    description: "When an expense that included you is cancelled.",
+    defaultInApp: true,
+    defaultPush: false,
+    snoozable: false,
+  },
+  {
+    type: "settlement_pending",
+    label: "Someone says they paid you",
+    description: "When a flatmate records a payment to you for you to confirm.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "settlement_confirmed",
+    label: "Your payment is confirmed",
+    description: "When a flatmate confirms a payment you made.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "settlement_declined",
+    label: "Your payment is not confirmed",
+    description: "When a flatmate declines a payment you recorded.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "payment_nudge",
+    label: "A gentle reminder about money",
+    description: "When you have owed money in the flat for a while.",
+    defaultInApp: true,
+    defaultPush: false,
+    snoozable: true,
   },
 ];
 
