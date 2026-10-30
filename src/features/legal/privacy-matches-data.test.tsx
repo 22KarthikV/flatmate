@@ -154,6 +154,24 @@ describe("privacy notice", () => {
     }
   });
 
+  it("explains the shared money records, who sees them and what is never changed", () => {
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+
+    for (const phrase of [
+      "What we store about shared money",
+      "each person’s share of it",
+      "whether the person receiving it confirmed it",
+      "nobody outside it can",
+      "never touches money",
+      "never asks for card or bank details",
+      "keeps the earlier version in its history",
+      "never in a push to your phone",
+    ]) {
+      expect(text, `the notice should mention "${phrase}"`).toContain(phrase);
+    }
+  });
+
   it("explains the flat data, who sees it and what happens when someone leaves", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";

@@ -48,13 +48,13 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
   - Dependencies: Task 2
   - Files: migration, `ledger-expenses.test.sql`
 
-- [ ] **Task 4: Add expense screen, expense list and detail, privacy notice** (Large: split into form and list if it runs long)
+- [x] **Task 4: Add expense screen, expense list and detail, privacy notice** (Large: split into form and list if it runs long)
   - Description: `/money/add` with the form (amount, description, category, date, who paid, who it is for, split mode with a live preview of each share), `/money/expenses/[id]` with shares and history plus edit and void for the creator or an admin, and a recent-expenses list on `/money`. Server actions `addExpense`, `editExpense`, `voidExpense` validate with zod, compute shares with `splitExpense`, and map database errors to plain messages. The form is a client component loaded only on its route. The privacy notice names the ledger data and what happens to it on account deletion (kept, shown as "Deleted user").
   - Acceptance:
-    - [ ] Unit: form validation messages, split-mode switching, live preview matches `splitExpense`; actions map errors
-    - [ ] E2E (desktop-chrome): A adds an expense split equally with B; B's inbox shows "Your share is £x"; A edits it and the detail page shows both versions; A voids it and it shows struck through
-    - [ ] Mobile: no sideways scroll at 360px; touch targets at least 44px; amounts inputs use the numeric keyboard
-    - [ ] `privacy-matches-data` fails if the ledger tables change without the notice; new routes have bundle budgets, none raised
+    - [x] Unit: form validation messages, split-mode switching, live preview matches `splitExpense`; actions map errors
+    - [x] E2E (desktop-chrome): A adds an expense split equally with B; B's inbox shows "Your share is £x"; A edits it and the detail page shows both versions; A voids it and it shows struck through
+    - [x] Mobile: no sideways scroll at 360px; touch targets at least 44px; amounts inputs use the numeric keyboard
+    - [x] `privacy-matches-data` fails if the ledger tables change without the notice; new routes have bundle budgets, none raised
   - Verify: `pnpm check`, `pnpm test:e2e`
   - Dependencies: Tasks 1, 3
   - Files: `src/features/ledger/*`, `src/app/(app)/money/**`, `src/app/(public)/privacy/page.tsx`, `scripts/bundle-budgets.json`, `e2e/ledger.spec.ts`

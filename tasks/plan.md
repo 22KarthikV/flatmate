@@ -34,7 +34,7 @@ Tasks 1 and 2 are independent and can be built in either order; 3 needs 2; 4 nee
 - [x] Task 1: Money, splits and debt simplification (pure code, property-tested)
 - [x] Task 2: Ledger tables, RLS, `household_balances`, notification types, isolation tests
 - [x] Task 3: Add, edit and void expenses in the database, with notifications and generic push text
-- [ ] Task 4: Add expense screen, expense list and detail, privacy notice
+- [x] Task 4: Add expense screen, expense list and detail, privacy notice
 - [ ] Task 5: Balances screen and suggested payments
 - [ ] Task 6: Settle-up: record, confirm, decline, cancel
 - [ ] Task 7: Leaving and account deletion rules; admin settles on behalf

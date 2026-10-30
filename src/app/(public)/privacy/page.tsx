@@ -102,6 +102,33 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
+      <Section title="What we store about shared money">
+        <p>
+          When you or a flatmate add a shared expense, or record a payment between flatmates,
+          FlatMate stores:
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            each <strong>expense</strong>: the amount, what it was for, a category, its date, who
+            paid, who added it and when;
+          </li>
+          <li>
+            each person&rsquo;s <strong>share</strong> of it, so the app can work out who owes whom;
+          </li>
+          <li>
+            each <strong>payment</strong> between two flatmates, and whether the person receiving it
+            confirmed it.
+          </li>
+        </ul>
+        <p>
+          Everyone in your flat can see these, and nobody outside it can. FlatMate only keeps a
+          record: it never touches money and never asks for card or bank details. Nothing here is
+          ever overwritten or deleted. Correcting or cancelling an expense keeps the earlier version
+          in its history, so everyone can see what changed. Amounts appear in the app and in your
+          inbox, but never in a push to your phone.
+        </p>
+      </Section>
+
       <Section title="Why we use it">
         <p>
           Only to run the service you asked for: signing you in, showing your flatmates who you are,
