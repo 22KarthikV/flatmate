@@ -36,17 +36,17 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
   - Dependencies: none (Task 1 is independent)
   - Files: migration, `ledger.test.sql`, `src/lib/db/types.ts`, `src/features/notifications/types.ts` and test, `src/features/legal/privacy-matches-data.test.tsx`
 
-- [ ] **Task 3: Add, edit and void expenses in the database, with notifications and generic push text** (Medium)
+- [x] **Task 3: Add, edit and void expenses in the database, with notifications and generic push text** (Medium)
   - Description: Migration `*_ledger_expenses.sql`. `add_expense(...)` takes the already-computed shares, re-checks the sum and membership, and notifies each person with a share (not the adder). `edit_expense(...)` voids the old expense and adds a replacement in one transaction (`replaces_id`); `void_expense(...)` voids with no replacement. Only the creator or an admin may edit or void. Dedupe keys `expense:<id>`, `expense_changed:<id>`, `expense_voided:<id>`. `deliver-push` uses a type's generic push text when one is set, so amounts never reach a push.
   - Acceptance:
-    - [ ] pgTAP: each action writes exactly the notification rows in the spec to the right people, once, with no self-notification
-    - [ ] pgTAP: only the creator or an admin can edit or void; a member of another flat cannot; editing twice keeps both versions; balances recalculate and stay zero-sum
-    - [ ] pgTAP: the push outbox gets rows for push-enabled devices, and the inbox row keeps the full amount text
-    - [ ] Unit (Deno): `deliver-push` sends the generic text for money types and the normal text for others; no payload contains a currency amount
-    - [ ] Hosted migration applied before merge; `deliver-push` redeployed after
+    - [x] pgTAP: each action writes exactly the notification rows in the spec to the right people, once, with no self-notification
+    - [x] pgTAP: only the creator or an admin can edit or void; a member of another flat cannot; editing twice keeps both versions; balances recalculate and stay zero-sum
+    - [x] pgTAP: the push outbox gets rows for push-enabled devices, and the inbox row keeps the full amount text
+    - [x] pgTAP: `claim_push_outbox` hands the worker the generic text for money types and the notification's own text for others; the text contains no currency sign or digit (the worker needs no change)
+    - [x] Hosted migration applied before merge (no function redeploy needed)
   - Verify: `pnpm db:test`, `pnpm test`
   - Dependencies: Task 2
-  - Files: migration, `ledger-expenses.test.sql`, `supabase/functions/deliver-push/*`
+  - Files: migration, `ledger-expenses.test.sql`
 
 - [ ] **Task 4: Add expense screen, expense list and detail, privacy notice** (Large: split into form and list if it runs long)
   - Description: `/money/add` with the form (amount, description, category, date, who paid, who it is for, split mode with a live preview of each share), `/money/expenses/[id]` with shares and history plus edit and void for the creator or an admin, and a recent-expenses list on `/money`. Server actions `addExpense`, `editExpense`, `voidExpense` validate with zod, compute shares with `splitExpense`, and map database errors to plain messages. The form is a client component loaded only on its route. The privacy notice names the ledger data and what happens to it on account deletion (kept, shown as "Deleted user").
@@ -100,9 +100,9 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
   - Files: migration, `ledger-nudges.test.sql`, `src/features/household` (setting), `src/features/notifications/types.ts`
 
 - [ ] **Task 9: Hosted rollout, phone checks, wrap-up** (Small)
-  - Description: Confirm hosted migrations match the repo and advisors show nothing new beyond the intended function warnings; redeploy `deliver-push`; add a "Money" section to `docs/DEPLOY.md` with the rollout order and a phone checklist; owner checks on real phones.
+  - Description: Confirm hosted migrations match the repo and advisors show nothing new beyond the intended function warnings; add a "Money" section to `docs/DEPLOY.md` with the rollout order and a phone checklist; owner checks on real phones.
   - Acceptance:
-    - [ ] Hosted: `list_migrations` matches the repo; advisors reviewed; `deliver-push` redeployed and a money push shows no amount
+    - [ ] Hosted: `list_migrations` matches the repo; advisors reviewed; a money push shows no amount on a phone
     - [ ] Owner on real phones: add an expense on one phone and see it on the other; confirm a payment from the push; lock-screen push shows no amount; leaving with a balance is blocked with a clear message
     - [ ] Spec success criteria 1 to 10 all met
   - Verify: `pnpm check`, `pnpm db:test`, `pnpm test:e2e`, production `/api/health`

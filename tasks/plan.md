@@ -33,7 +33,7 @@ Tasks 1 and 2 are independent and can be built in either order; 3 needs 2; 4 nee
 
 - [x] Task 1: Money, splits and debt simplification (pure code, property-tested)
 - [x] Task 2: Ledger tables, RLS, `household_balances`, notification types, isolation tests
-- [ ] Task 3: Add, edit and void expenses in the database, with notifications and generic push text
+- [x] Task 3: Add, edit and void expenses in the database, with notifications and generic push text
 - [ ] Task 4: Add expense screen, expense list and detail, privacy notice
 - [ ] Task 5: Balances screen and suggested payments
 - [ ] Task 6: Settle-up: record, confirm, decline, cancel
@@ -51,14 +51,14 @@ Tasks 1 and 2 are independent and can be built in either order; 3 needs 2; 4 nee
 
 ## Risks
 
-| Risk                                             | Mitigation                                                                                      |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| Rounding makes shares not add up                 | One split function, property tests, and a database constraint on the sum                        |
-| Balances drift from the rows                     | Never stored; always summed from the rows; zero-sum proven in pgTAP after a mixed run           |
-| History edited to change who owes what           | Append-only tables, no write policies, tests that update and delete fail                        |
-| An amount appears on a lock screen               | Generic push text per money type; test that no payload contains an amount                       |
-| Push worker change breaks other notifications    | The change is a per-type override only; existing push tests must stay green; redeploy in Task 9 |
-| Leaving with debts strands money                 | `can_leave` blocks it (Task 7); admin settles on behalf for removed people; no hidden write-off |
-| Money form is heavy on a phone                   | Client component only on `/money/add`; budgets checked in CI; no existing budget raised         |
-| Scope creep into rent and bills                  | Recurring generation is the next module; the ledger only exposes expenses and settlements       |
-| Owner checks from earlier modules are still open | Carried over in `tasks/todo.md`; none block this module                                         |
+| Risk                                             | Mitigation                                                                                                              |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Rounding makes shares not add up                 | One split function, property tests, and a database constraint on the sum                                                |
+| Balances drift from the rows                     | Never stored; always summed from the rows; zero-sum proven in pgTAP after a mixed run                                   |
+| History edited to change who owes what           | Append-only tables, no write policies, tests that update and delete fail                                                |
+| An amount appears on a lock screen               | Generic push text per money type; test that no payload contains an amount                                               |
+| Generic push text breaks other notifications     | It is a per-type override inside `claim_push_outbox` only; existing push tests must stay green; the worker is unchanged |
+| Leaving with debts strands money                 | `can_leave` blocks it (Task 7); admin settles on behalf for removed people; no hidden write-off                         |
+| Money form is heavy on a phone                   | Client component only on `/money/add`; budgets checked in CI; no existing budget raised                                 |
+| Scope creep into rent and bills                  | Recurring generation is the next module; the ledger only exposes expenses and settlements                               |
+| Owner checks from earlier modules are still open | Carried over in `tasks/todo.md`; none block this module                                                                 |
