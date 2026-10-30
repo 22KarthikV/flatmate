@@ -1231,6 +1231,7 @@ export type Database = {
       };
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
       archive_chore: { Args: { p_chore_id: string }; Returns: undefined };
+      cancel_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       cancel_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       claim_push_outbox: {
         Args: { p_limit?: number };
@@ -1255,9 +1256,11 @@ export type Database = {
         };
         Returns: undefined;
       };
+      confirm_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       confirm_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       create_household: { Args: { p_name: string }; Returns: string };
       create_invite: { Args: Record<PropertyKey, never>; Returns: string };
+      decline_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       decline_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       edit_expense: {
         Args: {
@@ -1288,6 +1291,22 @@ export type Database = {
       load_default_chores: { Args: Record<PropertyKey, never>; Returns: number };
       mark_all_read: { Args: Record<PropertyKey, never>; Returns: undefined };
       mark_read: { Args: { p_id: string }; Returns: undefined };
+      my_rent: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          amount_pence: number;
+          charge_id: string;
+          collector_id: string;
+          collector_name: string;
+          covered_pence: number;
+          due_on: string;
+          outstanding_pence: number;
+          pending_pence: number;
+          period: string;
+          status: string;
+          template_id: string;
+        }[];
+      };
       notify: {
         Args: {
           p_body: string;
@@ -1309,9 +1328,27 @@ export type Database = {
           member_count: number;
         }[];
       };
+      record_rent_payment: { Args: { p_amount_pence: number }; Returns: string };
       record_settlement: { Args: { p_amount_pence: number; p_to: string }; Returns: string };
       remove_member: { Args: { p_profile_id: string }; Returns: undefined };
       rename_household: { Args: { p_name: string }; Returns: undefined };
+      rent_dashboard: {
+        Args: { p_period: string };
+        Returns: {
+          amount_pence: number;
+          charge_id: string;
+          covered_pence: number;
+          display_name: string;
+          due_on: string;
+          outstanding_pence: number;
+          pending_pence: number;
+          period: string;
+          profile_id: string;
+          room_name: string;
+          status: string;
+          still_in_flat: boolean;
+        }[];
+      };
       resume_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
       save_chore: {
@@ -1353,6 +1390,11 @@ export type Database = {
       transfer_ownership: { Args: { p_profile_id: string }; Returns: undefined };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
       void_expense: { Args: { p_expense_id: string }; Returns: undefined };
+      void_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
+      waive_rent: {
+        Args: { p_amount_pence: number; p_payer_id: string; p_reason: string };
+        Returns: string;
+      };
     };
     Enums: {
       household_role: "owner" | "admin" | "member";
