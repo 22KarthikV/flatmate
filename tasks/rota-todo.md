@@ -20,9 +20,9 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 
 - [x] **Task 6: Rota pages and checklist UI (R4c)**
 
-- [ ] **Task 7: Swaps and admin reassign (R5)**
+- [x] **Task 7: Swaps and admin reassign (R5)**
 
-- [ ] **Task 8: Fairness view (R6)**
+- [x] **Task 8: Fairness view (R6)**
 
 - [ ] **Task 9: Pure rebalance (R7a)**
 
@@ -37,3 +37,4 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 - Task 4 merged (PR 63, migration `20261118000000_rota_weeks.sql` applied): week, assignment, snapshot and rotation tables, the store function and ticking. Task 5 (this PR): the generation inputs and store functions for the service role, the `rota-generate` Edge Function (needs the owner to deploy it), chore due and overdue reminders, and "Give out a week now". Next: Task 6, the `/rota` and assignment pages.
 - Task 5 merged (PR 67, migration `20261119000000_rota_schedule.sql` applied; the owner deploys the `rota-generate` Edge Function). Task 6 (this PR, no migration): `/rota`, the assignment page, checklist ticking and the first rota end-to-end test, which found and fixed a real bug in Generate now. Next: Task 7, swaps and admin reassign.
 - Task 6 merged (PR 68, no migration): the rota page, assignment page, checklist ticking and the first e2e. Task 7 (this PR, migration `20261120000000_rota_swaps.sql`): swap requests (with optional exchange), accept, decline, withdraw, and admin reassign with their name on it; nothing is rewritten, the old assignment is marked replaced. Next: Task 8, the fairness view.
+- Task 7 merged (PR 69, migration `20261120000000_rota_swaps.sql` applied): swap requests, accept/decline/withdraw, admin reassign. Task 8 (this PR, no migration): the read-only fairness page at `/rota/fairness` with 4 week, 12 week and 6 month periods, computed from the stored rows. Next: Task 9, the pure rebalance function, then Task 10, the leaver trigger, rebuild and undo.
