@@ -36,13 +36,13 @@ Plan: [recurring-plan.md](recurring-plan.md). Spec: [../docs/SPEC-recurring.md](
   - Dependencies: Task 2
   - Files: migration, `recurring-templates.test.sql`, `types.ts`
 
-- [ ] **Task 4: Monthly generator, variable amounts, leaver pause** (Large)
+- [x] **Task 4: Monthly generator, variable amounts, leaver pause** (Large)
   - Description: Migration `20261103120000_recurring_generate.sql`: `private.recurring_generate(p_now)`, `enter_bill_amount`, rent charges, pause on a leaver, notices. pgTAP first.
   - Acceptance:
-    - [ ] pgTAP: running twice or on consecutive days makes one instance per template and period, one expense per bill, one charge per person; missed day caught up; no backfill
-    - [ ] pgTAP: rent never touches `expenses`, `expense_shares`, `settlements` or balances; bills pass the ledger constraints and balances still sum to 0
-    - [ ] pgTAP: variable bill awaits amount, entering posts it once, second entry fails; edits affect future months only
-    - [ ] pgTAP: a leaver pauses rent and percentage bills and tells admins once; equal bills continue over who remains; a gone collector or payer pauses the template
+    - [x] pgTAP: running twice or on consecutive days makes one instance per template and period, one expense per bill, one charge per person; missed day caught up; no backfill
+    - [x] pgTAP: rent never touches `expenses`, `expense_shares`, `settlements` or balances; bills pass the ledger constraints and balances still sum to 0
+    - [x] pgTAP: variable bill awaits amount, entering posts it once, second entry fails; edits affect future months only
+    - [x] pgTAP: a leaver pauses rent and percentage bills and tells admins once; equal bills continue over who remains; a gone collector or payer pauses the template
   - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types`
   - Dependencies: Task 3
   - Files: migration, `recurring-generate.test.sql`, `types.ts`
