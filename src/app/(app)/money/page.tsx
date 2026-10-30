@@ -64,6 +64,15 @@ async function MoneyContent() {
         </Link>
       </div>
 
+      <div className="flex gap-2">
+        <Link
+          href="/money/recurring"
+          className="label-caps border-ink hover:bg-ink hover:text-paper inline-flex min-h-11 min-w-0 flex-1 items-center justify-center border px-3 text-center"
+        >
+          Rent and bills
+        </Link>
+      </div>
+
       <PendingSettlementsCard pending={pending} />
 
       {balances ? (
