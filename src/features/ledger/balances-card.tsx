@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Card, CardLabel } from "@/components/ui/card";
 
 import { describePayment, type BalancesView, type PersonRow } from "./balance-view";
@@ -59,9 +61,17 @@ export function BalancesCard({ view }: { view: BalancesView }) {
             {view.payments.map((payment) => (
               <li
                 key={`${payment.fromId}-${payment.toId}`}
-                className={`flex min-h-11 items-center py-2 ${payment.involvesYou ? "" : "text-muted"}`}
+                className={`flex min-h-11 flex-wrap items-center justify-between gap-x-4 py-2 ${payment.involvesYou ? "" : "text-muted"}`}
               >
-                {describePayment(payment)}
+                <span>{describePayment(payment)}</span>
+                {payment.youPay ? (
+                  <Link
+                    href={`/money/settle?to=${payment.toId}&amount=${(payment.pence / 100).toFixed(2)}`}
+                    className="label-caps inline-flex min-h-11 items-center underline underline-offset-4"
+                  >
+                    Record this payment
+                  </Link>
+                ) : null}
               </li>
             ))}
           </ul>

@@ -26,6 +26,12 @@ describe("expenseErrorMessage", () => {
     ],
     [{ code: "P0001", message: "expense_not_found" }, "We couldn’t find that expense."],
     [{ code: "P0001", message: "already_voided" }, "That expense has already been cancelled."],
+    [{ code: "22023", message: "invalid_recipient" }, "Choose who you paid."],
+    [{ code: "P0001", message: "settlement_not_found" }, "We couldn’t find that payment."],
+    [
+      { code: "P0001", message: "settlement_not_pending" },
+      "That payment has already been dealt with.",
+    ],
   ])("explains %j", (error, message) => expect(expenseErrorMessage(error)).toBe(message));
 
   it("falls back to a general message for anything unexpected", () => {

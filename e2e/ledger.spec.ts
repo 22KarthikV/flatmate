@@ -106,6 +106,112 @@ test.describe("balances", () => {
   });
 });
 
+test.describe("settling up", () => {
+  test("a payment is pending until the receiver confirms it, then both balances move", async ({
+    browser,
+    baseURL,
+  }) => {
+    const { hostPage, joinerPage, hostContext, joinerContext } = await twoFlatmates(
+      browser,
+      baseURL!,
+    );
+    // The host pays 10.00 for both, so the flatmate owes 5.00.
+    await addEqualExpense(hostPage, "10", "Shared dinner");
+
+    // The flatmate records the payment from the suggested payment.
+    await joinerPage.goto("/money");
+    await expect(joinerPage.getByText("You owe £5.00")).toBeVisible();
+    await joinerPage.getByRole("link", { name: "Record this payment" }).click();
+    await expect(joinerPage.getByLabel("Amount (£)").filter({ visible: true })).toHaveValue("5.00");
+    await joinerPage.getByRole("button", { name: "Record payment" }).click();
+    await expect(joinerPage).toHaveURL(/\/money$/);
+
+    // Pending: the payer sees it waiting, and nothing has moved.
+    await expect(joinerPage.getByText(/Waiting for .* to confirm/)).toBeVisible();
+    await expect(joinerPage.getByText("You owe £5.00")).toBeVisible();
+
+    // The receiver is told, sees it to confirm, and their balance is still the same.
+    await hostPage.goto("/notifications");
+    await expect(hostPage.getByText(/says they paid you/)).toBeVisible();
+    await expect(hostPage.getByText("Confirm it when you have received £5.00.")).toBeVisible();
+    await hostPage.goto("/money");
+    await expect(hostPage.getByText(/says they paid you £5\.00/)).toBeVisible();
+    await expect(hostPage.getByText("You are owed £5.00")).toBeVisible();
+
+    // Confirming moves both balances to square.
+    await hostPage.getByRole("button", { name: "Confirm" }).click();
+    await expect(hostPage.getByText("Everyone is square")).toBeVisible();
+    await expect(hostPage.getByText(/says they paid you/)).toHaveCount(0);
+
+    await joinerPage.goto("/money");
+    await expect(joinerPage.getByText("Everyone is square")).toBeVisible();
+    await joinerPage.goto("/notifications");
+    await expect(joinerPage.getByText(/confirmed your payment/)).toBeVisible();
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+
+  test("a declined payment never counts, and the payer can cancel one still waiting", async ({
+    browser,
+    baseURL,
+  }) => {
+    const { hostPage, joinerPage, hostContext, joinerContext } = await twoFlatmates(
+      browser,
+      baseURL!,
+    );
+    await addEqualExpense(hostPage, "8", "Takeaway night");
+
+    // First payment: the receiver says it did not arrive.
+    await joinerPage.goto("/money/settle");
+    await joinerPage.getByLabel("Who did you pay?").selectOption({ index: 1 });
+    await joinerPage.getByLabel("Amount (£)").fill("4");
+    await joinerPage.getByRole("button", { name: "Record payment" }).click();
+    await expect(joinerPage).toHaveURL(/\/money$/);
+
+    await hostPage.goto("/money");
+    await hostPage.getByRole("button", { name: "Didn’t arrive" }).click();
+    await expect(hostPage.getByText(/says they paid you/)).toHaveCount(0);
+    await expect(hostPage.getByText("You are owed £4.00")).toBeVisible();
+
+    await joinerPage.goto("/notifications");
+    await expect(joinerPage.getByText(/did not confirm your payment/)).toBeVisible();
+    await joinerPage.goto("/money");
+    await expect(joinerPage.getByText("You owe £4.00")).toBeVisible();
+
+    // Second payment: the payer takes it back before it is decided.
+    await joinerPage.goto("/money/settle");
+    await joinerPage.getByLabel("Who did you pay?").selectOption({ index: 1 });
+    await joinerPage.getByLabel("Amount (£)").fill("1");
+    await joinerPage.getByRole("button", { name: "Record payment" }).click();
+    await expect(joinerPage.getByText(/Waiting for .* to confirm/)).toBeVisible();
+    await joinerPage.getByRole("button", { name: "Cancel payment" }).click();
+    await expect(joinerPage.getByText(/Waiting for .* to confirm/)).toHaveCount(0);
+
+    // The receiver has nothing left to confirm.
+    await hostPage.goto("/money");
+    await expect(hostPage.getByText(/says they paid you/)).toHaveCount(0);
+    await expect(hostPage.getByText("You are owed £4.00")).toBeVisible();
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+
+  test("the payment form refuses a bad amount", async ({ browser, baseURL }) => {
+    const { joinerPage, hostContext, joinerContext } = await twoFlatmates(browser, baseURL!);
+
+    await joinerPage.goto("/money/settle");
+    await joinerPage.getByLabel("Who did you pay?").selectOption({ index: 1 });
+    await joinerPage.getByLabel("Amount (£)").fill("abc");
+    await joinerPage.getByRole("button", { name: "Record payment" }).click();
+    await expect(joinerPage.locator('p[role="alert"]')).toContainText("Enter an amount like 4.20.");
+
+    await joinerPage.getByLabel("Amount (£)").fill("10000.01");
+    await joinerPage.getByRole("button", { name: "Record payment" }).click();
+    await expect(joinerPage.locator('p[role="alert"]')).toContainText("at most £10,000.00");
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+});
+
 test.describe("expenses", () => {
   test("adding an expense tells the other flatmate, who sees their share", async ({
     browser,
