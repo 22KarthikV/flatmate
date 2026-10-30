@@ -31,7 +31,7 @@ Tasks 1 and 2 are independent and can be built in either order; 3 needs 2; 4 nee
 
 ## Task list
 
-- [ ] Task 1: Money, splits and debt simplification (pure code, property-tested)
+- [x] Task 1: Money, splits and debt simplification (pure code, property-tested)
 - [ ] Task 2: Ledger tables, RLS, `household_balances`, notification types, isolation tests
 - [ ] Task 3: Add, edit and void expenses in the database, with notifications and generic push text
 - [ ] Task 4: Add expense screen, expense list and detail, privacy notice

@@ -14,12 +14,12 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
 
 ---
 
-- [ ] **Task 1: Money, splits and debt simplification** (Medium)
+- [x] **Task 1: Money, splits and debt simplification** (Medium)
   - Description: Three pure modules in `src/features/ledger/`, no database. `money.ts`: `formatPence`, `parsePounds` (typed text to pence; two decimals at most), limits (1p to £10,000). `splits.ts`: `splitExpense` for equal, exact, percent (hundredths of a percent) and one-person, leftover pence given out one at a time by largest remainder with ties broken by profile id. `simplify.ts`: `simplifyDebts` from net balances to at most (people minus one) payments.
   - Acceptance:
-    - [ ] Unit: parse and format round-trip; "4.2" is £4.20; "4.205", "-1", "0", "10000.01" and "abc" are rejected
-    - [ ] Unit and property tests: shares always sum to the amount; an equal split differs by at most 1p between people; the result does not depend on input order; percentages must total 100.00%; exact amounts must total the amount; each rejection gives a clear message
-    - [ ] Property tests: suggested payments clear every balance exactly, each is positive, and there are at most (people minus one)
+    - [x] Unit: parse and format round-trip; "4.2" is £4.20; "4.205", "-1", "0", "10000.01" and "abc" are rejected
+    - [x] Unit and property tests: shares always sum to the amount; an equal split differs by at most 1p between people; the result does not depend on input order; percentages must total 100.00%; exact amounts must total the amount; each rejection gives a clear message
+    - [x] Property tests: suggested payments clear every balance exactly, each is positive, and there are at most (people minus one)
   - Verify: `pnpm test`, `pnpm check`
   - Dependencies: none
   - Files: `src/features/ledger/{money,splits,simplify}.ts` and tests
