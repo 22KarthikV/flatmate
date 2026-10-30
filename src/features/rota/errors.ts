@@ -26,6 +26,12 @@ const MESSAGES: Record<string, string> = {
   invalid_assignment: "The rota had a problem, so nothing was saved.",
   invalid_date: "A chore had a date outside its week.",
   not_a_member: "Someone is no longer in the flat.",
+  already_completed: "That chore is already finished.",
+  invalid_recipient: "Choose a different flatmate.",
+  swap_pending: "There is already an open swap request for that chore.",
+  invalid_exchange: "The chore offered in return is no longer theirs to swap.",
+  swap_not_found: "We couldn’t find that swap request.",
+  swap_not_pending: "That swap request has already been answered.",
   invalid_days: "Please answer for all seven days.",
 };
 

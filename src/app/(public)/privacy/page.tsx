@@ -179,6 +179,11 @@ export default function PrivacyPage() {
             reopened or signed it off;
           </li>
           <li>
+            <strong>swap requests</strong> between flatmates (who asked whom, for which chore,
+            whether it was accepted, declined or withdrawn, and when), and the name of the admin who
+            moved a chore directly;
+          </li>
+          <li>
             a note of when you last had each chore and whether you were passed over for it, which is
             how the rota keeps turns fair;
           </li>

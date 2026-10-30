@@ -281,6 +281,7 @@ describe("privacy notice", () => {
     ]);
     expect(columnsOf("chore_assignments")).toEqual([
       "assignee",
+      "changed_by",
       "chore_id",
       "chore_name",
       "completed_at",
@@ -297,6 +298,17 @@ describe("privacy notice", () => {
       "rota_week_id",
       "signed_off_by",
       "superseded_at",
+    ]);
+    expect(columnsOf("swap_requests")).toEqual([
+      "assignment_id",
+      "created_at",
+      "decided_at",
+      "from_profile",
+      "household_id",
+      "id",
+      "in_return_id",
+      "status",
+      "to_profile",
     ]);
     expect(columnsOf("assignment_items")).toEqual([
       "assignment_id",
@@ -325,6 +337,7 @@ describe("privacy notice", () => {
       "filled it in as around",
       "chore given to you",
       "passed over for it",
+      "swap requests",
       "Everyone in your flat can see everyone’s availability",
       "never carry a chore or a person in a push",
     ]) {

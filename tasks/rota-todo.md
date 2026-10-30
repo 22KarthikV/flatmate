@@ -18,7 +18,7 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 
 - [x] **Task 5: Generation job, reminders, Generate now (R4b)**
 
-- [ ] **Task 6: Rota pages and checklist UI (R4c)**
+- [x] **Task 6: Rota pages and checklist UI (R4c)**
 
 - [ ] **Task 7: Swaps and admin reassign (R5)**
 
@@ -36,3 +36,4 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 - Task 3 merged (PR 58, migration `20261117000000_rota_availability.sql` applied to hosted): availability table, deadline rules, assumed fill, nudges and the hourly `rota-availability` job. Task 4 (PR below) adds the week, assignment, checklist-snapshot and rotation tables with the write and tick functions. Next: Task 5, generation. That needs the scheduler (TypeScript) to run on a schedule, which means an Edge Function; see the PR.
 - Task 4 merged (PR 63, migration `20261118000000_rota_weeks.sql` applied): week, assignment, snapshot and rotation tables, the store function and ticking. Task 5 (this PR): the generation inputs and store functions for the service role, the `rota-generate` Edge Function (needs the owner to deploy it), chore due and overdue reminders, and "Give out a week now". Next: Task 6, the `/rota` and assignment pages.
 - Task 5 merged (PR 67, migration `20261119000000_rota_schedule.sql` applied; the owner deploys the `rota-generate` Edge Function). Task 6 (this PR, no migration): `/rota`, the assignment page, checklist ticking and the first rota end-to-end test, which found and fixed a real bug in Generate now. Next: Task 7, swaps and admin reassign.
+- Task 6 merged (PR 68, no migration): the rota page, assignment page, checklist ticking and the first e2e. Task 7 (this PR, migration `20261120000000_rota_swaps.sql`): swap requests (with optional exchange), accept, decline, withdraw, and admin reassign with their name on it; nothing is rewritten, the old assignment is marked replaced. Next: Task 8, the fairness view.
