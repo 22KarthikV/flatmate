@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { Card, CardLabel } from "@/components/ui/card";
 import { RequireFlat } from "@/features/household/require-flat";
 import { getMembership } from "@/features/household/membership";
+import { BalancesCard } from "@/features/ledger/balances-card";
+import { getBalancesView } from "@/features/ledger/balances";
 import { ExpenseList } from "@/features/ledger/expense-list";
 import { getRecentExpenses } from "@/features/ledger/expenses";
 
@@ -12,7 +14,10 @@ export const metadata = { title: "Money | FlatMate" };
 async function MoneyContent() {
   const membership = await getMembership();
   if (!membership) return null;
-  const expenses = await getRecentExpenses(membership.profileId);
+  const [expenses, balances] = await Promise.all([
+    getRecentExpenses(membership.profileId),
+    getBalancesView(membership.householdId, membership.profileId),
+  ]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-8">
@@ -30,6 +35,17 @@ async function MoneyContent() {
           Add expense
         </Link>
       </div>
+
+      {balances ? (
+        <BalancesCard view={balances} />
+      ) : (
+        <Card>
+          <CardLabel>Where you stand</CardLabel>
+          <p role="alert" className="text-negative mt-3 text-sm">
+            We couldn&rsquo;t load the balances. Please refresh the page.
+          </p>
+        </Card>
+      )}
 
       <Card>
         <CardLabel>Recent expenses</CardLabel>

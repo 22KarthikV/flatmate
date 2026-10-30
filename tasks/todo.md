@@ -59,12 +59,12 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
   - Dependencies: Tasks 1, 3
   - Files: `src/features/ledger/*`, `src/app/(app)/money/**`, `src/app/(public)/privacy/page.tsx`, `scripts/bundle-budgets.json`, `e2e/ledger.spec.ts`
 
-- [ ] **Task 5: Balances screen and suggested payments** (Small)
+- [x] **Task 5: Balances screen and suggested payments** (Small)
   - Description: `/money` shows "You are owed £x" or "You owe £x", each person's position, and the suggested payments from `simplifyDebts` ("Sam pays Karthik £12.00"), plus a "Former flatmates" section for people who have left but still have a balance. A single balances query; cached per request.
   - Acceptance:
-    - [ ] Unit: view-model from balances (owed, owing, settled, former flatmates); empty state for a new flat
-    - [ ] E2E: after A and B add expenses in different directions, both see the same, correct, zero-sum positions and the same suggested payment
-    - [ ] Balances update on an open screen when the other person adds an expense (via the live bell)
+    - [x] Unit: view-model from balances (owed, owing, settled, former flatmates); empty state for a new flat
+    - [x] E2E: after A and B add expenses in different directions, both see the same, correct, zero-sum positions and the same suggested payment
+    - [x] Balances update on an open screen when the other person adds an expense (via the live bell)
   - Verify: `pnpm test`, `pnpm test:e2e`
   - Dependencies: Task 4
   - Files: `src/features/ledger/balances*.ts*`, `src/app/(app)/money/page.tsx`
