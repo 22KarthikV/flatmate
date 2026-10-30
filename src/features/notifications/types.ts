@@ -22,7 +22,9 @@ export type NotificationType =
   | "availability_nudge"
   | "rota_week_ready"
   | "chore_assigned"
-  | "chore_unassigned";
+  | "chore_unassigned"
+  | "chore_due"
+  | "chore_overdue";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -214,6 +216,22 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
     description: "When nobody was around for a chore. Admins only.",
     defaultInApp: true,
     defaultPush: false,
+    snoozable: false,
+  },
+  {
+    type: "chore_due",
+    label: "A chore is due today",
+    description: "On the morning a chore of yours is due.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "chore_overdue",
+    label: "A chore is overdue",
+    description: "When a chore of yours was not finished on its day.",
+    defaultInApp: true,
+    defaultPush: true,
     snoozable: false,
   },
 ];

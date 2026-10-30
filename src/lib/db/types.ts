@@ -1606,6 +1606,18 @@ export type Database = {
       reopen_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
       resume_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
+      rota_due_generations: {
+        Args: { p_now: string };
+        Returns: {
+          household_id: string;
+          week_start: string;
+        }[];
+      };
+      rota_generation_input: { Args: { p_week_start: string }; Returns: Json };
+      rota_generation_input_for: {
+        Args: { p_household: string; p_week_start: string };
+        Returns: Json;
+      };
       save_chore: {
         Args: {
           p_cadence?: string;
@@ -1645,6 +1657,10 @@ export type Database = {
       snooze: { Args: { p_id: string; p_until: string }; Returns: undefined };
       store_rota_week: {
         Args: { p_assignments: Json; p_owed?: Json; p_reason?: string; p_week_start: string };
+        Returns: string;
+      };
+      store_rota_week_for: {
+        Args: { p_assignments: Json; p_household: string; p_owed?: Json; p_week_start: string };
         Returns: string;
       };
       tick_item: { Args: { p_item_id: string }; Returns: undefined };

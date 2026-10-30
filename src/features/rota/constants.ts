@@ -60,3 +60,6 @@ export type ChoreFormState =
 
 export type AvailabilityFormState =
   { status: "idle" } | { status: "error"; message: string } | { status: "saved" };
+
+export type GenerateFormState =
+  { status: "idle" } | { status: "error"; message: string } | { status: "saved"; message: string };

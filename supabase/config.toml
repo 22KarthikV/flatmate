@@ -432,5 +432,8 @@ verify_jwt = false
 [functions.delete-account]
 verify_jwt = false
 
+[functions.rota-generate]
+verify_jwt = false
+
 [functions.deliver-push]
 verify_jwt = false

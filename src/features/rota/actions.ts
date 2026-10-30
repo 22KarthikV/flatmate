@@ -3,10 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import type { Json } from "@/lib/db/types";
 import { logger } from "@/lib/logger";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-import type { AvailabilityFormState, ChoreFormState } from "./constants";
+import type { AvailabilityFormState, ChoreFormState, GenerateFormState } from "./constants";
+import { parseGenerationInput, planWeek } from "./generation";
 import { isExpectedRotaError, rotaErrorMessage } from "./errors";
 import {
   parseAvailabilityForm,
@@ -134,4 +136,70 @@ export async function reopenAssignment(formData: FormData): Promise<void> {
 export async function signOffAssignment(formData: FormData): Promise<void> {
   const id = parseChoreId(formData.get("assignmentId"));
   if (id) await rotaCall("sign_off_assignment", { p_assignment_id: id });
+}
+
+/**
+ * Builds a week now (an owner or admin). The scheduler runs here, on the flat's real inputs, and the
+ * database checks and stores the result. If the week already has a rota this makes a new revision
+ * and keeps the old one; otherwise it is the first. People who have not answered yet count as
+ * around, so the week is best generated after the deadline.
+ */
+export async function generateWeekNow(
+  _previous: GenerateFormState,
+  formData: FormData,
+): Promise<GenerateFormState> {
+  const weekStart = formData.get("weekStart");
+  if (typeof weekStart !== "string" || !/^d{4}-d{2}-d{2}$/.test(weekStart)) {
+    return { status: "error", message: "We couldn’t tell which week that was." };
+  }
+
+  const supabase = await signedInClient();
+  const { data: input, error: inputError } = await supabase.rpc("rota_generation_input", {
+    p_week_start: weekStart,
+  });
+  if (inputError) {
+    if (!isExpectedRotaError(inputError))
+      logger.error("rota.generation_input_failed", { error: inputError });
+    return { status: "error", message: rotaErrorMessage(inputError) };
+  }
+
+  const parsed = parseGenerationInput(input);
+  if (parsed.chores.length === 0) {
+    return {
+      status: "error",
+      message: "Add some chores first, then there is something to give out.",
+    };
+  }
+  const plan = planWeek(weekStart, parsed);
+
+  const { data: existing } = await supabase
+    .from("rota_weeks")
+    .select("id")
+    .eq("week_start", weekStart)
+    .is("superseded_at", null)
+    .maybeSingle();
+
+  const { error } = await supabase.rpc("store_rota_week", {
+    p_week_start: weekStart,
+    p_assignments: plan.assignments as unknown as Json,
+    p_owed: plan.owed as unknown as Json,
+    p_reason: existing ? "manual" : "weekly",
+  });
+  if (error) {
+    if (!isExpectedRotaError(error)) logger.error("rota.store_week_failed", { error });
+    return { status: "error", message: rotaErrorMessage(error) };
+  }
+
+  revalidatePath("/rota");
+  const unassigned = plan.assignments.filter((a) => a.assignee === null).length;
+  return {
+    status: "saved",
+    message:
+      (existing
+        ? "The week was rebuilt and everyone has been told."
+        : "The week is ready and everyone has been told.") +
+      (unassigned > 0
+        ? ` ${unassigned} chore${unassigned === 1 ? "" : "s"} had nobody around.`
+        : ""),
+  };
 }

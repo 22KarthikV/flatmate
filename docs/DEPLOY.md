@@ -119,3 +119,10 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 - Chores and checklists are templates only admins edit. Weeks copy a chore's name, effort and checklist when generated, so editing a template never changes a week that already exists.
 - A flat with no chores sees "Load the usual five" on `/rota/chores`: Bins 1, Kitchen 3, Living room 4, Bathroom 2, Hallway 1 (effort), all editable.
 - Rota never touches money.
+
+### Rota generation and reminders
+
+- **The `rota-generate` Edge Function must be deployed by the owner** (`supabase functions deploy rota-generate --no-verify-jwt`). Until it is, nothing breaks, but weeks are not built automatically; an owner or admin can still use "Give out a week now" on the Chores screen. It runs the same pure scheduler as the app, from a generated copy in `supabase/functions/_shared/rota` (`node scripts/sync-rota-edge.mts` refreshes it; a test fails if it is stale).
+- **Jobs** (all hourly, each at its own minute): `rota-generate` at :07 (the Edge Function, registered with `private.register_edge_job` in `20261119000000_rota_schedule.sql`), `rota-availability` at :17, `rota-reminders` at :37. Rows appear in `job_runs`. They only touch flats that have at least one active chore.
+- A week is generated once, shortly after Saturday 18:00 London for the week starting the next day. People who did not answer are filled in as around and marked "assumed".
+- Push text for rota types is fixed in the database and never names a chore or a person.
