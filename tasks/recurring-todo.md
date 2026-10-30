@@ -56,10 +56,10 @@ Plan: [recurring-plan.md](recurring-plan.md). Spec: [../docs/SPEC-recurring.md](
   - Dependencies: Task 4
   - Files: migration, `recurring-rent.test.sql`, `types.ts`
 
-- [ ] **Task 6: Reminders and the daily job** (Medium)
+- [x] **Task 6: Reminders and the daily job** (Medium)
   - Description: Migration `20261105120000_recurring_reminders.sql`: `private.recurring_remind(p_now)`, `private.run_recurring_daily()`, `cron.schedule('recurring-daily', '0 7 * * *', ...)`, once per UTC day via `job_runs`, pending-payment reminders to the collector. pgTAP first.
   - Acceptance:
-    - [ ] pgTAP: 7, 3, 2, 1 days before, the day, then daily after; variable bill payer 14, 7, 3, 1, the day, then daily; nobody who paid is reminded; a rent reminder carries only the recipient's own amount; running twice sends nothing twice; no push payload contains a currency amount; no rent notice reaches another non-admin
+    - [x] pgTAP: 7, 3, 2, 1 days before, the day, then daily after; variable bill payer 14, 7, 3, 1, the day, then daily; nobody who paid is reminded; a rent reminder carries only the recipient's own amount; running twice sends nothing twice; no push payload contains a currency amount; no rent notice reaches another non-admin
   - Verify: `pnpm db:reset && pnpm db:test`
   - Dependencies: Tasks 4, 5
   - Files: migration, `recurring-reminders.test.sql`
