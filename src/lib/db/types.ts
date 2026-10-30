@@ -112,6 +112,7 @@ export type Database = {
       chore_assignments: {
         Row: {
           assignee: string | null;
+          changed_by: string | null;
           chore_id: string;
           chore_name: string;
           completed_at: string | null;
@@ -132,6 +133,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           assignee?: string | null;
+          changed_by?: string | null;
           chore_id: string;
           chore_name: string;
           completed_at?: string | null;
@@ -151,6 +153,7 @@ export type Database = {
         };
         Update: {
           assignee?: string | null;
+          changed_by?: string | null;
           chore_id?: string;
           chore_name?: string;
           completed_at?: string | null;
@@ -172,6 +175,13 @@ export type Database = {
           {
             foreignKeyName: "chore_assignments_assignee_fkey";
             columns: ["assignee"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chore_assignments_changed_by_fkey";
+            columns: ["changed_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
@@ -1465,6 +1475,79 @@ export type Database = {
           },
         ];
       };
+      swap_requests: {
+        Row: {
+          assignment_id: string;
+          created_at: string;
+          decided_at: string | null;
+          from_profile: string;
+          household_id: string;
+          id: string;
+          in_return_id: string | null;
+          status: string;
+          to_profile: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assignment_id: string;
+          created_at?: string;
+          decided_at?: string | null;
+          from_profile: string;
+          household_id: string;
+          id?: string;
+          in_return_id?: string | null;
+          status?: string;
+          to_profile: string;
+        };
+        Update: {
+          assignment_id?: string;
+          created_at?: string;
+          decided_at?: string | null;
+          from_profile?: string;
+          household_id?: string;
+          id?: string;
+          in_return_id?: string | null;
+          status?: string;
+          to_profile?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "swap_requests_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "chore_assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "swap_requests_from_profile_fkey";
+            columns: ["from_profile"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "swap_requests_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "swap_requests_in_return_id_fkey";
+            columns: ["in_return_id"];
+            isOneToOne: false;
+            referencedRelation: "chore_assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "swap_requests_to_profile_fkey";
+            columns: ["to_profile"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -1486,6 +1569,7 @@ export type Database = {
       archive_chore: { Args: { p_chore_id: string }; Returns: undefined };
       cancel_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       cancel_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
+      cancel_swap: { Args: { p_swap_id: string }; Returns: undefined };
       claim_push_outbox: {
         Args: { p_limit?: number };
         Returns: {
@@ -1514,6 +1598,7 @@ export type Database = {
       confirm_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       create_household: { Args: { p_name: string }; Returns: string };
       create_invite: { Args: Record<PropertyKey, never>; Returns: string };
+      decide_swap: { Args: { p_accept: boolean; p_swap_id: string }; Returns: string };
       decline_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       decline_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       edit_expense: {
@@ -1582,6 +1667,10 @@ export type Database = {
           member_count: number;
         }[];
       };
+      reassign_assignment: {
+        Args: { p_assignment_id: string; p_to_profile: string };
+        Returns: string;
+      };
       record_rent_payment: { Args: { p_amount_pence: number }; Returns: string };
       record_settlement: { Args: { p_amount_pence: number; p_to: string }; Returns: string };
       remove_member: { Args: { p_profile_id: string }; Returns: undefined };
@@ -1604,6 +1693,10 @@ export type Database = {
         }[];
       };
       reopen_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
+      request_swap: {
+        Args: { p_assignment_id: string; p_in_return_id?: string; p_to_profile: string };
+        Returns: string;
+      };
       resume_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
       rota_due_generations: {

@@ -24,7 +24,9 @@ export type NotificationType =
   | "chore_assigned"
   | "chore_unassigned"
   | "chore_due"
-  | "chore_overdue";
+  | "chore_overdue"
+  | "swap_requested"
+  | "swap_decided";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -232,6 +234,22 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
     description: "When a chore of yours was not finished on its day.",
     defaultInApp: true,
     defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "swap_requested",
+    label: "A flatmate asks to swap a chore",
+    description: "When someone asks you to take a chore, or to exchange one.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "swap_decided",
+    label: "A swap is answered or a chore is moved",
+    description: "When your swap is accepted or declined, or an admin moves one of your chores.",
+    defaultInApp: true,
+    defaultPush: false,
     snoozable: false,
   },
 ];

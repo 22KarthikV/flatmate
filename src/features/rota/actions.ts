@@ -203,3 +203,79 @@ export async function generateWeekNow(
         : ""),
   };
 }
+
+function chosenId(formData: FormData, key: string): string | null {
+  return parseChoreId(formData.get(key));
+}
+
+/** Asks a flatmate to take one of your chores, or to exchange it for one of theirs. */
+export async function requestSwap(
+  _previous: GenerateFormState,
+  formData: FormData,
+): Promise<GenerateFormState> {
+  const assignmentId = chosenId(formData, "assignmentId");
+  const toProfile = chosenId(formData, "toProfile");
+  if (!assignmentId || !toProfile) return { status: "error", message: "Choose who to ask." };
+
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("request_swap", {
+    p_assignment_id: assignmentId,
+    p_to_profile: toProfile,
+    p_in_return_id: chosenId(formData, "inReturnId") ?? undefined,
+  });
+  if (error) {
+    if (!isExpectedRotaError(error)) logger.error("rota.request_swap_failed", { error });
+    return { status: "error", message: rotaErrorMessage(error) };
+  }
+  revalidatePath("/rota", "layout");
+  return {
+    status: "saved",
+    message: "Asked. They will be told, and nothing changes until they accept.",
+  };
+}
+
+/** Accepts or declines a swap that was asked of you. */
+export async function decideSwap(formData: FormData): Promise<void> {
+  const swapId = chosenId(formData, "swapId");
+  if (!swapId) return;
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("decide_swap", {
+    p_swap_id: swapId,
+    p_accept: formData.get("accept") === "yes",
+  });
+  if (error && !isExpectedRotaError(error)) logger.error("rota.decide_swap_failed", { error });
+  revalidatePath("/rota", "layout");
+}
+
+/** Withdraws a swap you asked for. */
+export async function cancelSwap(formData: FormData): Promise<void> {
+  const swapId = chosenId(formData, "swapId");
+  if (!swapId) return;
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("cancel_swap", { p_swap_id: swapId });
+  if (error && !isExpectedRotaError(error)) logger.error("rota.cancel_swap_failed", { error });
+  revalidatePath("/rota", "layout");
+}
+
+/** An owner or admin moves a chore straight to someone else. */
+export async function reassignChore(
+  _previous: GenerateFormState,
+  formData: FormData,
+): Promise<GenerateFormState> {
+  const assignmentId = chosenId(formData, "assignmentId");
+  const toProfile = chosenId(formData, "toProfile");
+  if (!assignmentId || !toProfile)
+    return { status: "error", message: "Choose who should have it." };
+
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("reassign_assignment", {
+    p_assignment_id: assignmentId,
+    p_to_profile: toProfile,
+  });
+  if (error) {
+    if (!isExpectedRotaError(error)) logger.error("rota.reassign_failed", { error });
+    return { status: "error", message: rotaErrorMessage(error) };
+  }
+  revalidatePath("/rota", "layout");
+  return { status: "saved", message: "Moved. They have been told." };
+}

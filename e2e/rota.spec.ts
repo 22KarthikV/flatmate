@@ -93,12 +93,14 @@ test.describe("the rota", () => {
     await expect(worker!).toHaveURL(/\/rota\/assignments\/[0-9a-f-]{36}$/);
     await expect(worker!.getByText(/^Why: /)).toBeVisible();
 
-    const steps = worker!.getByRole("button", { pressed: false });
+    const steps = worker!.locator("ol").getByRole("button", { pressed: false });
     const total = await steps.count();
     expect(total).toBeGreaterThan(0);
     for (let done = 0; done < total; done++) {
       await steps.first().click();
-      await expect(worker!.getByRole("button", { pressed: true })).toHaveCount(done + 1);
+      await expect(worker!.locator("ol").getByRole("button", { pressed: true })).toHaveCount(
+        done + 1,
+      );
     }
     await expect(worker!.getByRole("status")).toContainText("Done");
 
@@ -107,6 +109,6 @@ test.describe("the rota", () => {
     const other = [secondPage, thirdPage].find((page) => page !== worker)!;
     await other.goto(url);
     await expect(other.getByText(/^Why: /)).toBeVisible();
-    await expect(other.getByRole("button", { pressed: false })).toHaveCount(0);
+    await expect(other.locator("ol").getByRole("button")).toHaveCount(0);
   });
 });

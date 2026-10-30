@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { Card, CardLabel } from "@/components/ui/card";
 import { getMembership } from "@/features/household/membership";
 import { RequireFlat } from "@/features/household/require-flat";
+import { SwapRequests } from "@/features/rota/swap-requests";
+import { getPendingSwaps } from "@/features/rota/swaps";
 import { WeekView } from "@/features/rota/week-view";
 import { currentWeekStart, londonDate, upcomingWeekStart } from "@/features/rota/week";
 import { getWeeks } from "@/features/rota/weeks";
@@ -21,7 +23,7 @@ async function RotaContent() {
   const today = londonDate(now);
   const thisWeek = currentWeekStart(now);
   const nextWeek = upcomingWeekStart(now);
-  const weeks = await getWeeks([thisWeek, nextWeek]);
+  const [weeks, swaps] = await Promise.all([getWeeks([thisWeek, nextWeek]), getPendingSwaps()]);
   const current = weeks.find((week) => week.weekStart === thisWeek);
   const upcoming = weeks.find((week) => week.weekStart === nextWeek);
   const isAdmin = membership.role === "owner" || membership.role === "admin";
@@ -43,6 +45,8 @@ async function RotaContent() {
           </Link>
         </nav>
       </header>
+
+      <SwapRequests swaps={swaps} viewerId={membership.profileId} today={today} />
 
       {current ? (
         <WeekView title="This week" week={current} viewerId={membership.profileId} today={today} />

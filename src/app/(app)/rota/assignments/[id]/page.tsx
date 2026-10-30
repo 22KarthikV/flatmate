@@ -2,13 +2,17 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { Card, CardLabel } from "@/components/ui/card";
+import { getMembers } from "@/features/household/members";
 import { getMembership } from "@/features/household/membership";
 import { RequireFlat } from "@/features/household/require-flat";
 import { Checklist } from "@/features/rota/checklist";
 import { parseChoreId } from "@/features/rota/schemas";
 import { STATUS_TEXT, dayLabel, statusOf } from "@/features/rota/week-model";
 import { londonDate } from "@/features/rota/week";
-import { getAssignment } from "@/features/rota/weeks";
+import { getAssignment, getWeeks } from "@/features/rota/weeks";
+import { buildSwapOptions } from "@/features/rota/swap-options";
+import { ReassignForm, SwapSheet } from "@/features/rota/swap-sheet";
+import { getAwayDays } from "@/features/rota/swaps";
 
 export const metadata = { title: "Chore | FlatMate" };
 
@@ -31,6 +35,28 @@ async function AssignmentContent({ params }: { params: Promise<{ id: string }> }
   const id = parseChoreId((await params).id);
   const detail = id ? await getAssignment(id) : null;
   const today = londonDate(new Date());
+
+  const open = Boolean(detail?.current && detail.assignment.completedAt === null);
+  const mine = detail?.assignment.assigneeId === membership.profileId;
+  const isAdmin = membership.role === "owner" || membership.role === "admin";
+  let swapOptions: ReturnType<typeof buildSwapOptions> = [];
+  let movePeople: { profileId: string; displayName: string }[] = [];
+  if (detail && open && (mine || isAdmin)) {
+    const [members, away, weeks] = await Promise.all([
+      getMembers(),
+      getAwayDays(detail.weekStart),
+      getWeeks([detail.weekStart]),
+    ]);
+    swapOptions = buildSwapOptions({
+      assignment: detail.assignment,
+      viewerId: membership.profileId,
+      people: members,
+      away,
+      weekAssignments: weeks[0]?.assignments ?? [],
+      today,
+    });
+    movePeople = members.filter((member) => member.profileId !== detail.assignment.assigneeId);
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-8">
@@ -90,6 +116,24 @@ async function AssignmentContent({ params }: { params: Promise<{ id: string }> }
               />
             </div>
           </Card>
+
+          {open && mine ? (
+            <Card>
+              <CardLabel>Swap this chore</CardLabel>
+              <div className="mt-4">
+                <SwapSheet assignmentId={detail.assignment.id} options={swapOptions} />
+              </div>
+            </Card>
+          ) : null}
+
+          {open && isAdmin && movePeople.length > 0 ? (
+            <Card>
+              <CardLabel>Move it (admins)</CardLabel>
+              <div className="mt-4">
+                <ReassignForm assignmentId={detail.assignment.id} people={movePeople} />
+              </div>
+            </Card>
+          ) : null}
         </>
       ) : (
         <NotFound />
