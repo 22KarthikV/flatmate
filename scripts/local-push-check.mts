@@ -20,7 +20,7 @@
 
 import { type ChildProcess, execFileSync, spawn, spawnSync } from "node:child_process";
 import { createECDH, randomBytes } from "node:crypto";
-import { mkdtempSync, openSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, openSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
