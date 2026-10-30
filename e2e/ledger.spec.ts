@@ -107,6 +107,81 @@ test.describe("balances", () => {
   });
 });
 
+test.describe("history", () => {
+  test("the history icon opens every payment and expense, including settled and cancelled ones", async ({
+    browser,
+    baseURL,
+  }) => {
+    const { hostPage, joinerPage, hostContext, joinerContext } = await twoFlatmates(
+      browser,
+      baseURL!,
+    );
+    await addEqualExpense(hostPage, "10", "Shared dinner");
+    await addEqualExpense(hostPage, "2", "Mistaken purchase");
+    await hostPage.getByRole("button", { name: "Cancel this expense" }).click();
+    await hostPage.getByRole("button", { name: "Yes, cancel it" }).click();
+
+    // The flatmate pays 5.00; the host confirms.
+    await joinerPage.goto("/money");
+    await joinerPage.getByRole("link", { name: "Record this payment" }).click();
+    await joinerPage.getByRole("button", { name: "Record payment" }).click();
+    await expect(joinerPage).toHaveURL(/\/money$/);
+    await hostPage.goto("/money");
+    await hostPage.getByRole("button", { name: "Confirm" }).click();
+    await expect(hostPage.getByText("Everyone is square")).toBeVisible();
+
+    // From the Money screen, the history icon next to "Record a payment".
+    await hostPage.getByRole("link", { name: "History" }).click();
+    await expect(hostPage).toHaveURL(/\/money\/history$/);
+    await expect(hostPage.getByRole("heading", { level: 1, name: "History" })).toBeVisible();
+
+    // The settled payment, with its outcome and who confirmed it.
+    await expect(hostPage.getByText(/paid you £5\.00/)).toBeVisible();
+    await expect(hostPage.getByText(/Confirmed · .* · Confirmed by you/)).toBeVisible();
+    // Both expenses, the cancelled one marked.
+    await expect(hostPage.getByRole("link", { name: /Shared dinner/ })).toBeVisible();
+    await expect(
+      hostPage.getByRole("link", { name: /Mistaken purchase.*Cancelled/ }),
+    ).toBeVisible();
+
+    // The flatmate sees the same history from their side.
+    await joinerPage.goto("/money/history");
+    await expect(joinerPage.getByText(/You paid .* £5\.00/)).toBeVisible();
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
+
+  test("the history icon is a touch-sized button beside 'Record a payment' on a phone", async ({
+    browser,
+    baseURL,
+  }) => {
+    const user = await signUpAndIn(newTestUser("phonehistory"));
+    await createFlat(user.supabase, "History Flat");
+    const context = await browser.newContext({
+      baseURL: baseURL!,
+      viewport: { width: 360, height: 740 },
+    });
+    await addSessionCookies(context, user.jar, baseURL!);
+    const page = await context.newPage();
+
+    await page.goto("/money");
+    const record = await page.getByRole("link", { name: "Record a payment" }).boundingBox();
+    const history = await page.getByRole("link", { name: "History" }).boundingBox();
+    expect(history?.width ?? 0).toBeGreaterThanOrEqual(44);
+    expect(history?.height ?? 0).toBeGreaterThanOrEqual(44);
+    // Next to it on the same row, not pushed under.
+    expect(Math.abs((history?.y ?? 0) - (record?.y ?? 99))).toBeLessThan(4);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+
+    await page.goto("/money/history");
+    await expect(page.getByText(/No payments yet/)).toBeVisible();
+    await context.close();
+  });
+});
+
 test.describe("settling up", () => {
   test("a payment is pending until the receiver confirms it, then both balances move", async ({
     browser,

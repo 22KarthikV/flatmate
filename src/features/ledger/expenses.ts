@@ -21,6 +21,8 @@ export interface ExpenseRow {
 }
 
 const LIST_LIMIT = 50;
+/** The History screen shows far more than the Money screen's short list. */
+export const HISTORY_LIMIT = 300;
 
 const COLUMNS = `
   id, description, category, amount_pence, occurred_on, created_at, paid_by, created_by,
@@ -30,14 +32,17 @@ const COLUMNS = `
 `;
 
 /** The flat's latest expenses, newest first. Row-level security limits them to the caller's flat. */
-export async function getRecentExpenses(viewerId: string): Promise<ExpenseRow[]> {
+export async function getRecentExpenses(
+  viewerId: string,
+  limit: number = LIST_LIMIT,
+): Promise<ExpenseRow[]> {
   const { supabase } = await getRequestSession();
   const { data } = await supabase
     .from("expenses")
     .select(COLUMNS)
     .order("occurred_on", { ascending: false })
     .order("created_at", { ascending: false })
-    .limit(LIST_LIMIT);
+    .limit(limit);
 
   const rows = data ?? [];
   // An expense is "replaced" when another row in the list says it replaces it.

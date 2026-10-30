@@ -46,6 +46,22 @@ async function MoneyContent() {
         >
           Record a payment
         </Link>
+        <Link
+          href="/money/history"
+          aria-label="History"
+          title="History"
+          className="border-ink hover:bg-ink hover:text-paper inline-flex min-h-11 min-w-11 items-center justify-center border"
+        >
+          <svg viewBox="0 0 24 24" className="size-6" fill="none" aria-hidden="true">
+            <path
+              d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1M3.5 4.5v3.4h3.4M12 7.5V12l3 2"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </Link>
       </div>
 
       <PendingSettlementsCard pending={pending} />

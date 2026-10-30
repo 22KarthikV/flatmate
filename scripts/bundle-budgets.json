@@ -5,6 +5,7 @@
     "/rota": 200,
     "/money": 200,
     "/money/add": 200,
+    "/money/history": 200,
     "/money/settle": 200,
     "/money/expenses/[id]": 200,
     "/money/expenses/[id]/edit": 200,
