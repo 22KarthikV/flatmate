@@ -93,3 +93,45 @@ export async function saveAvailability(
   revalidatePath("/rota/availability");
   return { status: "saved" };
 }
+
+async function rotaCall(
+  fn: "tick_item" | "untick_item",
+  args: { p_item_id: string },
+): Promise<void>;
+async function rotaCall(
+  fn: "complete_assignment" | "reopen_assignment" | "sign_off_assignment",
+  args: { p_assignment_id: string },
+): Promise<void>;
+async function rotaCall(fn: string, args: Record<string, string>): Promise<void> {
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc(fn as "tick_item", args as { p_item_id: string });
+  if (error && !isExpectedRotaError(error)) logger.error(`rota.${fn}_failed`, { error });
+  revalidatePath("/rota");
+}
+
+/** Ticks one step of a chore. Finishing the last step finishes the chore. */
+export async function tickItem(formData: FormData): Promise<void> {
+  const id = parseChoreId(formData.get("itemId"));
+  if (id) await rotaCall("tick_item", { p_item_id: id });
+}
+
+export async function untickItem(formData: FormData): Promise<void> {
+  const id = parseChoreId(formData.get("itemId"));
+  if (id) await rotaCall("untick_item", { p_item_id: id });
+}
+
+/** Finishes a chore that has no steps. */
+export async function completeAssignment(formData: FormData): Promise<void> {
+  const id = parseChoreId(formData.get("assignmentId"));
+  if (id) await rotaCall("complete_assignment", { p_assignment_id: id });
+}
+
+export async function reopenAssignment(formData: FormData): Promise<void> {
+  const id = parseChoreId(formData.get("assignmentId"));
+  if (id) await rotaCall("reopen_assignment", { p_assignment_id: id });
+}
+
+export async function signOffAssignment(formData: FormData): Promise<void> {
+  const id = parseChoreId(formData.get("assignmentId"));
+  if (id) await rotaCall("sign_off_assignment", { p_assignment_id: id });
+}

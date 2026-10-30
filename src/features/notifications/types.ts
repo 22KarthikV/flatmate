@@ -19,7 +19,10 @@ export type NotificationType =
   | "rent_payment_decided"
   | "recurring_attention"
   | "availability_open"
-  | "availability_nudge";
+  | "availability_nudge"
+  | "rota_week_ready"
+  | "chore_assigned"
+  | "chore_unassigned";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -188,6 +191,30 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
     defaultInApp: true,
     defaultPush: false,
     snoozable: true,
+  },
+  {
+    type: "rota_week_ready",
+    label: "The rota is ready",
+    description: "When a new week of chores has been given out.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "chore_assigned",
+    label: "You are given chores",
+    description: "When chores are given to you for the week.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "chore_unassigned",
+    label: "A chore has nobody to do it",
+    description: "When nobody was around for a chore. Admins only.",
+    defaultInApp: true,
+    defaultPush: false,
+    snoozable: false,
   },
 ];
 

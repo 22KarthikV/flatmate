@@ -23,6 +23,49 @@ export type Database = {
   };
   public: {
     Tables: {
+      assignment_items: {
+        Row: {
+          assignment_id: string;
+          done_at: string | null;
+          done_by: string | null;
+          id: string;
+          position: number;
+          text: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assignment_id: string;
+          done_at?: string | null;
+          done_by?: string | null;
+          id?: string;
+          position: number;
+          text: string;
+        };
+        Update: {
+          assignment_id?: string;
+          done_at?: string | null;
+          done_by?: string | null;
+          id?: string;
+          position?: number;
+          text?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assignment_items_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "chore_assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "assignment_items_done_by_fkey";
+            columns: ["done_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       availability: {
         Row: {
           assumed: boolean;
@@ -60,6 +103,117 @@ export type Database = {
           {
             foreignKeyName: "availability_profile_id_fkey";
             columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      chore_assignments: {
+        Row: {
+          assignee: string | null;
+          chore_id: string;
+          chore_name: string;
+          completed_at: string | null;
+          created_at: string;
+          due_on: string;
+          effort: number;
+          explanation: string;
+          household_id: string;
+          id: string;
+          needs_signoff: boolean;
+          reopened_at: string | null;
+          reopened_by: string | null;
+          replaces_id: string | null;
+          rota_week_id: string;
+          signed_off_by: string | null;
+          superseded_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          assignee?: string | null;
+          chore_id: string;
+          chore_name: string;
+          completed_at?: string | null;
+          created_at?: string;
+          due_on: string;
+          effort: number;
+          explanation: string;
+          household_id: string;
+          id?: string;
+          needs_signoff?: boolean;
+          reopened_at?: string | null;
+          reopened_by?: string | null;
+          replaces_id?: string | null;
+          rota_week_id: string;
+          signed_off_by?: string | null;
+          superseded_at?: string | null;
+        };
+        Update: {
+          assignee?: string | null;
+          chore_id?: string;
+          chore_name?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          due_on?: string;
+          effort?: number;
+          explanation?: string;
+          household_id?: string;
+          id?: string;
+          needs_signoff?: boolean;
+          reopened_at?: string | null;
+          reopened_by?: string | null;
+          replaces_id?: string | null;
+          rota_week_id?: string;
+          signed_off_by?: string | null;
+          superseded_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "chore_assignments_assignee_fkey";
+            columns: ["assignee"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chore_assignments_chore_id_fkey";
+            columns: ["chore_id"];
+            isOneToOne: false;
+            referencedRelation: "chores";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chore_assignments_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chore_assignments_reopened_by_fkey";
+            columns: ["reopened_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chore_assignments_replaces_id_fkey";
+            columns: ["replaces_id"];
+            isOneToOne: false;
+            referencedRelation: "chore_assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chore_assignments_rota_week_id_fkey";
+            columns: ["rota_week_id"];
+            isOneToOne: false;
+            referencedRelation: "rota_weeks";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chore_assignments_signed_off_by_fkey";
+            columns: ["signed_off_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
@@ -1146,6 +1300,105 @@ export type Database = {
           },
         ];
       };
+      rota_weeks: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          household_id: string;
+          id: string;
+          member_ids: string[];
+          reason: string;
+          revision: number;
+          superseded_at: string | null;
+          week_start: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          household_id: string;
+          id?: string;
+          member_ids?: string[];
+          reason?: string;
+          revision?: number;
+          superseded_at?: string | null;
+          week_start: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          household_id?: string;
+          id?: string;
+          member_ids?: string[];
+          reason?: string;
+          revision?: number;
+          superseded_at?: string | null;
+          week_start?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rota_weeks_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rota_weeks_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      rotation_state: {
+        Row: {
+          chore_id: string;
+          household_id: string;
+          last_done_on: string | null;
+          owed_turns: number;
+          profile_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          chore_id: string;
+          household_id: string;
+          last_done_on?: string | null;
+          owed_turns?: number;
+          profile_id: string;
+        };
+        Update: {
+          chore_id?: string;
+          household_id?: string;
+          last_done_on?: string | null;
+          owed_turns?: number;
+          profile_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rotation_state_chore_id_fkey";
+            columns: ["chore_id"];
+            isOneToOne: false;
+            referencedRelation: "chores";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rotation_state_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rotation_state_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       settlements: {
         Row: {
           amount_pence: number;
@@ -1247,6 +1500,7 @@ export type Database = {
         }[];
       };
       close_household: { Args: Record<PropertyKey, never>; Returns: undefined };
+      complete_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
       complete_push: {
         Args: {
           p_error?: string;
@@ -1349,6 +1603,7 @@ export type Database = {
           still_in_flat: boolean;
         }[];
       };
+      reopen_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
       resume_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
       save_chore: {
@@ -1382,12 +1637,19 @@ export type Database = {
         Returns: undefined;
       };
       set_nudge_interval: { Args: { p_days: number }; Returns: undefined };
+      sign_off_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
       skip_recurring_month: {
         Args: { p_period: string; p_template_id: string };
         Returns: undefined;
       };
       snooze: { Args: { p_id: string; p_until: string }; Returns: undefined };
+      store_rota_week: {
+        Args: { p_assignments: Json; p_owed?: Json; p_reason?: string; p_week_start: string };
+        Returns: string;
+      };
+      tick_item: { Args: { p_item_id: string }; Returns: undefined };
       transfer_ownership: { Args: { p_profile_id: string }; Returns: undefined };
+      untick_item: { Args: { p_item_id: string }; Returns: undefined };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
       void_expense: { Args: { p_expense_id: string }; Returns: undefined };
       void_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
