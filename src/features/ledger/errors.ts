@@ -14,6 +14,7 @@ const MESSAGES: Record<string, string> = {
   invalid_recipient: "Choose who you paid.",
   settlement_not_found: "We couldn’t find that payment.",
   settlement_not_pending: "That payment has already been dealt with.",
+  not_owed: "They aren’t owed that much any more, so you can’t record that payment to them.",
 };
 
 /** A friendly sentence for what the database function said, or a general one for anything unexpected. */

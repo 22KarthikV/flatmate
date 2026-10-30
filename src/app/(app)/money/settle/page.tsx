@@ -3,8 +3,8 @@ import { Suspense } from "react";
 
 import { Card } from "@/components/ui/card";
 import { RequireFlat } from "@/features/household/require-flat";
-import { getMembers } from "@/features/household/members";
 import { getMembership } from "@/features/household/membership";
+import { getSettlementRecipients } from "@/features/ledger/recipients";
 import { prefillSettlement } from "@/features/ledger/settle";
 import { SettleForm } from "@/features/ledger/settle-form";
 
@@ -15,8 +15,11 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 async function SettleContent({ searchParams }: { searchParams: SearchParams }) {
   const membership = await getMembership();
   if (!membership) return null;
-  const [members, params] = await Promise.all([getMembers(), searchParams]);
-  const others = members.filter((member) => member.profileId !== membership.profileId);
+  const [recipients, params] = await Promise.all([
+    getSettlementRecipients(membership.householdId, membership.profileId),
+    searchParams,
+  ]);
+  const everyone = [...recipients.current, ...recipients.former];
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-8">
@@ -33,16 +36,17 @@ async function SettleContent({ searchParams }: { searchParams: SearchParams }) {
         </p>
       </header>
       <Card>
-        {others.length === 0 ? (
+        {everyone.length === 0 ? (
           <p className="text-muted max-w-md text-sm">
             There is nobody else in your flat to pay yet. Invite a flatmate first.
           </p>
         ) : (
           <SettleForm
-            people={others.map(({ profileId, displayName }) => ({ profileId, displayName }))}
+            people={recipients.current}
+            former={recipients.former}
             initial={prefillSettlement(
               params,
-              members.map((member) => member.profileId),
+              everyone.map((person) => person.profileId),
               membership.profileId,
             )}
           />

@@ -24,7 +24,16 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 vi.mock("@/features/household/membership", () => ({
-  getMembership: async () => ({ profileId: "00000000-0000-0000-0000-00000000000a" }),
+  getMembership: async () => ({
+    profileId: "00000000-0000-0000-0000-00000000000a",
+    householdId: "h1",
+  }),
+}));
+vi.mock("./recipients", () => ({
+  getSettlementRecipients: async () => ({
+    current: [{ profileId: "00000000-0000-0000-0000-00000000000b", displayName: "Sam" }],
+    former: [{ profileId: "00000000-0000-0000-0000-00000000000c", displayName: "Dee" }],
+  }),
 }));
 
 import {
@@ -170,6 +179,13 @@ describe("recordSettlement", () => {
       { status: "error", message: "Choose who you paid." },
     );
     expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it("allows a payment to a former flatmate who is still owed money", async () => {
+    mocks.rpc.mockResolvedValue({ data: "s1", error: null });
+    const dee = "00000000-0000-0000-0000-00000000000c";
+    await expect(recordSettlement(IDLE, form(dee, "5"))).rejects.toThrow("REDIRECT:/money");
+    expect(mocks.rpc).toHaveBeenCalledWith("record_settlement", { p_to: dee, p_amount_pence: 500 });
   });
 
   it("refuses a bad amount", async () => {

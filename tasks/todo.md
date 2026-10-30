@@ -79,12 +79,12 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
   - Dependencies: Task 5
   - Files: migration, `ledger-settlements.test.sql`, `src/features/ledger/{settle-form,actions}.ts*`, `src/app/(app)/money/settle/page.tsx`, `e2e/ledger.spec.ts`
 
-- [ ] **Task 7: Leaving and account deletion rules; admin settles on behalf** (Medium)
+- [x] **Task 7: Leaving and account deletion rules; admin settles on behalf** (Medium)
   - Description: Migration `*_ledger_leaving.sql`. `private.can_leave` becomes false when the person has a non-zero balance or a pending settlement; account deletion honours it. An admin can confirm a settlement on behalf of a removed person (`confirmed_by` records who). The leave section and delete-account page say plainly why someone cannot leave yet and what to do.
   - Acceptance:
-    - [ ] pgTAP: leaving with a balance or a pending settlement is refused; leaving when clear works; existing household suites still pass
-    - [ ] pgTAP: only an admin can confirm on behalf, only for someone who is no longer an active member, and the row records the admin
-    - [ ] E2E: a member with a balance sees why they cannot leave; after settling they can; the delete-account flow behaves the same
+    - [x] pgTAP: leaving with a balance or a pending settlement is refused; leaving when clear works; existing household suites still pass
+    - [x] pgTAP: only an admin can confirm on behalf, only for someone who is no longer an active member, and the row records the admin
+    - [x] E2E: a member with a balance sees why they cannot leave; after settling they can; the delete-account flow behaves the same (`delete-account` must be redeployed to hosted; see docs/DEPLOY.md)
   - Verify: `pnpm db:test`, `pnpm test:e2e`
   - Dependencies: Task 6
   - Files: migration, `ledger-leaving.test.sql`, `src/features/household/leave-section.tsx`, identity delete-account screens

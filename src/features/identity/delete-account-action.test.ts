@@ -56,6 +56,17 @@ describe("deleteAccount", () => {
     expect(mocks.signOut).not.toHaveBeenCalled();
   });
 
+  it("tells someone with money open to settle up first, and signs nobody out", async () => {
+    mocks.fetch.mockResolvedValue(
+      new Response('{"ok":false,"error":"open_balance"}', { status: 409 }),
+    );
+    const result = await deleteAccount({ status: "idle" }, confirmed());
+
+    expect(result).toMatchObject({ status: "error" });
+    expect((result as { message: string }).message).toContain("Settle up first");
+    expect(mocks.signOut).not.toHaveBeenCalled();
+  });
+
   it("signs out and goes to the goodbye page when the account is gone", async () => {
     mocks.fetch.mockResolvedValue(new Response('{"ok":true}', { status: 200 }));
     await expect(deleteAccount({ status: "idle" }, confirmed())).rejects.toThrow(

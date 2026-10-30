@@ -32,6 +32,24 @@ describe("SettleForm", () => {
     ).toBeInTheDocument();
   });
 
+  it("offers a former flatmate who is owed money, and says an admin confirms for them", async () => {
+    const DEE = "00000000-0000-0000-0000-00000000000d";
+    const user = userEvent.setup();
+    render(
+      <SettleForm
+        people={PEOPLE}
+        former={[{ profileId: DEE, displayName: "Dee" }]}
+        initial={{ to: "", amount: "" }}
+      />,
+    );
+    await user.selectOptions(screen.getByLabelText("Who did you pay?"), DEE);
+    expect(
+      screen.getByText(
+        "Dee has left the flat, so an admin confirms this for them before it counts.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("posts who and how much", async () => {
     actions.recordSettlement.mockResolvedValue({ status: "idle" });
     const user = userEvent.setup();
