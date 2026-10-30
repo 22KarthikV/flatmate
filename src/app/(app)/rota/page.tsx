@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 
 import { RequireFlat } from "@/features/household/require-flat";
@@ -14,7 +15,14 @@ export default function RotaPage() {
           title="Rota"
           description="A fair weekly rotation, with checklists for every chore."
           module="rota"
-        />
+        >
+          <Link
+            href="/rota/chores"
+            className="label-caps inline-flex min-h-11 items-center underline underline-offset-4"
+          >
+            Chores and checklists
+          </Link>
+        </PlaceholderPage>
       </RequireFlat>
     </Suspense>
   );
