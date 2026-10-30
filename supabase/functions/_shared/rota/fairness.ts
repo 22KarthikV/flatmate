@@ -18,7 +18,10 @@ export function steady(value: number): number {
   return Math.round(value * 1_000_000) / 1_000_000;
 }
 
-/** Effort done minus fair share, per current member, over the given weeks. */
+/**
+ * Effort done minus fair share, per current member, over the given weeks. Someone who was in none of
+ * those weeks (a joiner) starts at the flat's average, so they are neither buried nor spared (T17).
+ */
 export function carriedLoads(
   members: readonly string[],
   history: readonly PastWeek[],
@@ -34,6 +37,12 @@ export function carriedLoads(
       const done = assigned.filter((a) => a.assignee === id).reduce((sum, a) => sum + a.effort, 0);
       load[id] = steady(load[id]! + done - share);
     }
+  }
+  const joiners = members.filter((id) => !history.some((w) => w.members.includes(id)));
+  const settled = members.filter((id) => !joiners.includes(id));
+  if (joiners.length > 0 && settled.length > 0) {
+    const average = steady(settled.reduce((sum, id) => sum + load[id]!, 0) / settled.length);
+    for (const id of joiners) load[id] = average;
   }
   return load;
 }

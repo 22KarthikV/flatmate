@@ -41,6 +41,9 @@ function deps(overrides: Partial<RotaGenerateDeps> = {}): RotaGenerateDeps {
     dueGenerations: vi.fn().mockResolvedValue([{ householdId: "h1", weekStart: WEEK }]),
     loadInput: vi.fn().mockResolvedValue(input),
     store: vi.fn().mockResolvedValue("week-id"),
+    pendingRebuilds: vi.fn().mockResolvedValue([]),
+    loadRebuildInput: vi.fn(),
+    applyRebuild: vi.fn().mockResolvedValue("applied"),
     recordRun: vi.fn().mockResolvedValue({ created: true }),
     now: () => new Date("2026-11-07T18:07:00Z"),
     ...overrides,
@@ -63,7 +66,13 @@ describe("handleRotaGenerate", () => {
   it("does nothing when no flat is due", async () => {
     const d = deps({ dueGenerations: vi.fn().mockResolvedValue([]) });
     const response = await handleRotaGenerate(request({ secret: "s" }), d);
-    expect(await response.json()).toEqual({ ok: true, due: 0, generated: 0, failed: 0 });
+    expect(await response.json()).toEqual({
+      ok: true,
+      due: 0,
+      generated: 0,
+      rebuilt: 0,
+      failed: 0,
+    });
     expect(d.store).not.toHaveBeenCalled();
   });
 
@@ -73,7 +82,13 @@ describe("handleRotaGenerate", () => {
       request({ secret: "s", body: { scheduled_at: "2026-11-07T18:07:00Z" } }),
       d,
     );
-    expect(await response.json()).toEqual({ ok: true, due: 1, generated: 1, failed: 0 });
+    expect(await response.json()).toEqual({
+      ok: true,
+      due: 1,
+      generated: 1,
+      rebuilt: 0,
+      failed: 0,
+    });
 
     expect(d.dueGenerations).toHaveBeenCalledWith(new Date("2026-11-07T18:07:00Z"));
     expect(d.store).toHaveBeenCalledTimes(1);
@@ -100,8 +115,75 @@ describe("handleRotaGenerate", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const response = await handleRotaGenerate(request({ secret: "s" }), d);
     expect(response.status).toBe(207);
-    expect(await response.json()).toEqual({ ok: false, due: 2, generated: 1, failed: 1 });
+    expect(await response.json()).toEqual({
+      ok: false,
+      due: 2,
+      generated: 1,
+      rebuilt: 0,
+      failed: 1,
+    });
     expect(d.store).toHaveBeenCalledTimes(1);
+    error.mockRestore();
+  });
+
+  it("applies a pending rebuild, giving the leaver's chore to someone who stays", async () => {
+    const d = deps({
+      dueGenerations: vi.fn().mockResolvedValue([]),
+      pendingRebuilds: vi.fn().mockResolvedValue(["rb1"]),
+      loadRebuildInput: vi.fn().mockResolvedValue({
+        leaver: A,
+        leaverName: "Alex",
+        remaining: [B],
+        tasks: [
+          {
+            id: "t1",
+            choreId: "kitchen",
+            choreName: "Kitchen",
+            effort: 3,
+            dueOn: "2026-11-11",
+            assignee: A,
+            started: false,
+            locked: false,
+          },
+        ],
+        availability: {},
+        lastDone: {},
+        history: [],
+      }),
+    });
+    const response = await handleRotaGenerate(request({ secret: "s" }), d);
+    expect(await response.json()).toEqual({
+      ok: true,
+      due: 0,
+      generated: 0,
+      rebuilt: 1,
+      failed: 0,
+    });
+    expect(d.applyRebuild).toHaveBeenCalledWith("rb1", [
+      expect.objectContaining({ taskId: "t1", to: B, reason: "leaver" }),
+    ]);
+  });
+
+  it("leaves a rebuild pending when applying it fails, and carries on with the next", async () => {
+    const d = deps({
+      dueGenerations: vi.fn().mockResolvedValue([]),
+      pendingRebuilds: vi.fn().mockResolvedValue(["bad", "good"]),
+      loadRebuildInput: vi.fn().mockResolvedValue({ leaver: A, remaining: [B], tasks: [] }),
+      applyRebuild: vi.fn().mockImplementation(async (id: string) => {
+        if (id === "bad") throw new Error("stale_move");
+        return "applied";
+      }),
+    });
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const response = await handleRotaGenerate(request({ secret: "s" }), d);
+    expect(response.status).toBe(207);
+    expect(await response.json()).toEqual({
+      ok: false,
+      due: 0,
+      generated: 0,
+      rebuilt: 1,
+      failed: 1,
+    });
     error.mockRestore();
   });
 

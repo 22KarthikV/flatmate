@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { Card, CardLabel } from "@/components/ui/card";
 import { getMembership } from "@/features/household/membership";
 import { RequireFlat } from "@/features/household/require-flat";
+import { RebuildNotice } from "@/features/rota/rebuild-notice";
+import { getUndoableRebuilds } from "@/features/rota/rebuilds";
 import { SwapRequests } from "@/features/rota/swap-requests";
 import { getPendingSwaps } from "@/features/rota/swaps";
 import { WeekView } from "@/features/rota/week-view";
@@ -23,10 +25,14 @@ async function RotaContent() {
   const today = londonDate(now);
   const thisWeek = currentWeekStart(now);
   const nextWeek = upcomingWeekStart(now);
-  const [weeks, swaps] = await Promise.all([getWeeks([thisWeek, nextWeek]), getPendingSwaps()]);
+  const isAdmin = membership.role === "owner" || membership.role === "admin";
+  const [weeks, swaps, rebuilds] = await Promise.all([
+    getWeeks([thisWeek, nextWeek]),
+    getPendingSwaps(),
+    isAdmin ? getUndoableRebuilds() : Promise.resolve([]),
+  ]);
   const current = weeks.find((week) => week.weekStart === thisWeek);
   const upcoming = weeks.find((week) => week.weekStart === nextWeek);
-  const isAdmin = membership.role === "owner" || membership.role === "admin";
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10 sm:px-8">
@@ -49,6 +55,7 @@ async function RotaContent() {
         </nav>
       </header>
 
+      <RebuildNotice rebuilds={rebuilds} />
       <SwapRequests swaps={swaps} viewerId={membership.profileId} today={today} />
 
       {current ? (

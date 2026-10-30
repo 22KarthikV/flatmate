@@ -28,7 +28,7 @@ describe("the Edge Function's copy of the rota scheduler", () => {
       const source = readFileSync(sourcePath(root, name), "utf8");
       for (const match of source.matchAll(/from\s+"([^"]+)"/g)) {
         expect(match[1], `${name} imports ${match[1]}`).toMatch(
-          /^\.\/(week|explain|fairness|schedule|generation)$/,
+          /^\.\/(week|explain|fairness|schedule|generation|rebalance|rebuild)$/,
         );
       }
     }

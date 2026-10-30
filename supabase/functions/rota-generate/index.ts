@@ -44,6 +44,24 @@ Deno.serve((request) =>
       if (error) throw error;
       return data as string;
     },
+    async pendingRebuilds() {
+      const { data, error } = await supabase.rpc("rota_pending_rebuilds");
+      if (error) throw error;
+      return (data ?? []).map((row: { rebuild_id: string }) => row.rebuild_id);
+    },
+    async loadRebuildInput(rebuildId) {
+      const { data, error } = await supabase.rpc("rota_rebuild_input", { p_rebuild: rebuildId });
+      if (error) throw error;
+      return data;
+    },
+    async applyRebuild(rebuildId, moves) {
+      const { data, error } = await supabase.rpc("rota_apply_rebuild", {
+        p_rebuild: rebuildId,
+        p_moves: moves,
+      });
+      if (error) throw error;
+      return data as string;
+    },
     async recordRun(jobName, idempotencyKey) {
       const { data, error } = await supabase
         .from("job_runs")

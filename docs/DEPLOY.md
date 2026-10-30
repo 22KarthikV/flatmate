@@ -127,6 +127,14 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 - A week is generated once, shortly after Saturday 18:00 London for the week starting the next day. People who did not answer are filled in as around and marked "assumed".
 - Push text for rota types is fixed in the database and never names a chore or a person.
 
+### Rota: when someone leaves
+
+- A trigger on `memberships.left_at` (migration `20261121000000_rota_leaving.sql`) records a `rota_rebuilds` row whenever someone leaves, is removed or deletes their account, but only for flats with an active chore where the leaver holds an unfinished chore from today on. A flat closing is ignored. None of the existing leaving functions is edited, and the trigger cannot make leaving fail for rota reasons.
+- **Redeploy the `rota-generate` Edge Function** (`supabase functions deploy rota-generate --no-verify-jwt`). The same function now applies pending rebuilds, using the pure `rebalanceAfterLeave` from `supabase/functions/_shared/rota`. A new job, `rota-rebalance`, calls it every ten minutes. Until it is redeployed, rebuilds stay `pending` (nothing is lost or half done) and the leaver's chores keep their name on them; once it is deployed the next run catches up.
+- Chores that start within 24 hours, or that someone has already ticked, are locked: only the leaver's own are moved. Nothing is rewritten: each moved chore becomes a new assignment pointing at the old one, with ticks carried across, and every move is recorded in `rota_rebuild_moves`.
+- An owner or admin sees "After someone left" on `/rota` for 24 hours and can undo. Undo puts a chore back with the person it was taken from if they are still in the flat; a leaver's own chores cannot go back to someone who is gone, so they stay with their new person.
+- A joiner is in the rota from the next week that is generated, with a starting load equal to the flat's average. Weeks already generated are not changed.
+
 ## Rent and bills (recurring)
 
 **Rollout order** for each recurring migration (`recurring`, `recurring_templates`, `recurring_generate`, `recurring_rent`, `recurring_reminders`): the orchestrating session applies it to the hosted project before the pull request that needs it merges, then fixes the recorded version so `list_migrations` matches `supabase/migrations/`. Apply `recurring_reminders` last: it registers the `recurring-daily` job. No Edge Function is added and `deliver-push` does not change.

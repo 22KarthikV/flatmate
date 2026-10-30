@@ -5,8 +5,13 @@
 // availability window has just closed and that have no current revision). For each, the function
 // reads the inputs, runs the same pure scheduler the app runs, and stores the result. Storing is
 // idempotent in the database, so a retry or a second trigger changes nothing.
+//
+// The same call also applies any pending rebuilds: when someone has left a flat, the database has
+// recorded it, and here the pure rebalance decides who takes their chores. Every ten minutes is
+// enough; with nothing pending it does no work.
 
 import { parseGenerationInput, planWeek } from "../_shared/rota/generation.ts";
+import { planRebuild, type PlannedMove } from "../_shared/rota/rebuild.ts";
 
 export interface DueWeek {
   householdId: string;
@@ -23,6 +28,9 @@ export interface RotaGenerateDeps {
     assignments: unknown,
     owed: unknown,
   ): Promise<string>;
+  pendingRebuilds(): Promise<string[]>;
+  loadRebuildInput(rebuildId: string): Promise<unknown>;
+  applyRebuild(rebuildId: string, moves: PlannedMove[]): Promise<string>;
   recordRun(jobName: string, idempotencyKey: string): Promise<{ created: boolean }>;
   now(): Date;
 }
@@ -77,7 +85,23 @@ export async function handleRotaGenerate(
         console.error("rota-generate failed for a flat", error);
       }
     }
-    return json({ ok: failed === 0, due: due.length, generated, failed }, failed === 0 ? 200 : 207);
+
+    let rebuilt = 0;
+    for (const rebuildId of await deps.pendingRebuilds()) {
+      try {
+        const moves = planRebuild(await deps.loadRebuildInput(rebuildId));
+        await deps.applyRebuild(rebuildId, moves);
+        rebuilt += 1;
+      } catch (error) {
+        // Stale inputs or one bad flat: it stays pending and the next run reads fresh inputs.
+        failed += 1;
+        console.error("rota-generate could not rebuild after a leaving", error);
+      }
+    }
+    return json(
+      { ok: failed === 0, due: due.length, generated, rebuilt, failed },
+      failed === 0 ? 200 : 207,
+    );
   } catch (error) {
     console.error("rota-generate failed", error);
     return json({ ok: false, error: "internal error" }, 500);
