@@ -173,6 +173,52 @@ test.describe("invite links", () => {
 
     await Promise.all([hostContext.close(), joinerContext.close(), thirdContext.close()]);
   });
+
+  test("Share sends a message naming the flat, and pasting that whole message opens the invite", async ({
+    browser,
+    baseURL,
+  }) => {
+    const host = await signUpAndIn(newTestUser("sharer"));
+    await createFlat(host.supabase, "The Old Bakery");
+    const hostContext = await browser.newContext({ baseURL });
+    await addSessionCookies(hostContext, host.jar, baseURL!);
+    const hostPage = await hostContext.newPage();
+    // Chrome on desktop has no share sheet, so stand in for one and keep what it was given.
+    await hostPage.addInitScript(() => {
+      Object.defineProperty(navigator, "share", {
+        configurable: true,
+        value: async (data: ShareData) => {
+          (window as unknown as { __shared: ShareData }).__shared = data;
+        },
+      });
+    });
+
+    await hostPage.goto("/more/flat");
+    await hostPage.getByRole("button", { name: "Make a link" }).click();
+    const link = await hostPage.getByLabel("Your link").inputValue();
+    await hostPage.getByRole("button", { name: "Share", exact: true }).click();
+    const shared = await hostPage.evaluate(
+      () => (window as unknown as { __shared: ShareData }).__shared,
+    );
+    expect(shared.title).toBe("Join The Old Bakery on FlatMate");
+    expect(shared.text).toContain("chosen for The Old Bakery");
+    expect(shared.url).toBe(link);
+
+    // What a chat app shows the flatmate is the text and the link together. Pasting all of it works.
+    const joiner = await signUpAndIn(newTestUser("pasted"));
+    const joinerContext = await browser.newContext({ baseURL });
+    await addSessionCookies(joinerContext, joiner.jar, baseURL!);
+    const joinerPage = await joinerContext.newPage();
+    await joinerPage.goto("/dashboard");
+    await joinerPage.getByLabel("Paste the link here").fill(`${shared.text}\n${shared.url}\n`);
+    await joinerPage.getByRole("button", { name: "Open invite" }).click();
+    await expect(joinerPage).toHaveURL(/\/join\/[A-Za-z0-9_-]{43}$/);
+    await expect(
+      joinerPage.getByRole("heading", { level: 2, name: "The Old Bakery" }),
+    ).toBeVisible();
+
+    await Promise.all([hostContext.close(), joinerContext.close()]);
+  });
 });
 
 test.describe("members and roles", () => {

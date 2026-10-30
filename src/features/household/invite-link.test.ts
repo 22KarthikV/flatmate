@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { buildInviteLink, extractInviteToken, isInviteToken } from "./invite-link";
+import {
+  buildInviteLink,
+  buildInviteMessage,
+  extractInviteToken,
+  isInviteToken,
+} from "./invite-link";
 
 const TOKEN = "Fk193IB2W6Z9kgq5_aJ-D94u3MxFQwtotcdhx2jj5FY";
 
@@ -27,6 +32,27 @@ describe("buildInviteLink", () => {
   });
 });
 
+describe("buildInviteMessage", () => {
+  it("names the flat in the title and the text, and leaves the link to the url field", () => {
+    const message = buildInviteMessage("Flat 3B");
+    expect(message.title).toBe("Join Flat 3B on FlatMate");
+    expect(message.text).toContain("Flat 3B");
+    expect(message.text).not.toContain("http");
+    expect(message.text).not.toMatch(/\p{Extended_Pictographic}/u);
+  });
+
+  it("uses whatever name the owner saved for the flat", () => {
+    expect(buildInviteMessage("The Old Bakery").title).toBe("Join The Old Bakery on FlatMate");
+    expect(buildInviteMessage("The Old Bakery").text).toContain("chosen for The Old Bakery");
+  });
+
+  it("still reads well without a flat name", () => {
+    const message = buildInviteMessage("  ");
+    expect(message.title).toBe("Join our flat on FlatMate");
+    expect(message.text).toContain("our flat");
+  });
+});
+
 describe("extractInviteToken", () => {
   it.each([
     TOKEN,
@@ -35,6 +61,12 @@ describe("extractInviteToken", () => {
     `https://flatmate-ten.vercel.app/join/${TOKEN}`,
     `https://flatmate-ten.vercel.app/join/${TOKEN}/`,
     `http://localhost:3000/join/${TOKEN}?utm=chat`,
+    `Join our flat on FlatMate https://flatmate-ten.vercel.app/join/${TOKEN}`,
+    `Join our flat on FlatMate\nhttps://flatmate-ten.vercel.app/join/${TOKEN}\n`,
+    `<https://flatmate-ten.vercel.app/join/${TOKEN}>`,
+    `https://flatmate-ten.vercel.app/join/${TOKEN}.`,
+    `flatmate-ten.vercel.app/join/${TOKEN}`,
+    `Join us: https://flatmate-ten.vercel.app/join/${TOKEN}/ see you there`,
   ])("finds the token in %s", (input) => expect(extractInviteToken(input)).toBe(TOKEN));
 
   it.each([
@@ -44,6 +76,8 @@ describe("extractInviteToken", () => {
     "https://example.com/join/short",
     `https://example.com/other/${TOKEN}`,
     `/join/${TOKEN}/extra`,
+    `https://example.com/join/${TOKEN}/extra`,
+    `https://example.com/join/${TOKEN}x`,
     `javascript:alert('${TOKEN}')`,
   ])("finds nothing in %s", (input) => expect(extractInviteToken(input)).toBeNull());
 });

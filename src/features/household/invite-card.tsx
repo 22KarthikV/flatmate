@@ -7,6 +7,7 @@ import { Card, CardLabel } from "@/components/ui/card";
 
 import { createInvite, revokeInvite } from "./actions";
 import type { CreateInviteState, SimpleState } from "./constants";
+import { buildInviteMessage } from "./invite-link";
 
 const initialInvite: CreateInviteState = { status: "idle" };
 const initialRevoke: SimpleState = { status: "idle" };
@@ -15,7 +16,13 @@ const initialRevoke: SimpleState = { status: "idle" };
  * The flat's invite link. For safety the server keeps only a hash, so a link can be shown just
  * once, right after it is made. `activeUntil` says whether an earlier link is still working.
  */
-export function InviteCard({ activeUntil }: { activeUntil: string | null }) {
+export function InviteCard({
+  activeUntil,
+  flatName = "",
+}: {
+  activeUntil: string | null;
+  flatName?: string;
+}) {
   const [invite, createAction, creating] = useActionState(createInvite, initialInvite);
   const [revoked, revokeAction, revoking] = useActionState(revokeInvite, initialRevoke);
   const [copied, setCopied] = useState(false);
@@ -39,7 +46,7 @@ export function InviteCard({ activeUntil }: { activeUntil: string | null }) {
   async function share() {
     if (!created) return;
     try {
-      await navigator.share({ title: "Join our flat on FlatMate", url: created });
+      await navigator.share({ ...buildInviteMessage(flatName), url: created });
     } catch {
       // Closing the share sheet is not an error.
     }
