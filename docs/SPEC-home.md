@@ -1,6 +1,6 @@
 # Spec: the home page
 
-Status: draft for the owner to approve. Depends on: `household`, `notifications`, `ledger` and `recurring` (built) and `rota` (built; away periods in `SPEC-rota-away.md` land separately). It adds no new module. It only reads what the others already hold.
+Status: approved by owner for the owner to approve. Depends on: `household`, `notifications`, `ledger` and `recurring` (built) and `rota` (built; away periods in `SPEC-rota-away.md` land separately). It adds no new module. It only reads what the others already hold.
 
 ## Objective
 
@@ -63,21 +63,21 @@ Members never see this section and its data is not fetched for them.
 
 Everything below exists today, so the aim is no migration.
 
-| Block                       | Reads                                                                                                                                      | Notes                                                                     |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
-| Header, role, checklist     | `getMembership()`, `getMembers()`, `buildChecklist()`                                                                                      | Already used by the page; `getMembership` is request-cached.              |
-| Availability prompt         | `getWeekAvailability(weekStart)` (`rota/availability.ts`); `windowState`, `upcomingWeekStart` (`rota/week.ts`)                             | Only when the window is open and I have no answers for that week.         |
-| Payments to confirm (money) | `getPendingSettlements(viewerId, isAdmin)` (`ledger/settlements.ts`)                                                                       | Reads `settlements` through row-level security.                           |
-| Rent payments to confirm    | `getPendingRentPayments()` (`recurring/rent.ts`)                                                                                           | Database already limits it to the collector and admins.                   |
-| Bill amount to enter        | `getBillMonths()` (`recurring/months.ts`), filtered to `awaiting_amount` where I am the payer                                              | Reads `recurring_instances` and templates. Entering stays on its screen.  |
-| Swaps for me                | `getPendingSwaps()` (`rota/swaps.ts`), filtered to me as recipient                                                                         | Reads `swap_requests`.                                                    |
-| My chores                   | `getWeeks([currentWeekStart])` (`rota/weeks.ts`), then `arrangeForViewer` and `statusOf` (`rota/week-model.ts`)                            | One query; keep only my rows.                                             |
-| Away line                   | the away reader from `SPEC-rota-away.md` (`away_periods`)                                                                                  | Hidden until that lands. Not needed for a first version.                  |
-| My rent                     | `getMyRent()` (`recurring/rent.ts`), which calls `my_rent()`                                                                               | Returns only the caller's own rows.                                       |
-| Owe / owed                  | `getBalancesView(householdId, viewerId)` (`ledger/balances.ts`), which calls `household_balances(uuid)`                                     | Gives the signed-in person's summary and counterparts.                    |
-| Coming up                   | `getBillMonths()` due dates plus `availabilityDeadline`                                                                                    | No new query.                                                             |
-| Recent                      | `getInbox()` (`notifications/inbox.ts`), first 5                                                                                           | Own notifications only.                                                   |
-| Admin extras                | `getPendingRentPayments()`, the week from `getWeeks`, `getMembers()`                                                                       | Admin only.                                                               |
+| Block                       | Reads                                                                                                           | Notes                                                                    |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Header, role, checklist     | `getMembership()`, `getMembers()`, `buildChecklist()`                                                           | Already used by the page; `getMembership` is request-cached.             |
+| Availability prompt         | `getWeekAvailability(weekStart)` (`rota/availability.ts`); `windowState`, `upcomingWeekStart` (`rota/week.ts`)  | Only when the window is open and I have no answers for that week.        |
+| Payments to confirm (money) | `getPendingSettlements(viewerId, isAdmin)` (`ledger/settlements.ts`)                                            | Reads `settlements` through row-level security.                          |
+| Rent payments to confirm    | `getPendingRentPayments()` (`recurring/rent.ts`)                                                                | Database already limits it to the collector and admins.                  |
+| Bill amount to enter        | `getBillMonths()` (`recurring/months.ts`), filtered to `awaiting_amount` where I am the payer                   | Reads `recurring_instances` and templates. Entering stays on its screen. |
+| Swaps for me                | `getPendingSwaps()` (`rota/swaps.ts`), filtered to me as recipient                                              | Reads `swap_requests`.                                                   |
+| My chores                   | `getWeeks([currentWeekStart])` (`rota/weeks.ts`), then `arrangeForViewer` and `statusOf` (`rota/week-model.ts`) | One query; keep only my rows.                                            |
+| Away line                   | the away reader from `SPEC-rota-away.md` (`away_periods`)                                                       | Hidden until that lands. Not needed for a first version.                 |
+| My rent                     | `getMyRent()` (`recurring/rent.ts`), which calls `my_rent()`                                                    | Returns only the caller's own rows.                                      |
+| Owe / owed                  | `getBalancesView(householdId, viewerId)` (`ledger/balances.ts`), which calls `household_balances(uuid)`         | Gives the signed-in person's summary and counterparts.                   |
+| Coming up                   | `getBillMonths()` due dates plus `availabilityDeadline`                                                         | No new query.                                                            |
+| Recent                      | `getInbox()` (`notifications/inbox.ts`), first 5                                                                | Own notifications only.                                                  |
+| Admin extras                | `getPendingRentPayments()`, the week from `getWeeks`, `getMembers()`                                            | Admin only.                                                              |
 
 **Gaps (none blocking).**
 
@@ -128,19 +128,19 @@ Server component page. Each block is an async server component inside a small `H
 
 ### Files
 
-| File                                                        | Change                                                |
-| ----------------------------------------------------------- | ----------------------------------------------------- |
-| `src/app/(app)/dashboard/page.tsx`                          | Replace the placeholder with the blocks               |
-| `src/features/home/home-block.tsx`                          | Suspense, error boundary and placeholder wrapper      |
-| `src/features/home/waiting-on-you.tsx`, `waiting.ts`        | Block and the pure ordering and capping logic         |
-| `src/features/home/my-chores.tsx`                           | Chores block                                          |
-| `src/features/home/my-rent.tsx`                             | Rent block                                            |
-| `src/features/home/money-summary.tsx`                       | Owe/owed block                                        |
-| `src/features/home/coming-up.tsx`, `coming-up.ts`           | Upcoming bills and rota deadline                      |
-| `src/features/home/recent.tsx`                              | Last five notifications                               |
-| `src/features/home/admin-extras.tsx`                        | Admin-only section                                    |
-| `src/features/home/*.test.ts(x)`                            | Vitest for each                                       |
-| `e2e/home.spec.ts`                                          | One end-to-end test                                   |
+| File                                                 | Change                                           |
+| ---------------------------------------------------- | ------------------------------------------------ |
+| `src/app/(app)/dashboard/page.tsx`                   | Replace the placeholder with the blocks          |
+| `src/features/home/home-block.tsx`                   | Suspense, error boundary and placeholder wrapper |
+| `src/features/home/waiting-on-you.tsx`, `waiting.ts` | Block and the pure ordering and capping logic    |
+| `src/features/home/my-chores.tsx`                    | Chores block                                     |
+| `src/features/home/my-rent.tsx`                      | Rent block                                       |
+| `src/features/home/money-summary.tsx`                | Owe/owed block                                   |
+| `src/features/home/coming-up.tsx`, `coming-up.ts`    | Upcoming bills and rota deadline                 |
+| `src/features/home/recent.tsx`                       | Last five notifications                          |
+| `src/features/home/admin-extras.tsx`                 | Admin-only section                               |
+| `src/features/home/*.test.ts(x)`                     | Vitest for each                                  |
+| `e2e/home.spec.ts`                                   | One end-to-end test                              |
 
 No change to `nav.tsx`, notification types, `src/lib/db/types.ts`, `bundle-budgets.json` or `DEPLOY.md`.
 
@@ -179,14 +179,14 @@ None. If `home_summary()` is ever added, it uses the range 20261131..20261140 an
 
 ## Risks
 
-| Risk                                          | What we do                                                                                                |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Too many reads make the page slow             | Parallel blocks with placeholders; add `home_summary()` only if measured slow                             |
-| "Waiting on you" duplicates the inbox         | It shows what is true now, not what was sent; a handled item disappears even if its notification is unread |
-| A reader changes shape under the page         | Each block has its own test and its own error line                                                        |
-| The page turns into a second Money screen     | Lines link out; no forms on Home                                                                          |
+| Risk                                      | What we do                                                                                                 |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Too many reads make the page slow         | Parallel blocks with placeholders; add `home_summary()` only if measured slow                              |
+| "Waiting on you" duplicates the inbox     | It shows what is true now, not what was sent; a handled item disappears even if its notification is unread |
+| A reader changes shape under the page     | Each block has its own test and its own error line                                                         |
+| The page turns into a second Money screen | Lines link out; no forms on Home                                                                           |
 
-## Open questions for the owner
+## Owner decisions (all defaults accepted)
 
 1. **Should Home show a "recent in the flat" list?** It repeats the notifications. Recommended default: yes, five items, hidden if empty.
 2. **Should a member see the whole flat's chores on Home, or only their own?** Recommended default: only their own, with a link to the full rota.
