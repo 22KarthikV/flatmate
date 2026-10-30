@@ -41,6 +41,12 @@ export function FairnessList({ people, viewerId }: { people: PersonFairness[]; v
               {person.doneCount} of {person.givenCount} chores finished
               {person.overdueCount > 0 ? `, ${person.overdueCount} overdue and still theirs` : ""}.
             </p>
+            {person.awayDays > 0 ? (
+              <p className="text-muted mt-3 text-sm">
+                Away {person.awayDays} {person.awayDays === 1 ? "day" : "days"} in this period. Away
+                days do not count against anyone&rsquo;s share.
+              </p>
+            ) : null}
             {person.byChore.length > 0 ? (
               <ul className="mt-3 flex flex-col text-sm">
                 {person.byChore.map((tally) => (

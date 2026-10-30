@@ -9,6 +9,17 @@ export interface PastWeek {
   /** Everyone in the rota that week. */
   members: readonly string[];
   assignments: readonly { assignee: string | null; effort: number }[];
+  /** Days (0 to 7) each person was away that week. Away days do not count against anyone's share. */
+  away?: Readonly<Record<string, number>>;
+}
+
+/** Each person's share of a week's effort, weighted by the days they were around. */
+export function weekShares(week: PastWeek, total: number): Record<string, number> {
+  const weights = week.members.map((id) => Math.max(0, 7 - (week.away?.[id] ?? 0)));
+  const sum = weights.reduce((a, b) => a + b, 0);
+  return Object.fromEntries(
+    week.members.map((id, i) => [id, sum === 0 ? 0 : (total * weights[i]!) / sum]),
+  );
 }
 
 /** Rounds away floating-point noise so sums in a different order compare equal. */
@@ -29,9 +40,10 @@ export function carriedLoads(
     if (week.members.length === 0) continue;
     const assigned = week.assignments.filter((a) => a.assignee !== null);
     const total = assigned.reduce((sum, a) => sum + a.effort, 0);
-    const share = total / week.members.length;
+    const shares = weekShares(week, total);
     for (const id of members) {
       if (!week.members.includes(id)) continue;
+      const share = shares[id] ?? 0;
       const done = assigned.filter((a) => a.assignee === id).reduce((sum, a) => sum + a.effort, 0);
       load[id] = steady(load[id]! + done - share);
     }

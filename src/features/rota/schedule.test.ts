@@ -426,6 +426,35 @@ describe("fairness helpers", () => {
     expect(loads.new).toBe(0);
   });
 
+  it("does not count away days against someone's share", () => {
+    const loads = carriedLoads(
+      ["a", "b"],
+      [
+        {
+          members: ["a", "b"],
+          away: { b: 7 },
+          assignments: [{ assignee: "a", effort: 4 }],
+        },
+      ],
+    );
+    expect(loads).toEqual({ a: 0, b: 0 });
+    const partial = carriedLoads(
+      ["a", "b"],
+      [
+        {
+          members: ["a", "b"],
+          away: { b: 4 },
+          assignments: [
+            { assignee: "a", effort: 2 },
+            { assignee: "b", effort: 1 },
+          ],
+        },
+      ],
+    );
+    expect(partial.a).toBeCloseTo(-0.1, 5);
+    expect(partial.b).toBeCloseTo(0.1, 5);
+  });
+
   it("starts a joiner at the flat's average, not at zero", () => {
     const loads = carriedLoads(
       ["a", "b", "new"],

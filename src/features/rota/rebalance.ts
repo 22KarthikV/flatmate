@@ -29,6 +29,8 @@ export interface RebalanceTask {
 export interface RebalanceInput {
   leaver: string;
   leaverName: string;
+  /** Why the person's chores are moving. Away means they stay in the flat; only these days are given out. */
+  cause?: "left" | "away";
   /** Everyone staying (the leaver must not be in it). */
   remaining: readonly string[];
   /** Upcoming, unfinished chores of the flat from the leaving date on. */
@@ -62,6 +64,7 @@ function compareText(a: string, b: string): number {
 }
 
 export function rebalanceAfterLeave(input: RebalanceInput): RebalanceResult {
+  const away = input.cause === "away";
   const remaining = [...new Set(input.remaining)]
     .filter((id) => id !== input.leaver)
     .sort(compareText);
@@ -115,7 +118,9 @@ export function rebalanceAfterLeave(input: RebalanceInput): RebalanceResult {
       from: input.leaver,
       to: best,
       reason: "leaver",
-      explanation: explainAssignment([{ kind: "rebalanced", leaver: input.leaverName }]),
+      explanation: away
+        ? `Moved to you because ${input.leaverName} is away.`
+        : explainAssignment([{ kind: "rebalanced", leaver: input.leaverName }]),
     });
   }
 
@@ -174,7 +179,9 @@ export function rebalanceAfterLeave(input: RebalanceInput): RebalanceResult {
               from: high.person,
               to: best.to,
               reason: "balance",
-              explanation: `Moved to you to even out the work after ${input.leaverName} left.`,
+              explanation: away
+                ? `Moved to you to even out the work while ${input.leaverName} is away.`
+                : `Moved to you to even out the work after ${input.leaverName} left.`,
             },
       );
     }

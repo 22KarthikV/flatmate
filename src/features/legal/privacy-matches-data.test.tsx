@@ -314,6 +314,7 @@ describe("privacy notice", () => {
       "applied_at",
       "household_id",
       "id",
+      "kind",
       "left_profile",
       "left_reason",
       "requested_at",
@@ -322,6 +323,17 @@ describe("privacy notice", () => {
       "undo_until",
       "undone_at",
       "undone_by",
+    ]);
+    expect(columnsOf("away_periods")).toEqual([
+      "created_at",
+      "created_by",
+      "ended_at",
+      "ends_on",
+      "household_id",
+      "id",
+      "note",
+      "profile_id",
+      "starts_on",
     ]);
     expect(columnsOf("rota_rebuild_moves")).toEqual([
       "created_at",
@@ -362,6 +374,8 @@ describe("privacy notice", () => {
       "passed over for it",
       "swap requests",
       "chores moved when a flatmate left",
+      "dates you are away",
+      "Away dates never affect rent or bills",
       "Everyone in your flat can see everyone’s availability",
       "never carry a chore or a person in a push",
     ]) {

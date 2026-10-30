@@ -115,3 +115,20 @@ describe("FairnessList", () => {
     expect(screen.getAllByText("No chores came due in this period.")).toHaveLength(2);
   });
 });
+
+describe("away days in the fairness view", () => {
+  it("counts the days someone was away inside the period and no others", () => {
+    const people = summariseFairness({
+      people: [
+        { profileId: "a", displayName: "Amy" },
+        { profileId: "b", displayName: "Bob" },
+      ],
+      assignments: [],
+      owed: [],
+      away: [{ profileId: "b", startsOn: "2026-11-01", endsOn: "2026-11-20" }],
+      start: "2026-11-10",
+      today: "2026-11-14",
+    });
+    expect(people.map((p) => p.awayDays)).toEqual([0, 5]);
+  });
+});
