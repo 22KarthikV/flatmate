@@ -5,6 +5,8 @@ import { Card, CardLabel } from "@/components/ui/card";
 import { RequireFlat } from "@/features/household/require-flat";
 import { getMembership } from "@/features/household/membership";
 import { ChoresManager } from "@/features/rota/chores-manager";
+import { GenerateWeek } from "@/features/rota/generate-week";
+import { currentWeekStart, upcomingWeekStart } from "@/features/rota/week";
 import { getChores } from "@/features/rota/chores";
 
 export const metadata = { title: "Chores | FlatMate" };
@@ -32,7 +34,17 @@ async function ChoresContent() {
       </header>
 
       {isAdmin ? (
-        <ChoresManager chores={chores} />
+        <>
+          <ChoresManager chores={chores} />
+          {chores.length > 0 ? (
+            <GenerateWeek
+              weeks={[
+                { start: upcomingWeekStart(new Date()), label: "Next week" },
+                { start: currentWeekStart(new Date()), label: "This week" },
+              ]}
+            />
+          ) : null}
+        </>
       ) : (
         <>
           <Card>
