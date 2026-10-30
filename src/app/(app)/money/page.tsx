@@ -33,16 +33,16 @@ async function MoneyContent() {
         <p className="text-muted max-w-md">Shared expenses for {membership.householdName}.</p>
       </header>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex gap-2">
         <Link
           href="/money/add"
-          className="label-caps bg-ink text-paper inline-flex min-h-11 items-center px-6 hover:opacity-85"
+          className="label-caps bg-ink text-paper inline-flex min-h-11 min-w-0 flex-1 items-center justify-center px-3 text-center hover:opacity-85"
         >
           Add expense
         </Link>
         <Link
           href="/money/settle"
-          className="label-caps border-ink hover:bg-ink hover:text-paper inline-flex min-h-11 items-center border px-6"
+          className="label-caps border-ink hover:bg-ink hover:text-paper inline-flex min-h-11 min-w-0 flex-1 items-center justify-center border px-3 text-center"
         >
           Record a payment
         </Link>
@@ -50,7 +50,7 @@ async function MoneyContent() {
           href="/money/history"
           aria-label="History"
           title="History"
-          className="border-ink hover:bg-ink hover:text-paper inline-flex min-h-11 min-w-11 items-center justify-center border"
+          className="border-ink hover:bg-ink hover:text-paper inline-flex min-h-11 w-11 shrink-0 items-center justify-center border"
         >
           <svg viewBox="0 0 24 24" className="size-6" fill="none" aria-hidden="true">
             <path
