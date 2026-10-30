@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { formatPence } from "@/features/ledger/money";
 
 import { describeSchedule } from "./format";
@@ -31,7 +33,12 @@ export function TemplateList({
       {templates.map((template) => (
         <li key={template.id} className="flex flex-col gap-1 py-4">
           <div className="flex items-start justify-between gap-4">
-            <span>{template.name}</span>
+            <Link
+              href={`/money/recurring/${template.id}`}
+              className="inline-flex min-h-11 items-center underline-offset-4 hover:underline"
+            >
+              {template.name}
+            </Link>
             <span className="text-muted shrink-0">
               {template.amountPence !== null ? formatPence(template.amountPence) : "Changes"}
             </span>

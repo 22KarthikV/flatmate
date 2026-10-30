@@ -50,7 +50,7 @@ Tasks 7 to 9 can start as soon as their database dependency is merged and hosted
 - [x] Task 5: Rent payments, status, my rent, dashboard
 - [x] Task 6: Reminders and the daily job
 - [x] Task 7: Bills screens and Money links
-- [ ] Task 8: Template form, detail and edit
+- [x] Task 8: Template form, detail and edit
 - [ ] Task 9: Rent screens
 - [ ] Task 10: End-to-end, deploy notes, final report
 

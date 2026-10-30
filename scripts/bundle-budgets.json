@@ -25,7 +25,10 @@
     "/terms": 195,
     "/money/recurring": 200,
     "/money/recurring/months": 200,
-    "/money/recurring/instances/[id]/amount": 200
+    "/money/recurring/instances/[id]/amount": 200,
+    "/money/recurring/new": 200,
+    "/money/recurring/[id]": 200,
+    "/money/recurring/[id]/edit": 200
   },
   "lazyMotionKb": 60
 }
