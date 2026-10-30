@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -30,9 +31,10 @@ function Icon({ name }: { name: NavItem["icon"] }) {
   );
 }
 
-export function BottomNav() {
-  const pathname = usePathname();
-
+// The current path is unknown while a route with a dynamic part (such as an expense id) is
+// prerendered, so reading it suspends. The fallback is the same navigation with nothing marked
+// as current, so the layout does not shift when the path arrives.
+function BottomNavView({ pathname }: { pathname: string }) {
   return (
     <nav
       aria-label="Main"
@@ -62,9 +64,19 @@ export function BottomNav() {
   );
 }
 
-export function SideNav() {
-  const pathname = usePathname();
+export function BottomNav() {
+  return (
+    <Suspense fallback={<BottomNavView pathname="" />}>
+      <BottomNavCurrent />
+    </Suspense>
+  );
+}
 
+function BottomNavCurrent() {
+  return <BottomNavView pathname={usePathname()} />;
+}
+
+function SideNavView({ pathname }: { pathname: string }) {
   return (
     <nav
       aria-label="Main"
@@ -95,4 +107,16 @@ export function SideNav() {
       </ul>
     </nav>
   );
+}
+
+export function SideNav() {
+  return (
+    <Suspense fallback={<SideNavView pathname="" />}>
+      <SideNavCurrent />
+    </Suspense>
+  );
+}
+
+function SideNavCurrent() {
+  return <SideNavView pathname={usePathname()} />;
 }
