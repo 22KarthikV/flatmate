@@ -77,12 +77,12 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-notifications.md](../docs/SPEC-not
   - Dependencies: Task 5
   - Files: `src/features/notifications/push-*.ts*`, `public/sw.js`, `scripts/vapid-generate.mts`, `package.json`
 
-- [ ] **Task 7: `deliver-push` worker, outbox drain, retention** (Medium)
+- [x] **Task 7: `deliver-push` worker, outbox drain, retention** (Medium)
   - Description: Edge Function `deliver-push` (`handler.ts`, `index.ts`, tests): reads due outbox rows, sends, records success, retries with backoff (1, 5, 30 minutes then gives up), deletes subscriptions reported gone (404/410). A one-minute job through the existing `job_runs` scheduler calls it; a daily job deletes read notifications older than 90 days and sent outbox rows older than 14 days. Payload is title, one short line and a path only.
   - Acceptance:
-    - [ ] Unit (Deno): success marks sent; 5xx retries with growing delay; 404/410 removes the subscription; attempt cap stops retries; payload carries no more than the spec allows
-    - [ ] pgTAP: outbox claim cannot hand the same row to two workers; retention deletes only what it should
-    - [ ] Local: a notification for a subscribed test device reaches a fake push endpoint through `functions serve`
+    - [x] Unit (Deno): success marks sent; 5xx retries with growing delay; 404/410 removes the subscription; attempt cap stops retries; payload carries no more than the spec allows
+    - [x] pgTAP: outbox claim cannot hand the same row to two workers; retention deletes only what it should
+    - [~] Local: `node scripts/local-push-check.mts` serves the function in the real Edge runtime and proves auth, claim, a signed `web-push` attempt and recorded retries. A push being _accepted_ by a fake endpoint cannot be shown through `functions serve`: the Edge runtime trusts only public certificates and the database only stores `https://` endpoints. Status handling is covered by the unit tests, and `web-push@3.6.7` was checked directly against a fake HTTPS push service (404/410/429/503 as `statusCode`, VAPID, `aes128gcm`). The first real acceptance is the phone check in Task 8.
   - Verify: `pnpm test`, `pnpm db:test`, local functions serve check
   - Dependencies: Task 6
   - Files: `supabase/functions/deliver-push/*`, migration (jobs, claim function), `docs/DEPLOY.md`
