@@ -16,7 +16,7 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 
 - [x] **Task 4: Week, assignment and rotation tables (R4a)**
 
-- [ ] **Task 5: Generation job, reminders, Generate now (R4b)**
+- [x] **Task 5: Generation job, reminders, Generate now (R4b)**
 
 - [ ] **Task 6: Rota pages and checklist UI (R4c)**
 
@@ -35,3 +35,4 @@ Plan: [rota-plan.md](rota-plan.md). Spec: [../docs/SPEC-rota.md](../docs/SPEC-ro
 - Task 1 merged (PR 54, migration `20261116000000_rota.sql` applied to hosted): chore tables, admin-only write functions, the usual five defaults and `/rota/chores`. Task 2 (PR 55) adds the pure scheduler, week helpers, fairness and explanations with property tests; no migration. Next: Task 3, availability.
 - Task 3 merged (PR 58, migration `20261117000000_rota_availability.sql` applied to hosted): availability table, deadline rules, assumed fill, nudges and the hourly `rota-availability` job. Task 4 (PR below) adds the week, assignment, checklist-snapshot and rotation tables with the write and tick functions. Next: Task 5, generation. That needs the scheduler (TypeScript) to run on a schedule, which means an Edge Function; see the PR.
 - Task 4 merged (PR 63, migration `20261118000000_rota_weeks.sql` applied): week, assignment, snapshot and rotation tables, the store function and ticking. Task 5 (this PR): the generation inputs and store functions for the service role, the `rota-generate` Edge Function (needs the owner to deploy it), chore due and overdue reminders, and "Give out a week now". Next: Task 6, the `/rota` and assignment pages.
+- Task 5 merged (PR 67, migration `20261119000000_rota_schedule.sql` applied; the owner deploys the `rota-generate` Edge Function). Task 6 (this PR, no migration): `/rota`, the assignment page, checklist ticking and the first rota end-to-end test, which found and fixed a real bug in Generate now. Next: Task 7, swaps and admin reassign.
