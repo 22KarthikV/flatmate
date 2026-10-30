@@ -43,7 +43,7 @@ Tasks 7 to 9 can start as soon as their database dependency is merged and hosted
 
 ## Task list
 
-- [ ] Task 1: Pure logic (dates, rooms, shares, schemas, parity vectors)
+- [x] Task 1: Pure logic (dates, rooms, shares, schemas, parity vectors)
 - [ ] Task 2: Tables, rent privacy, append-only, SQL bill split, notification types
 - [ ] Task 3: Template functions and change log
 - [ ] Task 4: Monthly generator, variable amounts, leaver pause
@@ -63,3 +63,8 @@ Tasks 7 to 9 can start as soon as their database dependency is merged and hosted
 | A month created twice                        | Unique keys in Task 2; generator tests that run repeatedly and after gaps in Task 4                         |
 | Rebase conflicts with `rota` on shared files | Append-only edits; regenerate `types.ts` after every rebase; stop and ask if a rota-owned file must change  |
 | Hosted migration lag                         | PR green, ask the orchestrator to apply, merge only after it is applied                                     |
+
+## Decisions made while building
+
+- An **equal bill** with no people listed on the template means everyone in the flat when the month is created; with people listed, it means those of them still in the flat. This resolves the spec's "lists who is included" and "a new flatmate is added automatically" without a new column.
+- A variable bill's reminders use the `bill_amount_needed` type (in-app and push); `recurring_reminder` is the rent reminder only, so "push for rent only" holds per type.

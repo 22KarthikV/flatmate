@@ -10,7 +10,14 @@ export type NotificationType =
   | "settlement_pending"
   | "settlement_confirmed"
   | "settlement_declined"
-  | "payment_nudge";
+  | "payment_nudge"
+  | "rent_charged"
+  | "recurring_posted"
+  | "recurring_reminder"
+  | "bill_amount_needed"
+  | "rent_payment_pending"
+  | "rent_payment_decided"
+  | "recurring_attention";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -107,6 +114,62 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
     defaultInApp: true,
     defaultPush: false,
     snoozable: true,
+  },
+  {
+    type: "rent_charged",
+    label: "Your rent is created",
+    description: "When your rent for a month has been created.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "recurring_posted",
+    label: "A monthly bill includes you",
+    description: "When a monthly bill such as gas or Wi-Fi is created with a share for you.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "recurring_reminder",
+    label: "Your rent is still unpaid",
+    description: "Reminders before and after your rent is due, until it is paid.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: true,
+  },
+  {
+    type: "bill_amount_needed",
+    label: "A bill needs its amount",
+    description: "When you pay a bill that changes each month and this month's amount is needed.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "rent_payment_pending",
+    label: "A rent payment to confirm",
+    description: "When a flatmate says they paid their rent and you collect or manage it.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "rent_payment_decided",
+    label: "Your rent payment is reviewed",
+    description: "When your rent payment is confirmed or not.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "recurring_attention",
+    label: "Rent or bills need an admin",
+    description: "When a rent or bill was paused, or someone left owing rent. Admins only.",
+    defaultInApp: true,
+    defaultPush: false,
+    snoozable: false,
   },
 ];
 

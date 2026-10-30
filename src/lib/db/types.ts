@@ -643,6 +643,463 @@ export type Database = {
           },
         ];
       };
+      recurring_instances: {
+        Row: {
+          created_at: string;
+          due_on: string;
+          expense_id: string | null;
+          household_id: string;
+          id: string;
+          period: string;
+          status: string;
+          template_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          due_on: string;
+          expense_id?: string | null;
+          household_id: string;
+          id?: string;
+          period: string;
+          status: string;
+          template_id: string;
+        };
+        Update: {
+          created_at?: string;
+          due_on?: string;
+          expense_id?: string | null;
+          household_id?: string;
+          id?: string;
+          period?: string;
+          status?: string;
+          template_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recurring_instances_expense_id_fkey";
+            columns: ["expense_id"];
+            isOneToOne: false;
+            referencedRelation: "expenses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recurring_instances_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recurring_instances_template_id_fkey";
+            columns: ["template_id"];
+            isOneToOne: false;
+            referencedRelation: "recurring_templates";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recurring_rooms: {
+        Row: {
+          household_id: string;
+          id: string;
+          name: string;
+          rent_pence: number;
+          template_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          household_id: string;
+          id?: string;
+          name: string;
+          rent_pence: number;
+          template_id: string;
+        };
+        Update: {
+          household_id?: string;
+          id?: string;
+          name?: string;
+          rent_pence?: number;
+          template_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recurring_rooms_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recurring_rooms_template_id_fkey";
+            columns: ["template_id"];
+            isOneToOne: false;
+            referencedRelation: "recurring_templates";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recurring_template_log: {
+        Row: {
+          change: string;
+          changed_by: string;
+          created_at: string;
+          detail: NonNullable<Json>;
+          household_id: string;
+          id: string;
+          template_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          change: string;
+          changed_by: string;
+          created_at?: string;
+          detail?: NonNullable<Json>;
+          household_id: string;
+          id?: string;
+          template_id: string;
+        };
+        Update: {
+          change?: string;
+          changed_by?: string;
+          created_at?: string;
+          detail?: NonNullable<Json>;
+          household_id?: string;
+          id?: string;
+          template_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recurring_template_log_changed_by_fkey";
+            columns: ["changed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recurring_template_log_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recurring_template_log_template_id_fkey";
+            columns: ["template_id"];
+            isOneToOne: false;
+            referencedRelation: "recurring_templates";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recurring_template_shares: {
+        Row: {
+          household_id: string;
+          profile_id: string;
+          room_id: string | null;
+          share_value: number | null;
+          template_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          household_id: string;
+          profile_id: string;
+          room_id?: string | null;
+          share_value?: number | null;
+          template_id: string;
+        };
+        Update: {
+          household_id?: string;
+          profile_id?: string;
+          room_id?: string | null;
+          share_value?: number | null;
+          template_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recurring_template_shares_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recurring_template_shares_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recurring_template_shares_room_id_fkey";
+            columns: ["room_id"];
+            isOneToOne: false;
+            referencedRelation: "recurring_rooms";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recurring_template_shares_template_id_fkey";
+            columns: ["template_id"];
+            isOneToOne: false;
+            referencedRelation: "recurring_templates";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      recurring_templates: {
+        Row: {
+          active_months: number[];
+          amount_mode: string;
+          amount_pence: number | null;
+          created_at: string;
+          created_by: string;
+          due_day: number;
+          ended_at: string | null;
+          household_id: string;
+          id: string;
+          kind: string;
+          name: string;
+          paid_by: string;
+          paused_at: string | null;
+          paused_reason: string | null;
+          split_mode: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          active_months?: number[];
+          amount_mode: string;
+          amount_pence?: number | null;
+          created_at?: string;
+          created_by: string;
+          due_day: number;
+          ended_at?: string | null;
+          household_id: string;
+          id?: string;
+          kind: string;
+          name: string;
+          paid_by: string;
+          paused_at?: string | null;
+          paused_reason?: string | null;
+          split_mode: string;
+          updated_at?: string;
+        };
+        Update: {
+          active_months?: number[];
+          amount_mode?: string;
+          amount_pence?: number | null;
+          created_at?: string;
+          created_by?: string;
+          due_day?: number;
+          ended_at?: string | null;
+          household_id?: string;
+          id?: string;
+          kind?: string;
+          name?: string;
+          paid_by?: string;
+          paused_at?: string | null;
+          paused_reason?: string | null;
+          split_mode?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recurring_templates_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recurring_templates_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "recurring_templates_paid_by_fkey";
+            columns: ["paid_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      rent_charges: {
+        Row: {
+          amount_pence: number;
+          collector_id: string;
+          created_at: string;
+          due_on: string;
+          household_id: string;
+          id: string;
+          instance_id: string;
+          period: string;
+          profile_id: string;
+          room_name: string | null;
+          template_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_pence: number;
+          collector_id: string;
+          created_at?: string;
+          due_on: string;
+          household_id: string;
+          id?: string;
+          instance_id: string;
+          period: string;
+          profile_id: string;
+          room_name?: string | null;
+          template_id: string;
+        };
+        Update: {
+          amount_pence?: number;
+          collector_id?: string;
+          created_at?: string;
+          due_on?: string;
+          household_id?: string;
+          id?: string;
+          instance_id?: string;
+          period?: string;
+          profile_id?: string;
+          room_name?: string | null;
+          template_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rent_charges_collector_id_fkey";
+            columns: ["collector_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rent_charges_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rent_charges_instance_id_fkey";
+            columns: ["instance_id"];
+            isOneToOne: false;
+            referencedRelation: "recurring_instances";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rent_charges_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rent_charges_template_id_fkey";
+            columns: ["template_id"];
+            isOneToOne: false;
+            referencedRelation: "recurring_templates";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      rent_payments: {
+        Row: {
+          amount_pence: number;
+          collector_id: string;
+          created_at: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          household_id: string;
+          id: string;
+          kind: string;
+          payer_id: string;
+          reason: string | null;
+          status: string;
+          template_id: string;
+          voided_at: string | null;
+          voided_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_pence: number;
+          collector_id: string;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          household_id: string;
+          id?: string;
+          kind?: string;
+          payer_id: string;
+          reason?: string | null;
+          status: string;
+          template_id: string;
+          voided_at?: string | null;
+          voided_by?: string | null;
+        };
+        Update: {
+          amount_pence?: number;
+          collector_id?: string;
+          created_at?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          household_id?: string;
+          id?: string;
+          kind?: string;
+          payer_id?: string;
+          reason?: string | null;
+          status?: string;
+          template_id?: string;
+          voided_at?: string | null;
+          voided_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rent_payments_collector_id_fkey";
+            columns: ["collector_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rent_payments_decided_by_fkey";
+            columns: ["decided_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rent_payments_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rent_payments_payer_id_fkey";
+            columns: ["payer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rent_payments_template_id_fkey";
+            columns: ["template_id"];
+            isOneToOne: false;
+            referencedRelation: "recurring_templates";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "rent_payments_voided_by_fkey";
+            columns: ["voided_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       settlements: {
         Row: {
           amount_pence: number;
