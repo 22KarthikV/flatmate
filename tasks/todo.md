@@ -24,14 +24,14 @@ Plan: [plan.md](plan.md). Spec: [../docs/SPEC-ledger.md](../docs/SPEC-ledger.md)
   - Dependencies: none
   - Files: `src/features/ledger/{money,splits,simplify}.ts` and tests
 
-- [ ] **Task 2: Ledger tables, RLS, balances function, notification types, isolation tests** (Medium)
+- [x] **Task 2: Ledger tables, RLS, balances function, notification types, isolation tests** (Medium)
   - Description: Migration `*_ledger.sql` with `expenses`, `expense_shares`, `settlements` (spec data model), RLS (members of the flat read; no write policies), a deferred constraint that shares sum to the amount, a guard that only allows voiding a row once and nothing else, `households.nudge_after_days`, `public.household_balances(household_id)` (members only), the new `notification_types` rows (`expense_added`, `expense_changed`, `expense_voided`, `settlement_pending`, `settlement_confirmed`, `settlement_declined`, `payment_nudge`) with a nullable generic push text column, and `types.ts` entries. pgTAP first.
   - Acceptance:
-    - [ ] pgTAP: a member of flat A reads zero rows from flat B and cannot write there; `anon` reads nothing; the browser role cannot insert, update or delete any ledger table
-    - [ ] pgTAP: shares must sum to the amount; amounts outside 1p to £10,000 fail; payer and sharers must be active members; update other than a single void, and any delete, are rejected
-    - [ ] pgTAP: `household_balances` is zero-sum after a mixed set of expenses and confirmed settlements, ignores voided rows and non-confirmed settlements, and is callable only by members
-    - [ ] Unit: `types.ts` and the migrations agree on the new types and their defaults
-    - [ ] Types regenerated; `privacy-matches-data` pins the new tables' columns; `pnpm db:test` green
+    - [x] pgTAP: a member of flat A reads zero rows from flat B and cannot write there; `anon` reads nothing; the browser role cannot insert, update or delete any ledger table
+    - [x] pgTAP: shares must sum to the amount; amounts outside 1p to £10,000 fail; payer and sharers must be active members; update other than a single void, and any delete, are rejected
+    - [x] pgTAP: `household_balances` is zero-sum after a mixed set of expenses and confirmed settlements, ignores voided rows and non-confirmed settlements, and is callable only by members
+    - [x] Unit: `types.ts` and the migrations agree on the new types and their defaults
+    - [x] Types regenerated; `privacy-matches-data` pins the new tables' columns; `pnpm db:test` green
   - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types && pnpm test`
   - Dependencies: none (Task 1 is independent)
   - Files: migration, `ledger.test.sql`, `src/lib/db/types.ts`, `src/features/notifications/types.ts` and test, `src/features/legal/privacy-matches-data.test.tsx`

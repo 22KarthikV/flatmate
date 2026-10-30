@@ -37,6 +37,7 @@ describe("privacy notice", () => {
       "created_by",
       "id",
       "name",
+      "nudge_after_days",
       "timezone",
       "updated_at",
     ]);
@@ -94,6 +95,41 @@ describe("privacy notice", () => {
       "notification_id",
       "sent_at",
       "subscription_id",
+    ]);
+  });
+
+  it("covers every column of the ledger tables as they stand today", () => {
+    // The notice is updated to describe them when the first screen that fills them ships.
+    expect(columnsOf("expenses")).toEqual([
+      "amount_pence",
+      "category",
+      "created_at",
+      "created_by",
+      "description",
+      "household_id",
+      "id",
+      "occurred_on",
+      "paid_by",
+      "replaces_id",
+      "voided_at",
+      "voided_by",
+    ]);
+    expect(columnsOf("expense_shares")).toEqual([
+      "expense_id",
+      "household_id",
+      "profile_id",
+      "share_pence",
+    ]);
+    expect(columnsOf("settlements")).toEqual([
+      "amount_pence",
+      "confirmed_by",
+      "created_at",
+      "decided_at",
+      "from_profile",
+      "household_id",
+      "id",
+      "status",
+      "to_profile",
     ]);
   });
 
