@@ -16,22 +16,22 @@ Plan: [recurring-plan.md](recurring-plan.md). Spec: [../docs/SPEC-recurring.md](
   - Dependencies: none
   - Files: `src/features/recurring/*` and tests
 
-- [ ] **Task 2: Tables, rent privacy, append-only, SQL bill split, notification types** (Large)
+- [x] **Task 2: Tables, rent privacy, append-only, SQL bill split, notification types** (Large)
   - Description: Migration `20261101120000_recurring.sql`: the seven tables, RLS per the spec table, no write grants, append-only triggers, `private.recurring_split_bill`, the seven `notification_types` rows with generic push text, `types.ts` entries and the test that keeps them in step; privacy page rows and the `privacy-matches-data` test. pgTAP first.
   - Acceptance:
-    - [ ] pgTAP, three members plus an admin collector (A and B roommates, C private room): A reads only A's charges and payments; B's charge, payment, share, rooms, template, change log return zero rows; admin and collector see all; another flat sees nothing; `anon` sees nothing; the browser role cannot insert, update or delete any table
-    - [ ] pgTAP: instance only moves awaiting amount to posted; charges and log cannot be updated or deleted; payments change once (decision or void); nothing deletable
-    - [ ] pgTAP: SQL bill split gives the shared vectors, always sums to the total
-    - [ ] Types regenerated, privacy test lists the new tables, `pnpm db:test` and `pnpm check` green
+    - [x] pgTAP, three members plus an admin collector (A and B roommates, C private room): A reads only A's charges and payments; B's charge, payment, share, rooms, template, change log return zero rows; admin and collector see all; another flat sees nothing; `anon` sees nothing; the browser role cannot insert, update or delete any table
+    - [x] pgTAP: instance only moves awaiting amount to posted; charges and log cannot be updated or deleted; payments change once (decision or void); nothing deletable
+    - [x] pgTAP: SQL bill split gives the shared vectors, always sums to the total
+    - [x] Types regenerated, privacy test lists the new tables, `pnpm db:test` and `pnpm check` green
   - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types && pnpm check`
   - Dependencies: Task 1
   - Files: migration, `recurring-schema.test.sql`, `src/lib/db/types.ts`, `src/features/notifications/types.ts`, privacy page and test
 
-- [ ] **Task 3: Template functions and change log** (Medium)
+- [x] **Task 3: Template functions and change log** (Medium)
   - Description: Migration `20261102120000_recurring_templates.sql`: `save_recurring_template` (rent with rooms or bill), `pause_`, `resume_`, `skip_recurring_month`, `end_recurring_template`, each writing the log. pgTAP first.
   - Acceptance:
-    - [ ] pgTAP: only owner or admin; rent collector must be an owner or admin and an active member; every rent person has exactly one room; amounts and months validated; edits log who and what; ended templates stay
-    - [ ] Types regenerated; `pnpm db:test` green
+    - [x] pgTAP: only owner or admin; rent collector must be an owner or admin and an active member; every rent person has exactly one room; amounts and months validated; edits log who and what; ended templates stay
+    - [x] Types regenerated; `pnpm db:test` green
   - Verify: `pnpm db:reset && pnpm db:test && pnpm db:types`
   - Dependencies: Task 2
   - Files: migration, `recurring-templates.test.sql`, `types.ts`

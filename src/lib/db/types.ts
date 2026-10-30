@@ -1273,6 +1273,7 @@ export type Database = {
         Returns: string;
       };
       end_memberships_for_account: { Args: { p_user_id: string }; Returns: string };
+      end_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
       household_balances: {
         Args: { p_household_id: string };
@@ -1298,6 +1299,7 @@ export type Database = {
         };
         Returns: string;
       };
+      pause_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
       preview_invite: {
         Args: { p_token: string };
         Returns: {
@@ -1309,6 +1311,7 @@ export type Database = {
       record_settlement: { Args: { p_amount_pence: number; p_to: string }; Returns: string };
       remove_member: { Args: { p_profile_id: string }; Returns: undefined };
       rename_household: { Args: { p_name: string }; Returns: undefined };
+      resume_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
       revoke_invite: { Args: Record<PropertyKey, never>; Returns: undefined };
       save_chore: {
         Args: {
@@ -1327,6 +1330,10 @@ export type Database = {
         Args: { p_auth: string; p_endpoint: string; p_p256dh: string; p_user_agent: string };
         Returns: string;
       };
+      save_recurring_template: {
+        Args: { p_payload: Json; p_template_id: string };
+        Returns: string;
+      };
       set_availability: { Args: { p_days: boolean[]; p_week_start: string }; Returns: undefined };
       set_member_role: {
         Args: { p_profile_id: string; p_role: Database["public"]["Enums"]["household_role"] };
@@ -1337,6 +1344,10 @@ export type Database = {
         Returns: undefined;
       };
       set_nudge_interval: { Args: { p_days: number }; Returns: undefined };
+      skip_recurring_month: {
+        Args: { p_period: string; p_template_id: string };
+        Returns: undefined;
+      };
       snooze: { Args: { p_id: string; p_until: string }; Returns: undefined };
       transfer_ownership: { Args: { p_profile_id: string }; Returns: undefined };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };

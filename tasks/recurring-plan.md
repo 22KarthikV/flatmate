@@ -44,8 +44,8 @@ Tasks 7 to 9 can start as soon as their database dependency is merged and hosted
 ## Task list
 
 - [x] Task 1: Pure logic (dates, rooms, shares, schemas, parity vectors)
-- [ ] Task 2: Tables, rent privacy, append-only, SQL bill split, notification types
-- [ ] Task 3: Template functions and change log
+- [x] Task 2: Tables, rent privacy, append-only, SQL bill split, notification types
+- [x] Task 3: Template functions and change log
 - [ ] Task 4: Monthly generator, variable amounts, leaver pause
 - [ ] Task 5: Rent payments, status, my rent, dashboard
 - [ ] Task 6: Reminders and the daily job
