@@ -3,6 +3,7 @@
     "/": 195,
     "/dashboard": 200,
     "/rota": 200,
+    "/rota/chores": 200,
     "/money": 200,
     "/money/add": 200,
     "/money/history": 200,
