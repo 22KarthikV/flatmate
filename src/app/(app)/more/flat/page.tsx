@@ -48,7 +48,9 @@ async function FlatContent() {
         viewerProfileId={membership.profileId}
         viewerRole={membership.role}
       />
-      {canInvite ? <InviteCard activeUntil={activeUntil} /> : null}
+      {canInvite ? (
+        <InviteCard activeUntil={activeUntil} flatName={membership.householdName} />
+      ) : null}
       <LeaveSection
         role={membership.role}
         others={members.filter((m) => m.profileId !== membership.profileId)}
