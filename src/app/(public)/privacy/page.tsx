@@ -46,7 +46,10 @@ export default function PrivacyPage() {
       <Section title="What we store about your flat">
         <p>When you create or join a flat, FlatMate also stores:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>the flat&rsquo;s name and time zone, and when it was created or closed;</li>
+          <li>
+            the flat&rsquo;s name and time zone, its rota answer deadline, and when it was created
+            or closed;
+          </li>
           <li>
             your <strong>membership</strong>: which flat you are in, your role (owner, admin or
             member), when you joined, and when and why you left (you left, you were removed, your
@@ -159,6 +162,27 @@ export default function PrivacyPage() {
           admins as history; if you delete your account, your name on them becomes &ldquo;Deleted
           user&rdquo;. Amounts appear in the app and in your inbox, but never in a push to your
           phone.
+        </p>
+      </Section>
+
+      <Section title="What we store about the chore rota">
+        <p>When your flat uses the rota, FlatMate stores:</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            your <strong>availability</strong>: for each day of the coming week, whether you said
+            you are around, when you last changed it, and whether the app filled it in as around
+            because you did not answer by the deadline;
+          </li>
+          <li>
+            the flat&rsquo;s chores and checklists, which are about the flat and not about you.
+          </li>
+        </ul>
+        <p>
+          Everyone in your flat can see everyone&rsquo;s availability, because the rota depends on
+          it, and nobody outside it can. Reminders about the rota appear in your inbox and never
+          carry a chore or a person in a push to your phone. If you delete your account your name is
+          replaced with &ldquo;Deleted user&rdquo; and past availability stays with the flat&rsquo;s
+          history.
         </p>
       </Section>
 

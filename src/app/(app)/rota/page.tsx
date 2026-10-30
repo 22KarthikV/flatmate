@@ -22,6 +22,12 @@ export default function RotaPage() {
           >
             Chores and checklists
           </Link>
+          <Link
+            href="/rota/availability"
+            className="label-caps inline-flex min-h-11 items-center underline underline-offset-4"
+          >
+            Which days are you around next week?
+          </Link>
         </PlaceholderPage>
       </RequireFlat>
     </Suspense>

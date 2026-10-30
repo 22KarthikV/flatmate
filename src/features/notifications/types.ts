@@ -17,7 +17,9 @@ export type NotificationType =
   | "bill_amount_needed"
   | "rent_payment_pending"
   | "rent_payment_decided"
-  | "recurring_attention";
+  | "recurring_attention"
+  | "availability_open"
+  | "availability_nudge";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -170,6 +172,22 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
     defaultInApp: true,
     defaultPush: false,
     snoozable: false,
+  },
+  {
+    type: "availability_open",
+    label: "Next week's rota is open for answers",
+    description: "When you can say which days you are around next week.",
+    defaultInApp: true,
+    defaultPush: false,
+    snoozable: false,
+  },
+  {
+    type: "availability_nudge",
+    label: "A reminder to say which days you are around",
+    description: "Before the deadline, if you have not answered yet.",
+    defaultInApp: true,
+    defaultPush: false,
+    snoozable: true,
   },
 ];
 

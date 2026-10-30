@@ -54,6 +54,13 @@ export function weekDates(weekStart: string): string[] {
   return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 }
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** "8 Nov", for labels. */
+export function shortDate(date: string): string {
+  return `${Number(date.slice(8, 10))} ${MONTHS[Number(date.slice(5, 7)) - 1]}`;
+}
+
 export function weekdayName(date: string): string {
   return WEEKDAY_NAMES[dayOfWeek(date)]!;
 }

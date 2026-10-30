@@ -10,6 +10,10 @@ const MESSAGES: Record<string, string> = {
   chore_not_found: "We couldn’t find that chore.",
   chore_archived: "That chore has been archived.",
   chores_exist: "Your flat already has chores.",
+  window_closed: "The deadline for that week has passed, so your answers can no longer change.",
+  window_not_open: "That week is not open for answers yet.",
+  invalid_week: "We couldn’t tell which week that was.",
+  invalid_days: "Please answer for all seven days.",
 };
 
 /** A friendly sentence for what the database function said, or a general one for anything unexpected. */

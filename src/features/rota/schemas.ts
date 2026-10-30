@@ -3,6 +3,8 @@
 
 import { z } from "zod";
 
+import { isSunday, weekDates } from "./week";
+
 import { CHECKLIST_ITEM_MAX, CHECKLIST_MAX_ITEMS, CHORE_NAME_MAX, type Cadence } from "./constants";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -118,4 +120,24 @@ export function parseChoreFields(raw: RawChore): ParsedChore {
       items: value.items,
     },
   };
+}
+
+export type ParsedAvailability =
+  { ok: true; weekStart: string; days: boolean[] } | { ok: false; message: string };
+
+/** The week and the ticked dates from the availability form, as seven answers, Sunday first. */
+export function parseAvailabilityForm(formData: FormData): ParsedAvailability {
+  const weekStart = formData.get("weekStart");
+  if (
+    typeof weekStart !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(weekStart) ||
+    Number.isNaN(Date.parse(weekStart)) ||
+    !isSunday(weekStart)
+  ) {
+    return { ok: false, message: "We couldn’t tell which week that was." };
+  }
+  const ticked = new Set(
+    formData.getAll("day").filter((value): value is string => typeof value === "string"),
+  );
+  return { ok: true, weekStart, days: weekDates(weekStart).map((date) => ticked.has(date)) };
 }
