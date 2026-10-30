@@ -11,7 +11,7 @@ Public key (not secret). Vercel env and .env.local:
   NEXT_PUBLIC_VAPID_PUBLIC_KEY=${publicKey}
 
 Private key (SECRET). Supabase secrets only, never the repo, never a NEXT_PUBLIC_ variable:
-  supabase secrets set VAPID_PRIVATE_KEY=${privateKey} VAPID_PUBLIC_KEY=${publicKey} --project-ref <project-ref>
+  supabase secrets set VAPID_PRIVATE_KEY=${privateKey} VAPID_PUBLIC_KEY=${publicKey} VAPID_SUBJECT=mailto:<your address> --project-ref <project-ref>
 
 Rotating these invalidates every existing push subscription; devices re-subscribe on next open.
 `);

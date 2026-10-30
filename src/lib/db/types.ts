@@ -443,7 +443,29 @@ export type Database = {
     };
     Functions: {
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
+      claim_push_outbox: {
+        Args: { p_limit?: number };
+        Returns: {
+          attempts: number;
+          auth: string;
+          body: string;
+          endpoint: string;
+          href: string;
+          outbox_id: string;
+          p256dh: string;
+          title: string;
+        }[];
+      };
       close_household: { Args: Record<PropertyKey, never>; Returns: undefined };
+      complete_push: {
+        Args: {
+          p_error?: string;
+          p_outbox_id: string;
+          p_result: string;
+          p_retry_in_seconds?: number;
+        };
+        Returns: undefined;
+      };
       create_household: { Args: { p_name: string }; Returns: string };
       create_invite: { Args: Record<PropertyKey, never>; Returns: string };
       end_memberships_for_account: { Args: { p_user_id: string }; Returns: string };
