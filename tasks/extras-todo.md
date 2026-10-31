@@ -18,7 +18,7 @@ Plan: [extras-plan.md](extras-plan.md). Spec: [../docs/SPEC-extras.md](../docs/S
 
 ## D. Fix-it log (after E)
 
-- [x] D-X1 db (185–187, PR below) · [ ] D-X2 app · [ ] D-X3 e2e/docs
+- [x] D-X1 db (185–187, PR 97) · [x] D-X2 app · [x] D-X3 e2e/docs (one PR for X2 and X3)
 
 ## C. Meter readings (after D)
 

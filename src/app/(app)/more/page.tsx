@@ -40,6 +40,15 @@ export default function MorePage() {
         </span>
       </Link>
       <Link
+        href="/more/fixes"
+        className="border-line flex min-h-14 items-center justify-between border px-6"
+      >
+        <span className="label-caps">Fix-it log</span>
+        <span aria-hidden className="text-muted">
+          &rarr;
+        </span>
+      </Link>
+      <Link
         href="/more/flat"
         className="border-line flex min-h-14 items-center justify-between border px-6"
       >

@@ -267,6 +267,18 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
+      <Section title="What we store about the fix-it log">
+        <p>
+          When your flat uses the fix-it log, FlatMate stores the{" "}
+          <strong>problems your flat reports</strong> (the title, details and room you write), who
+          reported them, who is chasing the landlord, and a timeline of notes and changes with who
+          made them and when. Everyone in your flat can see them, and nobody outside it can. We do
+          not store photos. A push to your phone never carries a problem&rsquo;s words. If you
+          delete your account, your reports and notes stay as part of the flat&rsquo;s history,
+          shown as &ldquo;Deleted user&rdquo;, and you stop being the person chasing.
+        </p>
+      </Section>
+
       <Section title="Why we use it">
         <p>
           Only to run the service you asked for: signing you in, showing your flatmates who you are,
