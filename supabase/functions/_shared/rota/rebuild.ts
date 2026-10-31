@@ -11,6 +11,7 @@ import { rebalanceAfterLeave, type RebalanceInput, type RebalanceTask } from "./
 export interface RebuildDocument {
   leaver: string;
   leaverName: string;
+  cause: "left" | "away";
   remaining: string[];
   tasks: RebalanceTask[];
   availability: Record<string, Record<string, boolean>>;
@@ -42,6 +43,7 @@ export function parseRebuildDocument(raw: unknown): RebuildDocument {
   return {
     leaver: typeof doc.leaver === "string" ? doc.leaver : "",
     leaverName: typeof doc.leaverName === "string" ? doc.leaverName : "Someone",
+    cause: doc.cause === "away" ? "away" : "left",
     remaining: list<string>(doc.remaining),
     tasks: list<RebalanceTask>(doc.tasks),
     availability: record<Record<string, boolean>>(doc.availability),
@@ -54,6 +56,7 @@ export function toRebalanceInput(doc: RebuildDocument): RebalanceInput {
   return {
     leaver: doc.leaver,
     leaverName: doc.leaverName,
+    cause: doc.cause,
     remaining: doc.remaining,
     tasks: doc.tasks,
     availability: doc.availability,

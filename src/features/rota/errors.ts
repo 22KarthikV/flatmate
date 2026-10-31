@@ -32,6 +32,12 @@ const MESSAGES: Record<string, string> = {
   invalid_exchange: "The chore offered in return is no longer theirs to swap.",
   swap_not_found: "We couldn’t find that swap request.",
   swap_not_pending: "That swap request has already been answered.",
+  away_overlap:
+    "That overlaps dates you already have marked as away. End or shorten that one first.",
+  away_in_past: "An away period can start no earlier than this week.",
+  invalid_dates: "Choose an end date on or after the start date.",
+  invalid_note: "Keep the note to 100 characters.",
+  away_not_found: "We couldn\u2019t find that away period.",
   undo_expired:
     "It is more than 24 hours since the chores were moved, so it can no longer be undone.",
   nothing_to_undo: "There is nothing to undo.",

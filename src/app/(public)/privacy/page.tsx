@@ -184,6 +184,10 @@ export default function PrivacyPage() {
             moved a chore directly;
           </li>
           <li>
+            the <strong>dates you are away</strong> from chores, with the short note you add if you
+            wish, which everyone in your flat can read. Away dates never affect rent or bills;
+          </li>
+          <li>
             a record of the <strong>chores moved when a flatmate left</strong> (which chore, who it
             came from and who it went to, and who undid it), kept so an admin can undo it within 24
             hours;

@@ -5,11 +5,14 @@ import { Card, CardLabel } from "@/components/ui/card";
 import { getMembers } from "@/features/household/members";
 import { getMembership } from "@/features/household/membership";
 import { RequireFlat } from "@/features/household/require-flat";
+import { getAwayPeriods } from "@/features/rota/away";
+import { AwayCard } from "@/features/rota/away-card";
 import { getWeekAvailability } from "@/features/rota/availability";
 import { AvailabilityForm } from "@/features/rota/availability-form";
 import { daysFor, summarise, type AnswerStatus } from "@/features/rota/availability-summary";
 import {
   DEADLINE_SENTENCE,
+  londonDate,
   shortDate,
   upcomingWeekStart,
   weekdayName,
@@ -32,7 +35,13 @@ async function AvailabilityContent() {
   const now = new Date();
   const weekStart = upcomingWeekStart(now);
   const state = windowState(now, weekStart);
-  const [members, rows] = await Promise.all([getMembers(), getWeekAvailability(weekStart)]);
+  const today = londonDate(now);
+  const [members, rows, periods] = await Promise.all([
+    getMembers(),
+    getWeekAvailability(weekStart),
+    getAwayPeriods(today),
+  ]);
+  const isAdmin = membership.role === "owner" || membership.role === "admin";
   const mine = rows.filter((row) => row.profileId === membership.profileId);
   const people = summarise(weekStart, members, rows);
 
@@ -68,6 +77,14 @@ async function AvailabilityContent() {
           open={state === "open"}
         />
       </Card>
+
+      <AwayCard
+        periods={periods}
+        viewerId={membership.profileId}
+        isAdmin={isAdmin}
+        members={members.map((m) => ({ profileId: m.profileId, displayName: m.displayName }))}
+        today={today}
+      />
 
       <Card>
         <CardLabel>Who has answered</CardLabel>

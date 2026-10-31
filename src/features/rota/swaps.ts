@@ -57,11 +57,11 @@ export async function getPendingSwaps(): Promise<PendingSwap[]> {
 /** "profileId:date" for every day someone in the flat is away during a week. */
 export async function getAwayDays(weekStart: string): Promise<Set<string>> {
   const { supabase } = await getRequestSession();
-  const { data } = await supabase
-    .from("availability")
-    .select("profile_id, on_date")
-    .eq("available", false)
-    .gte("on_date", weekStart)
-    .lte("on_date", addDays(weekStart, 6));
-  return new Set((data ?? []).map((row) => `${row.profile_id}:${row.on_date}`));
+  const { data } = await supabase.rpc("rota_availability", {
+    p_from: weekStart,
+    p_to: addDays(weekStart, 6),
+  });
+  return new Set(
+    (data ?? []).filter((row) => !row.available).map((row) => `${row.profile_id}:${row.on_date}`),
+  );
 }

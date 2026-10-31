@@ -48,6 +48,29 @@ export interface PersonFairness {
   overdueCount: number;
   byChore: ChoreTally[];
   owedChores: string[];
+  /** Days in the period the person was away. They do not count against anyone's share. */
+  awayDays: number;
+}
+
+export interface AwaySpan {
+  profileId: string;
+  startsOn: string;
+  endsOn: string;
+}
+
+/** Days of [start, end] that fall inside any of the spans. */
+export function awayDaysWithin(spans: readonly AwaySpan[], start: string, end: string): number {
+  const days = new Set<string>();
+  for (const span of spans) {
+    for (
+      let day = span.startsOn > start ? span.startsOn : start;
+      day <= end && day <= span.endsOn;
+      day = addDays(day, 1)
+    ) {
+      days.add(day);
+    }
+  }
+  return days.size;
 }
 
 /**
@@ -58,10 +81,12 @@ export function summariseFairness(input: {
   people: readonly { profileId: string; displayName: string }[];
   assignments: readonly PastAssignment[];
   owed: readonly { profileId: string; choreName: string }[];
+  away?: readonly AwaySpan[];
   start: string;
   today: string;
 }): PersonFairness[] {
   const { people, assignments, owed, start, today } = input;
+  const away = input.away ?? [];
   const inPeriod = assignments.filter((a) => a.dueOn >= start && a.dueOn <= today);
 
   return people.map((person) => {
@@ -82,6 +107,11 @@ export function summariseFairness(input: {
       doneCount: mine.filter((a) => a.completed).length,
       overdueCount: mine.filter((a) => !a.completed && a.dueOn < today).length,
       byChore: [...tallies.values()].sort((x, y) => x.choreName.localeCompare(y.choreName)),
+      awayDays: awayDaysWithin(
+        away.filter((span) => span.profileId === person.profileId),
+        start,
+        today,
+      ),
       owedChores: owed
         .filter((o) => o.profileId === person.profileId)
         .map((o) => o.choreName)

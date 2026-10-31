@@ -2,7 +2,7 @@ import "server-only";
 
 import { getRequestSession } from "@/features/identity/session-claims";
 
-import type { PastAssignment } from "./fairness-view";
+import type { AwaySpan, PastAssignment } from "./fairness-view";
 
 /**
  * The flat's assignments that came due from `start` to `today`, from current revisions only (a
@@ -40,4 +40,20 @@ export async function getOwedTurns(): Promise<{ profileId: string; choreName: st
   return (data ?? []).flatMap((row) =>
     row.chore ? [{ profileId: row.profile_id, choreName: row.chore.name }] : [],
   );
+}
+
+/** Away periods that touch the dates, so the page can say "away" instead of reading it as a shortfall. */
+export async function getAwaySpans(start: string, today: string): Promise<AwaySpan[]> {
+  const { supabase } = await getRequestSession();
+  const { data } = await supabase
+    .from("away_periods")
+    .select("profile_id, starts_on, ends_on")
+    .is("ended_at", null)
+    .lte("starts_on", today)
+    .gte("ends_on", start);
+  return (data ?? []).map((row) => ({
+    profileId: row.profile_id,
+    startsOn: row.starts_on,
+    endsOn: row.ends_on,
+  }));
 }

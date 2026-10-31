@@ -257,6 +257,45 @@ export async function cancelSwap(formData: FormData): Promise<void> {
   revalidatePath("/rota", "layout");
 }
 
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Marks dates as away from chores. Rent and bills are not touched. */
+export async function setAway(
+  _previous: GenerateFormState,
+  formData: FormData,
+): Promise<GenerateFormState> {
+  const starts = String(formData.get("startsOn") ?? "");
+  const ends = String(formData.get("endsOn") ?? "");
+  if (!DATE.test(starts) || !DATE.test(ends))
+    return { status: "error", message: "Choose a first and last day." };
+  const note = String(formData.get("note") ?? "").trim();
+  const who = chosenId(formData, "profile");
+
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("set_away", {
+    p_starts: starts,
+    p_ends: ends,
+    p_note: note === "" ? undefined : note,
+    p_profile: who ?? undefined,
+  });
+  if (error) {
+    if (!isExpectedRotaError(error)) logger.error("rota.set_away_failed", { error });
+    return { status: "error", message: rotaErrorMessage(error) };
+  }
+  revalidatePath("/rota", "layout");
+  return { status: "saved", message: "Saved. Chores skip those days." };
+}
+
+/** Ends an away period now. */
+export async function endAway(formData: FormData): Promise<void> {
+  const id = chosenId(formData, "awayId");
+  if (!id) return;
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("end_away", { p_id: id });
+  if (error && !isExpectedRotaError(error)) logger.error("rota.end_away_failed", { error });
+  revalidatePath("/rota", "layout");
+}
+
 /** An owner or admin undoes the changes made after someone left, within 24 hours. */
 export async function undoRebuild(formData: FormData): Promise<void> {
   const rebuildId = chosenId(formData, "rebuildId");
