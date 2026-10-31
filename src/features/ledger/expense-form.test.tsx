@@ -170,4 +170,20 @@ describe("ExpenseForm", () => {
     expect(form.get("expenseId")).toBe("e1000000-0000-0000-0000-000000000001");
     expect(form.get("paidBy")).toBe(B);
   });
+
+  it("posts to a supplied action with extra hidden fields and starting values", async () => {
+    const user = userEvent.setup();
+    const action = vi.fn().mockResolvedValue({ status: "idle" });
+    renderForm({
+      action,
+      hidden: { itemIds: "a,b" },
+      initial: { description: "Shopping: milk", category: "groceries" },
+    });
+    expect(screen.getByLabelText("What was it for?")).toHaveValue("Shopping: milk");
+    await user.type(screen.getByLabelText("Amount (£)"), "6");
+    await user.click(screen.getByRole("button", { name: "Add expense" }));
+    expect(action).toHaveBeenCalledOnce();
+    expect((action.mock.calls[0][1] as FormData).get("itemIds")).toBe("a,b");
+    expect(actions.addExpense).not.toHaveBeenCalled();
+  });
 });
