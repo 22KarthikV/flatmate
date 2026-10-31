@@ -164,7 +164,7 @@ None of its own in this version. The expense it creates sends the ledger's exist
 
 ## Scheduled work
 
-One daily purge, `shopping-retention`, at `27 3 * * *` UTC: deletes items that were cleared more than 90 days ago, and bought items never cleared after 90 days. Items behind an expense are safe to delete because the expense does not depend on them. Idempotent by nature, and recorded in `job_runs` (key = the UTC date). Same shape as `private.run_notification_retention`.
+One daily purge, `shopping-retention`, at `22 3 * * *` UTC: deletes items that were cleared more than 90 days ago, and bought items never cleared after 90 days. Items behind an expense are safe to delete because the expense does not depend on them. Idempotent by nature, and recorded in `job_runs` (key = the UTC date). Same shape as `private.run_notification_retention`.
 
 ## Screens and routes
 
