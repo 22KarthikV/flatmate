@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Card, CardLabel } from "@/components/ui/card";
+import { getChores } from "@/features/rota/chores";
 import { getMembership } from "@/features/household/membership";
 import { currentWeekStart, londonDate } from "@/features/rota/week";
 import { getWeeks } from "@/features/rota/weeks";
@@ -17,17 +18,27 @@ async function loadChores(): Promise<MyChores | null> {
   const now = new Date();
   const weekStart = currentWeekStart(now);
   const weeks = await getWeeks([weekStart]);
-  return myChores(
-    weeks.find((w) => w.weekStart === weekStart) ?? null,
-    membership.profileId,
-    londonDate(now),
-  );
+  const week = weeks.find((w) => w.weekStart === weekStart) ?? null;
+  if (!week && (await getChores()).length === 0) {
+    // No chores at all: admins are pointed at the manager, members see nothing.
+    const isAdmin = membership.role === "owner" || membership.role === "admin";
+    return { kind: isAdmin ? "add_chores" : "hidden" };
+  }
+  return myChores(week, membership.profileId, londonDate(now));
 }
 
 export function ChoresList({ chores }: { chores: MyChores }) {
   if (chores.kind === "not_ready") {
     return <p className="text-sm">The rota for this week isn&rsquo;t ready yet.</p>;
   }
+  if (chores.kind === "add_chores") {
+    return (
+      <Link href="/rota/chores" className={rowClass}>
+        Add your chores
+      </Link>
+    );
+  }
+  if (chores.kind === "hidden") return null;
   const { rows, doneCount } = chores;
   return (
     <>
@@ -57,19 +68,23 @@ export function ChoresList({ chores }: { chores: MyChores }) {
 /** The signed-in person's own chores this week. The full rota is one tap away. */
 export function MyChoresBlock() {
   return (
-    <Card aria-labelledby="home-chores">
-      <CardLabel id="home-chores">Your chores this week</CardLabel>
-      <div className="mt-3">
-        <HomeBlock name="chores" load={loadChores}>
-          {(chores) => <ChoresList chores={chores} />}
-        </HomeBlock>
-      </div>
-      <Link
-        href="/rota"
-        className="label-caps text-muted mt-2 inline-flex min-h-11 items-center underline underline-offset-4"
-      >
-        See the full rota
-      </Link>
-    </Card>
+    <HomeBlock name="chores" load={loadChores}>
+      {(chores) =>
+        chores.kind === "hidden" ? null : (
+          <Card aria-labelledby="home-chores">
+            <CardLabel id="home-chores">Your chores this week</CardLabel>
+            <div className="mt-3">
+              <ChoresList chores={chores} />
+            </div>
+            <Link
+              href="/rota"
+              className="label-caps text-muted mt-2 inline-flex min-h-11 items-center underline underline-offset-4"
+            >
+              See the full rota
+            </Link>
+          </Card>
+        )
+      }
+    </HomeBlock>
   );
 }

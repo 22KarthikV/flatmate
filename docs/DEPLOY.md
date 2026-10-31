@@ -188,3 +188,18 @@ A weekly chore's usual day is a target. Only people around that day are normally
 - [ ] A flatmate taps "I paid my rent", the collector's phone gets a push, and confirming turns the flatmate's rent to "paid".
 - [ ] The payer of the gas bill gets "A bill needs its amount" about two weeks before it is due, enters the amount, and the others see it on Money.
 - [ ] As a normal member, look through Money, Rent and bills, the inbox and the history: no other person's rent appears anywhere.
+
+## Home page
+
+No migration, no Edge Function, no new data. The page only reads what Money, Rent and bills, and the Rota already hold, each block on its own so one failing read shows "Couldn't load this" and leaves the rest.
+
+### Phone checks for the home page (owner, once)
+
+- [ ] Open Home at 360px wide: nothing scrolls sideways and the first "Waiting on you" line is visible without scrolling.
+- [ ] A brand-new one-person flat shows "Invite your flatmates to get started" and no empty boxes.
+- [ ] As a flatmate: "Waiting on you" shows the availability line before the Saturday 18:00 deadline, a payment to confirm, a gas amount to enter and a swap asked of you, each as one tap.
+- [ ] "Your rent" shows only your own amount. Look at Home on two flatmates' phones: neither shows the other's rent.
+- [ ] "Money" says what you owe or are owed and with whom, or "All square". It never says "All square" when it cannot load.
+- [ ] "Coming up" lists bills due in the next 14 days (names and dates, no amounts) and the next rota deadline.
+- [ ] A flatmate sees no "For admins" section; an admin sees rent payments waiting to confirm.
+- [ ] The browser tab and the page title read "Home | FlatMate" with no amounts or names.

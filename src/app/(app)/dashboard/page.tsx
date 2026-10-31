@@ -7,6 +7,7 @@ import { getMembers } from "@/features/household/members";
 import { getMembership } from "@/features/household/membership";
 import { SetupChecklist } from "@/features/household/setup-checklist";
 import { buildChecklist } from "@/features/household/setup-steps";
+import { AdminExtras } from "@/features/home/admin-extras-block";
 import { ComingUp } from "@/features/home/coming-up-block";
 import { MoneySummary } from "@/features/home/money-summary";
 import { MyChoresBlock } from "@/features/home/my-chores";
@@ -75,6 +76,7 @@ async function HomeContent() {
       ) : (
         <>
           <WaitingOnYou />
+          {membership.role === "member" ? null : <AdminExtras />}
           <MyChoresBlock />
           <MyRent />
           <MoneySummary />

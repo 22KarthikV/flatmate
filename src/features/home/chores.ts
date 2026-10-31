@@ -22,7 +22,10 @@ export interface ChoreRow {
 }
 
 export type MyChores =
-  { kind: "not_ready" } | { kind: "ready"; rows: ChoreRow[]; doneCount: number };
+  | { kind: "not_ready" }
+  | { kind: "add_chores" }
+  | { kind: "hidden" }
+  | { kind: "ready"; rows: ChoreRow[]; doneCount: number };
 
 const RANK: Partial<Record<Status, number>> = { overdue: 0, today: 1, upcoming: 2 };
 

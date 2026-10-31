@@ -18,7 +18,23 @@ const row = (period: string, status: MyRentRow["status"]): MyRentRow => ({
 });
 
 describe("thisMonthsRent", () => {
-  it("picks this month's row only", () => {
+  it("shows the earliest unpaid month, even next month's", () => {
+    const result = thisMonthsRent(
+      [row("2026-10-01", "paid"), row("2026-12-01", "outstanding")],
+      "2026-11-28",
+    );
+    expect(result?.dueOn).toBe("1 Dec");
+  });
+
+  it("shows this month's paid row when nothing is owing", () => {
+    const result = thisMonthsRent(
+      [row("2026-10-01", "paid"), row("2026-11-01", "paid")],
+      "2026-11-10",
+    );
+    expect(result).toMatchObject({ dueOn: "1 Nov", paid: true });
+  });
+
+  it("picks this month's row over a paid older one", () => {
     const result = thisMonthsRent(
       [row("2026-10-01", "paid"), row("2026-11-01", "outstanding")],
       "2026-11-10",
@@ -32,7 +48,7 @@ describe("thisMonthsRent", () => {
     });
   });
 
-  it("is null when no rent is set up for the month", () => {
+  it("is null when no rent is set up", () => {
     expect(thisMonthsRent([], "2026-11-10")).toBeNull();
     expect(thisMonthsRent([row("2026-10-01", "paid")], "2026-11-10")).toBeNull();
   });
