@@ -5,7 +5,7 @@
 // anything itself.
 
 import { explainAssignment, type Reason } from "./explain";
-import { steady, type OwedChange } from "./fairness";
+import { catchUpLimited, steady, type OwedChange } from "./fairness";
 import { addDays, daysBetween, weekDates } from "./week";
 
 export interface ScheduleChore {
@@ -91,6 +91,7 @@ export function buildWeek(input: ScheduleInput): ScheduleResult {
   const given: Record<string, number> = Object.fromEntries(members.map((id) => [id, 0]));
   const lastDone: Record<string, Record<string, string>> = {};
   for (const id of members) lastDone[id] = { ...(input.lastDone[id] ?? {}) };
+  const carried = catchUpLimited(members, input.carriedLoad);
   const owedUsed = new Set<string>();
   const owedMarked = new Set<string>();
 
@@ -102,7 +103,7 @@ export function buildWeek(input: ScheduleInput): ScheduleResult {
 
     const hasPriority = (person: string) =>
       (input.owed[person]?.[chore.id] ?? 0) > 0 && !owedUsed.has(person);
-    const load = (person: string) => steady((input.carriedLoad[person] ?? 0) + given[person]!);
+    const load = (person: string) => steady((carried[person] ?? 0) + given[person]!);
     const compare = (a: string, b: string): number =>
       Number(hasPriority(b)) - Number(hasPriority(a)) ||
       load(a) - load(b) ||

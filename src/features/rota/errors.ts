@@ -41,6 +41,8 @@ const MESSAGES: Record<string, string> = {
   undo_expired:
     "It is more than 24 hours since the chores were moved, so it can no longer be undone.",
   nothing_to_undo: "There is nothing to undo.",
+  not_overdue: "That chore isn’t overdue, or it has already been sorted out.",
+  cannot_cover: "Only this week’s turn of the same chore, with the same person, can cover it.",
   invalid_days: "Please answer for all seven days.",
 };
 

@@ -348,9 +348,13 @@ export type Database = {
           chore_id: string;
           chore_name: string;
           completed_at: string | null;
+          covered_at: string | null;
+          covered_by: string | null;
           created_at: string;
           due_on: string;
           effort: number;
+          excused_at: string | null;
+          excused_by: string | null;
           explanation: string;
           household_id: string;
           id: string;
@@ -369,9 +373,13 @@ export type Database = {
           chore_id: string;
           chore_name: string;
           completed_at?: string | null;
+          covered_at?: string | null;
+          covered_by?: string | null;
           created_at?: string;
           due_on: string;
           effort: number;
+          excused_at?: string | null;
+          excused_by?: string | null;
           explanation: string;
           household_id: string;
           id?: string;
@@ -389,9 +397,13 @@ export type Database = {
           chore_id?: string;
           chore_name?: string;
           completed_at?: string | null;
+          covered_at?: string | null;
+          covered_by?: string | null;
           created_at?: string;
           due_on?: string;
           effort?: number;
+          excused_at?: string | null;
+          excused_by?: string | null;
           explanation?: string;
           household_id?: string;
           id?: string;
@@ -423,6 +435,20 @@ export type Database = {
             columns: ["chore_id"];
             isOneToOne: false;
             referencedRelation: "chores";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chore_assignments_covered_by_fkey";
+            columns: ["covered_by"];
+            isOneToOne: false;
+            referencedRelation: "chore_assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "chore_assignments_excused_by_fkey";
+            columns: ["excused_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
           {
@@ -2243,6 +2269,10 @@ export type Database = {
       };
       confirm_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       confirm_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
+      cover_assignment: {
+        Args: { p_assignment_id: string; p_covered_by: string };
+        Returns: undefined;
+      };
       create_household: { Args: { p_name: string }; Returns: string };
       create_invite: { Args: Record<PropertyKey, never>; Returns: string };
       decide_event_tie: { Args: { p_event: string; p_option: string }; Returns: undefined };
@@ -2267,6 +2297,7 @@ export type Database = {
       end_memberships_for_account: { Args: { p_user_id: string }; Returns: string };
       end_recurring_template: { Args: { p_template_id: string }; Returns: number };
       enter_bill_amount: { Args: { p_amount_pence: number; p_instance: string }; Returns: string };
+      excuse_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
       household_balances: {
         Args: { p_household_id: string };

@@ -6,6 +6,8 @@ import { getMembership } from "@/features/household/membership";
 import { RequireFlat } from "@/features/household/require-flat";
 import { getAwayPeriods } from "@/features/rota/away";
 import { AwayCard } from "@/features/rota/away-card";
+import { getOverdue } from "@/features/rota/overdue";
+import { OverdueCard } from "@/features/rota/overdue-card";
 import { RebuildNotice } from "@/features/rota/rebuild-notice";
 import { getUndoableRebuilds } from "@/features/rota/rebuilds";
 import { SwapRequests } from "@/features/rota/swap-requests";
@@ -28,11 +30,12 @@ async function RotaContent() {
   const thisWeek = currentWeekStart(now);
   const nextWeek = upcomingWeekStart(now);
   const isAdmin = membership.role === "owner" || membership.role === "admin";
-  const [weeks, swaps, rebuilds, periods] = await Promise.all([
+  const [weeks, swaps, rebuilds, periods, overdue] = await Promise.all([
     getWeeks([thisWeek, nextWeek]),
     getPendingSwaps(),
     isAdmin ? getUndoableRebuilds() : Promise.resolve([]),
     getAwayPeriods(today),
+    getOverdue(thisWeek, membership.profileId, isAdmin),
   ]);
   const current = weeks.find((week) => week.weekStart === thisWeek);
   const upcoming = weeks.find((week) => week.weekStart === nextWeek);
@@ -66,6 +69,12 @@ async function RotaContent() {
         members={[]}
         today={today}
         withForm={false}
+      />
+      <OverdueCard
+        items={overdue}
+        viewerId={membership.profileId}
+        isAdmin={isAdmin}
+        today={today}
       />
       <SwapRequests swaps={swaps} viewerId={membership.profileId} today={today} />
 
