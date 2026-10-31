@@ -26,4 +26,4 @@ Plan: [extras-plan.md](extras-plan.md). Spec: [../docs/SPEC-extras.md](../docs/S
 
 ## Progress notes
 
-- A shopping list merged (PRs 90 to 92). B bin days: database in PR 93; screens, e2e and docs in the next PR.
+- All five tools are built and merged (PRs 90 to 101); the Home Events and Extras lines are the last small PR.
