@@ -857,6 +857,123 @@ export type Database = {
           },
         ];
       };
+      fix_reports: {
+        Row: {
+          chaser_id: string | null;
+          created_at: string;
+          details: string | null;
+          fixed_at: string | null;
+          hidden_at: string | null;
+          household_id: string;
+          id: string;
+          last_activity_at: string;
+          location: string | null;
+          reported_by: string;
+          status: string;
+          status_changed_at: string;
+          title: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          chaser_id?: string | null;
+          created_at?: string;
+          details?: string | null;
+          fixed_at?: string | null;
+          hidden_at?: string | null;
+          household_id: string;
+          id?: string;
+          last_activity_at?: string;
+          location?: string | null;
+          reported_by: string;
+          status?: string;
+          status_changed_at?: string;
+          title: string;
+        };
+        Update: {
+          chaser_id?: string | null;
+          created_at?: string;
+          details?: string | null;
+          fixed_at?: string | null;
+          hidden_at?: string | null;
+          household_id?: string;
+          id?: string;
+          last_activity_at?: string;
+          location?: string | null;
+          reported_by?: string;
+          status?: string;
+          status_changed_at?: string;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "fix_reports_chaser_id_fkey";
+            columns: ["chaser_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fix_reports_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fix_reports_reported_by_fkey";
+            columns: ["reported_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      fix_updates: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          household_id: string;
+          id: string;
+          kind: string;
+          report_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          author_id: string;
+          body: string;
+          created_at?: string;
+          household_id: string;
+          id?: string;
+          kind: string;
+          report_id: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          household_id?: string;
+          id?: string;
+          kind?: string;
+          report_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "fix_updates_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "fix_updates_report_id_household_id_fkey";
+            columns: ["report_id", "household_id"];
+            isOneToOne: false;
+            referencedRelation: "fix_reports";
+            referencedColumns: ["id", "household_id"];
+          },
+        ];
+      };
       households: {
         Row: {
           availability_deadline: string;
@@ -2206,6 +2323,7 @@ export type Database = {
         };
         Returns: string;
       };
+      add_fix_note: { Args: { p_body: string; p_report: string }; Returns: string };
       add_shopping_item: { Args: { p_name: string; p_note?: string }; Returns: string };
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
       archive_bin_stream: { Args: { p_id: string }; Returns: undefined };
@@ -2268,6 +2386,7 @@ export type Database = {
       end_recurring_template: { Args: { p_template_id: string }; Returns: number };
       enter_bill_amount: { Args: { p_amount_pence: number; p_instance: string }; Returns: string };
       health_ping: { Args: Record<PropertyKey, never>; Returns: boolean };
+      hide_fix_report: { Args: { p_report: string }; Returns: undefined };
       household_balances: {
         Args: { p_household_id: string };
         Returns: {
@@ -2369,6 +2488,10 @@ export type Database = {
         }[];
       };
       reopen_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
+      report_fix: {
+        Args: { p_details?: string; p_location?: string; p_title: string };
+        Returns: string;
+      };
       request_swap: {
         Args: { p_assignment_id: string; p_in_return_id?: string; p_to_profile: string };
         Returns: string;
@@ -2451,6 +2574,11 @@ export type Database = {
         };
         Returns: string;
       };
+      set_fix_chaser: { Args: { p_profile: string; p_report: string }; Returns: undefined };
+      set_fix_status: {
+        Args: { p_note?: string; p_report: string; p_status: string };
+        Returns: undefined;
+      };
       set_member_role: {
         Args: { p_profile_id: string; p_role: Database["public"]["Enums"]["household_role"] };
         Returns: undefined;
@@ -2488,6 +2616,7 @@ export type Database = {
         Args: { p_assignments: Json; p_household: string; p_owed?: Json; p_week_start: string };
         Returns: string;
       };
+      take_fix_chase: { Args: { p_report: string }; Returns: undefined };
       tick_item: { Args: { p_item_id: string }; Returns: undefined };
       transfer_ownership: { Args: { p_profile_id: string }; Returns: undefined };
       undo_rota_rebuild: { Args: { p_rebuild: string }; Returns: Json };

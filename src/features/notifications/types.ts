@@ -37,7 +37,10 @@ export type NotificationType =
   | "event_reminder"
   | "event_organiser_changed"
   | "bin_reminder"
-  | "board_posted";
+  | "board_posted"
+  | "fix_reported"
+  | "fix_status"
+  | "fix_stale";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -351,6 +354,30 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
     defaultInApp: true,
     defaultPush: false,
     snoozable: false,
+  },
+  {
+    type: "fix_reported",
+    label: "A problem is reported",
+    description: "When a flatmate reports a problem in the fix-it log.",
+    defaultInApp: true,
+    defaultPush: false,
+    snoozable: false,
+  },
+  {
+    type: "fix_status",
+    label: "A problem you follow changes",
+    description: "When a report you made or are chasing changes status, or loses its chaser.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "fix_stale",
+    label: "A problem is still waiting",
+    description: "A weekly reminder while a problem has had no news for a week.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: true,
   },
 ];
 
