@@ -47,7 +47,7 @@ test.describe("the home page", () => {
     // --- A brand-new one-person flat gets a friendly start, not empty boxes.
     await hostPage.goto("/dashboard");
     await expect(
-      hostPage.getByRole("heading", { name: "Invite your flatmates to get started" }),
+      hostPage.getByRole("heading", { name: "Bring your flatmates in to get started" }),
     ).toBeVisible();
     await expect(hostPage.getByText("Waiting on you")).toHaveCount(0);
 
