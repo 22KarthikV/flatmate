@@ -405,6 +405,31 @@ describe("privacy notice", () => {
     ]);
   });
 
+  it("covers every column of the shopping list table and explains it", () => {
+    expect(columnsOf("shopping_items")).toEqual([
+      "added_by",
+      "bought_at",
+      "bought_by",
+      "cleared_at",
+      "created_at",
+      "expense_id",
+      "household_id",
+      "id",
+      "name",
+      "note",
+    ]);
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+    for (const phrase of [
+      "What we store about the shopping list",
+      "item names and notes",
+      "Unbought items you added are deleted if you delete your account",
+      "90 days after they are cleared",
+    ]) {
+      expect(text).toContain(phrase);
+    }
+  });
+
   it("explains events: what is stored, that flatmates see answers, and that pushes name nothing", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";
