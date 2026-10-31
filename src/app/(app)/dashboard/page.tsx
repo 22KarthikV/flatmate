@@ -55,9 +55,10 @@ async function HomeContent() {
 
   return (
     <>
-      <p className="text-muted -mt-4 text-sm">
-        {membership.householdName} &middot; You are {ROLE_LABEL[membership.role]}.
-      </p>
+      <div className="-mt-4 flex flex-wrap items-baseline gap-x-3">
+        <h2 className="font-display text-2xl">{membership.householdName}</h2>
+        <p className="text-muted text-sm">You are {ROLE_LABEL[membership.role]}.</p>
+      </div>
       <SetupChecklist checklist={checklist} />
       {alone ? (
         <Card>
