@@ -230,3 +230,21 @@ No migration, no Edge Function, no new data. The page only reads what Money, Ren
 - [ ] `/events`, the event page, the propose form and `/events/calendar` at 360px wide: nothing scrolls sideways, and the Yes / Maybe / No buttons are easy to tap.
 - [ ] The calendar shows your own chores, bill names and dates (no amounts), "Your rent is due" for you only, and nothing about anyone else's rent.
 - [ ] Cancel an event as its organiser: flatmates get "An event was cancelled".
+
+## Extras: shopping list
+
+**Rollout order** (range `20261161..20261200`, shared by the five extras tools, each independent): the orchestrating session applies `20261161000000_shopping.sql`, `20261162000000_shopping_expense.sql` and `20261163000000_shopping_retention.sql` to the hosted project before the pull requests that need them merge, then fixes the recorded versions. No Edge Function and no new environment variable, so the owner deploys nothing.
+
+**Things to know**
+
+- One shared list per flat. Anyone adds, ticks and clears; the person who added an item (or an admin) removes it.
+- "Turn into an expense" makes an ordinary Money expense, split equally unless changed. The shopping list sends no notification of its own; the normal "expense added" message goes to the people sharing it.
+- Job: `shopping-retention` at 03:22 UTC daily deletes items cleared more than 90 days ago. It writes one `job_runs` row a day.
+
+### Phone checks for the shopping list (owner, once)
+
+- [ ] More shows "Shopping list". Open it at 360px wide: nothing scrolls sideways.
+- [ ] Add "toilet roll" from one phone; it appears on the other phone after a refresh.
+- [ ] Tick two items, tap "Turn into an expense", type a total and save. Money shows an expense, "Shopping: ..." with everyone equally sharing it, and the list shows the items under "Added to expenses".
+- [ ] The other phone gets the usual expense push, with no amount on the lock screen.
+- [ ] "Clear bought" hides the bought items.

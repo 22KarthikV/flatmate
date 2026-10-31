@@ -235,6 +235,16 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
+      <Section title="What we store about the shopping list">
+        <p>
+          When your flat uses the shopping list, FlatMate stores the{" "}
+          <strong>item names and notes</strong> you type, who added each one and who bought it,
+          when, and a link to any expense made from them. Everyone in your flat can see the list,
+          and nobody outside it can. Unbought items you added are deleted if you delete your
+          account. Items are removed 90 days after they are cleared.
+        </p>
+      </Section>
+
       <Section title="Why we use it">
         <p>
           Only to run the service you asked for: signing you in, showing your flatmates who you are,
