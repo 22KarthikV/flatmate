@@ -2,7 +2,8 @@
 
 // Fairness arithmetic for the rota (SPEC-rota T3, T14, T17). Pure.
 //
-// "Carried load" is effort done minus fair share so far. It is derived from past assignments every
+// "Carried load" is effort done minus fair share so far, where a share is worked out from everything
+// that was handed out but only chores that were actually done (or excused) count as done. It is derived from past assignments every
 // time, never stored, so it cannot drift. A fair share is each week's total effort divided by the
 // people who were in the flat that week, so someone who joined later is not buried and someone who
 // left takes nothing with them.
@@ -10,7 +11,8 @@
 export interface PastWeek {
   /** Everyone in the rota that week. */
   members: readonly string[];
-  assignments: readonly { assignee: string | null; effort: number }[];
+  /** `done` is false for a chore left undone or covered by a later one; missing means done. */
+  assignments: readonly { assignee: string | null; effort: number; done?: boolean }[];
   /** Days (0 to 7) each person was away that week. Away days do not count against anyone's share. */
   away?: Readonly<Record<string, number>>;
 }
@@ -46,7 +48,9 @@ export function carriedLoads(
     for (const id of members) {
       if (!week.members.includes(id)) continue;
       const share = shares[id] ?? 0;
-      const done = assigned.filter((a) => a.assignee === id).reduce((sum, a) => sum + a.effort, 0);
+      const done = assigned
+        .filter((a) => a.assignee === id && a.done !== false)
+        .reduce((sum, a) => sum + a.effort, 0);
       load[id] = steady(load[id]! + done - share);
     }
   }
@@ -57,6 +61,36 @@ export function carriedLoads(
     for (const id of joiners) load[id] = average;
   }
   return load;
+}
+
+/** The most a person can be put ahead of the rest in one week to make up for chores they left undone. */
+export const CATCH_UP_PER_WEEK = 1;
+
+/**
+ * Carried loads as the scheduler should rank them. Someone who left chores undone is owed work, but
+ * is only moved up by CATCH_UP_PER_WEEK at a time: their load is never treated as lower than the
+ * others' median less that, so the debt is paid back over weeks and nobody is buried in one.
+ */
+export function catchUpLimited(
+  members: readonly string[],
+  carried: Readonly<Record<string, number>>,
+): Record<string, number> {
+  const load = (id: string) => carried[id] ?? 0;
+  const limited: Record<string, number> = {};
+  for (const id of members) {
+    const others = members
+      .filter((other) => other !== id)
+      .map(load)
+      .sort((a, b) => a - b);
+    if (others.length === 0) {
+      limited[id] = load(id);
+      continue;
+    }
+    const mid = Math.floor(others.length / 2);
+    const median = others.length % 2 === 1 ? others[mid]! : (others[mid - 1]! + others[mid]!) / 2;
+    limited[id] = steady(Math.max(load(id), median - CATCH_UP_PER_WEEK));
+  }
+  return limited;
 }
 
 /** Total effort given to each person. People with nothing appear at zero. */

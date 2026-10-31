@@ -176,7 +176,8 @@ export default function PrivacyPage() {
           <li>
             each <strong>chore given to you</strong>: which chore, the day, why it was yours, which
             steps you ticked and when, whether it was finished, reopened or signed off, and who
-            reopened or signed it off;
+            reopened or signed it off, and, for an unfinished chore from an earlier week, whether it
+            was covered by a later turn of the same chore or excused by an admin, when, and by whom;
           </li>
           <li>
             <strong>swap requests</strong> between flatmates (who asked whom, for which chore,

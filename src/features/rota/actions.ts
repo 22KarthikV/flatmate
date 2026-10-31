@@ -257,6 +257,30 @@ export async function cancelSwap(formData: FormData): Promise<void> {
   revalidatePath("/rota", "layout");
 }
 
+/** Closes an overdue chore as covered by this week's turn of the same chore. No credit. */
+export async function coverChore(formData: FormData): Promise<void> {
+  const assignmentId = chosenId(formData, "assignmentId");
+  const coveredBy = chosenId(formData, "coveredBy");
+  if (!assignmentId || !coveredBy) return;
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("cover_assignment", {
+    p_assignment_id: assignmentId,
+    p_covered_by: coveredBy,
+  });
+  if (error && !isExpectedRotaError(error)) logger.error("rota.cover_failed", { error });
+  revalidatePath("/rota", "layout");
+}
+
+/** An owner or admin accepts that an unfinished chore could not be done. It counts as done. */
+export async function excuseChore(formData: FormData): Promise<void> {
+  const assignmentId = chosenId(formData, "assignmentId");
+  if (!assignmentId) return;
+  const supabase = await signedInClient();
+  const { error } = await supabase.rpc("excuse_assignment", { p_assignment_id: assignmentId });
+  if (error && !isExpectedRotaError(error)) logger.error("rota.excuse_failed", { error });
+  revalidatePath("/rota", "layout");
+}
+
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /** Marks dates as away from chores. Rent and bills are not touched. */

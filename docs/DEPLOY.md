@@ -147,6 +147,12 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 
 A weekly chore's usual day is a target. Only people around that day are normally considered. Someone who was passed over for a chore (because they were away on its day) is owed it, and next time can take it a day either side of the usual day, so being away on a fixed weekday never shuts a person out of that chore for good. The assignment's explanation says it was moved. This changes the shared scheduler, so **`rota-generate` must be redeployed** after this merges (`supabase functions deploy rota-generate --no-verify-jwt`). No migration.
 
+### Rota: overdue chores and strict fairness
+
+Migration `20261127000000_rota_overdue.sql` adds `covered_at`/`covered_by` and `excused_at`/`excused_by` to `chore_assignments`, the functions `cover_assignment` and `excuse_assignment`, and changes the history the scheduler reads so every past assignment says whether it was done. **Order matters: apply the migration to hosted first, then redeploy `rota-generate`** (`supabase functions deploy rota-generate --no-verify-jwt`). The new function still works with the old history (a missing `done` means done), so a redeploy before the migration is harmless but changes nothing; the old function with the new history just ignores `done` and keeps the old, easier-to-game fairness.
+
+What changes for people: only chores that are finished (or excused by an owner or admin) count towards a share, so skipping a chore gives the skipper a larger share of later chores, by at most one extra effort point a week. The Overdue card on the Rota lists unfinished chores from the last four weeks. "Covered by this week's [chore]" closes an old one with no credit (one real clean earns credit once). Check it by marking last week's chore undone in the database, loading the Rota as that person, and covering or finishing it.
+
 ### Rota: rollout summary and phone checks
 
 **What is live.** Migrations `20261116000000_rota` to `20261120000000_rota_swaps`, then `20261121000000_rota_leaving` and `20261126000000_rota_away`. One Edge Function, `rota-generate`, which builds weeks and applies rebuilds after someone leaves or is away. It must be redeployed whenever the shared scheduler code changes (`supabase functions deploy rota-generate --no-verify-jwt`); a test fails if its generated copy in `supabase/functions/_shared/rota` is stale. The version that applies rebuilds (including the `cause` field for away periods) is the one to have deployed.
