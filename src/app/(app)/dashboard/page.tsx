@@ -62,7 +62,7 @@ async function HomeContent() {
       {alone ? (
         <Card>
           <CardLabel>Get started</CardLabel>
-          <h2 className="font-display mt-3 text-3xl">Invite your flatmates to get started</h2>
+          <h2 className="font-display mt-3 text-3xl">Bring your flatmates in to get started</h2>
           <p className="text-muted mt-2 max-w-md text-sm">
             Chores, rent and bills show up here once there is more than one of you.
           </p>
@@ -70,7 +70,7 @@ async function HomeContent() {
             href="/more/flat"
             className="label-caps bg-ink text-paper mt-4 inline-flex min-h-11 items-center px-6 hover:opacity-85"
           >
-            Invite flatmates
+            Share the invite link
           </Link>
         </Card>
       ) : (
