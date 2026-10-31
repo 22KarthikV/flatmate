@@ -362,6 +362,65 @@ describe("privacy notice", () => {
     ]);
   });
 
+  it("covers every column of the events tables as they stand today", () => {
+    expect(columnsOf("events")).toEqual([
+      "cancelled_at",
+      "cancelled_by",
+      "cancelled_reason",
+      "confirmed_at",
+      "confirmed_by",
+      "confirmed_option_id",
+      "created_at",
+      "description",
+      "edit_number",
+      "ends_at",
+      "household_id",
+      "id",
+      "location",
+      "organiser_id",
+      "starts_at",
+      "status",
+      "tiebreak_since",
+      "title",
+      "updated_at",
+      "vote_deadline",
+    ]);
+    expect(columnsOf("event_options")).toEqual([
+      "created_at",
+      "ends_at",
+      "event_id",
+      "household_id",
+      "id",
+      "removed_at",
+      "starts_at",
+    ]);
+    expect(columnsOf("event_votes")).toEqual([
+      "answer",
+      "created_at",
+      "event_id",
+      "household_id",
+      "option_id",
+      "profile_id",
+      "updated_at",
+    ]);
+  });
+
+  it("explains events: what is stored, that flatmates see answers, and that pushes name nothing", () => {
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+
+    for (const phrase of [
+      "What we store about events",
+      "events you propose",
+      "yes, maybe or no answers",
+      "Your flatmates can see which answer you gave",
+      "Deleted user",
+      "stop counting",
+    ]) {
+      expect(text).toContain(phrase);
+    }
+  });
+
   it("explains the rota: what availability is, who sees it and that pushes name nothing", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";

@@ -203,3 +203,15 @@ No migration, no Edge Function, no new data. The page only reads what Money, Ren
 - [ ] "Coming up" lists bills due in the next 14 days (names and dates, no amounts) and the next rota deadline.
 - [ ] A flatmate sees no "For admins" section; an admin sees rent payments waiting to confirm.
 - [ ] The browser tab and the page title read "Home | FlatMate" with no amounts or names.
+
+## Events
+
+**Rollout order** for each events migration (`events`, `events_write`, `events_schedule`, range `20261141..20261160`): the orchestrating session applies it to the hosted project before the pull request that needs it merges, then fixes the recorded version so `list_migrations` matches `supabase/migrations/`. No Edge Function and no new environment variable, so the owner deploys nothing.
+
+**Things to know**
+
+- A date is confirmed the moment more than half of the current members say yes to it. Maybe and no never confirm. At the voting deadline the date with the most yes wins; a tie goes to the organiser (the earliest tied date is chosen after 48 hours); no yes at all cancels the event.
+- Flatmates see each other's answers by name; the privacy page says so.
+- Push text for events is fixed in the database and never names an event, a place or a person.
+
+(Job, reminders and phone checklist are added with the later events tasks.)

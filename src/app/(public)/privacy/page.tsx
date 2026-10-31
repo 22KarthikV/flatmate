@@ -209,6 +209,32 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
+      <Section title="What we store about events">
+        <p>When your flat plans an event, FlatMate stores:</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            the <strong>events you propose</strong>: the title, description and place you write, the
+            dates offered, when voting closes, and who organised it;
+          </li>
+          <li>
+            your <strong>yes, maybe or no answers</strong> on each date, when you gave them and
+            changed them. Your flatmates can see which answer you gave, by name, so they know who
+            has not answered yet;
+          </li>
+          <li>
+            which date was confirmed and how, and, if an event is cancelled, who cancelled it and
+            the short reason they gave.
+          </li>
+        </ul>
+        <p>
+          Only your flat can see its events, and nobody outside it can. Reminders about events
+          appear in your inbox and never carry an event title, place or person in a push to your
+          phone. If you leave the flat or delete your account, your answers stay as part of the
+          flat&rsquo;s history, shown as &ldquo;Deleted user&rdquo; if the account is gone, but they
+          stop counting towards any vote.
+        </p>
+      </Section>
+
       <Section title="Why we use it">
         <p>
           Only to run the service you asked for: signing you in, showing your flatmates who you are,
