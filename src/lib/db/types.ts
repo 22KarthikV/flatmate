@@ -1948,6 +1948,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_event_option: {
+        Args: { p_ends_at?: string; p_event: string; p_starts_at: string };
+        Returns: string;
+      };
       add_expense: {
         Args: {
           p_amount_pence: number;
@@ -1962,9 +1966,11 @@ export type Database = {
       };
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
       archive_chore: { Args: { p_chore_id: string }; Returns: undefined };
+      cancel_event: { Args: { p_event: string; p_reason?: string }; Returns: undefined };
       cancel_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       cancel_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       cancel_swap: { Args: { p_swap_id: string }; Returns: undefined };
+      cast_event_vote: { Args: { p_answer: string; p_option: string }; Returns: string };
       claim_push_outbox: {
         Args: { p_limit?: number };
         Returns: {
@@ -1993,6 +1999,7 @@ export type Database = {
       confirm_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
       create_household: { Args: { p_name: string }; Returns: string };
       create_invite: { Args: Record<PropertyKey, never>; Returns: string };
+      decide_event_tie: { Args: { p_event: string; p_option: string }; Returns: undefined };
       decide_swap: { Args: { p_accept: boolean; p_swap_id: string }; Returns: string };
       decline_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       decline_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
@@ -2063,12 +2070,23 @@ export type Database = {
           member_count: number;
         }[];
       };
+      propose_event: {
+        Args: {
+          p_deadline: string;
+          p_description: string;
+          p_location: string;
+          p_options: Json;
+          p_title: string;
+        };
+        Returns: string;
+      };
       reassign_assignment: {
         Args: { p_assignment_id: string; p_to_profile: string };
         Returns: string;
       };
       record_rent_payment: { Args: { p_amount_pence: number }; Returns: string };
       record_settlement: { Args: { p_amount_pence: number; p_to: string }; Returns: string };
+      remove_event_option: { Args: { p_option: string }; Returns: undefined };
       remove_member: { Args: { p_profile_id: string }; Returns: undefined };
       rename_household: { Args: { p_name: string }; Returns: undefined };
       rent_dashboard: {
@@ -2178,6 +2196,16 @@ export type Database = {
       transfer_ownership: { Args: { p_profile_id: string }; Returns: undefined };
       undo_rota_rebuild: { Args: { p_rebuild: string }; Returns: Json };
       untick_item: { Args: { p_item_id: string }; Returns: undefined };
+      update_event: {
+        Args: {
+          p_deadline?: string;
+          p_description: string;
+          p_event: string;
+          p_location: string;
+          p_title: string;
+        };
+        Returns: undefined;
+      };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
       void_expense: { Args: { p_expense_id: string }; Returns: undefined };
       void_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
