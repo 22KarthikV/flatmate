@@ -18,6 +18,8 @@
     "/more": 200,
     "/more/shopping": 200,
     "/more/shopping/buy": 200,
+    "/more/bins": 200,
+    "/more/bins/manage": 200,
     "/offline": 195,
     "/sign-in": 195,
     "/auth/error": 195,

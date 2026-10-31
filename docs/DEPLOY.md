@@ -248,3 +248,22 @@ No migration, no Edge Function, no new data. The page only reads what Money, Ren
 - [ ] Tick two items, tap "Turn into an expense", type a total and save. Money shows an expense, "Shopping: ..." with everyone equally sharing it, and the list shows the items under "Added to expenses".
 - [ ] The other phone gets the usual expense push, with no amount on the lock screen.
 - [ ] "Clear bought" hides the bought items.
+
+## Extras: bin days
+
+**Rollout order** (range `20261161..20261200`, each extras tool independent): the orchestrating session applies `20261169000000_bins.sql` and `20261170000000_bins_reminders.sql` to the hosted project before the pull requests that need them merge, then fixes the recorded versions. No Edge Function and no new environment variable, so the owner deploys nothing.
+
+**Things to know**
+
+- An admin types each bin in once (name, colour, how often, and one real collection date from the council calendar). FlatMate never looks anything up from a council.
+- Job: `bins-reminders` at minute 27 of every hour (`20261170000000_bins_reminders.sql`). It acts only when the London hour is 18 to 22, so the reminder is at about 6pm London all year including summer time, and a missed run catches up the same evening. A row appears in `job_runs` every hour; a second run in the same hour does nothing, and nobody is told twice for one collection.
+- Push text is fixed: "Bin night" / "A bin collection is tomorrow. Open FlatMate to see which." The inbox row names the bins.
+
+### Phone checks for bin days (owner, once)
+
+- [ ] More shows "Bin days". Open it at 360px wide: nothing scrolls sideways.
+- [ ] As an admin, add a bin (name, colour, how often, a real collection date). The next five dates show as you type and match your council calendar.
+- [ ] Another phone sees the same dates, with "Today" and "Tomorrow" as words.
+- [ ] Skip one collection: it disappears from the other phone's list. Move one: it shows "(moved)" on the new day.
+- [ ] A plain member opening "Set up bins" is told only admins set up bins.
+- [ ] The evening before a collection (about 6pm), the inbox shows "Bins out tonight: ..." and the phone push says only "A bin collection is tomorrow".
