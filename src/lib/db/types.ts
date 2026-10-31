@@ -1870,6 +1870,75 @@ export type Database = {
           },
         ];
       };
+      shopping_items: {
+        Row: {
+          added_by: string;
+          bought_at: string | null;
+          bought_by: string | null;
+          cleared_at: string | null;
+          created_at: string;
+          expense_id: string | null;
+          household_id: string;
+          id: string;
+          name: string;
+          note: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          added_by: string;
+          bought_at?: string | null;
+          bought_by?: string | null;
+          cleared_at?: string | null;
+          created_at?: string;
+          expense_id?: string | null;
+          household_id: string;
+          id?: string;
+          name: string;
+          note?: string | null;
+        };
+        Update: {
+          added_by?: string;
+          bought_at?: string | null;
+          bought_by?: string | null;
+          cleared_at?: string | null;
+          created_at?: string;
+          expense_id?: string | null;
+          household_id?: string;
+          id?: string;
+          name?: string;
+          note?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "shopping_items_added_by_fkey";
+            columns: ["added_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "shopping_items_bought_by_fkey";
+            columns: ["bought_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "shopping_items_expense_id_fkey";
+            columns: ["expense_id"];
+            isOneToOne: false;
+            referencedRelation: "expenses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "shopping_items_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       swap_requests: {
         Row: {
           assignment_id: string;
@@ -1964,6 +2033,7 @@ export type Database = {
         };
         Returns: string;
       };
+      add_shopping_item: { Args: { p_name: string; p_note?: string }; Returns: string };
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
       archive_chore: { Args: { p_chore_id: string }; Returns: undefined };
       cancel_event: { Args: { p_event: string; p_reason?: string }; Returns: undefined };
@@ -1984,6 +2054,7 @@ export type Database = {
           title: string;
         }[];
       };
+      clear_bought_items: { Args: Record<PropertyKey, never>; Returns: number };
       close_household: { Args: Record<PropertyKey, never>; Returns: undefined };
       complete_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
       complete_push: {
@@ -2088,6 +2159,7 @@ export type Database = {
       record_settlement: { Args: { p_amount_pence: number; p_to: string }; Returns: string };
       remove_event_option: { Args: { p_option: string }; Returns: undefined };
       remove_member: { Args: { p_profile_id: string }; Returns: undefined };
+      remove_shopping_item: { Args: { p_item: string }; Returns: undefined };
       rename_household: { Args: { p_name: string }; Returns: undefined };
       rent_dashboard: {
         Args: { p_period: string };
@@ -2187,6 +2259,20 @@ export type Database = {
         Returns: undefined;
       };
       set_nudge_interval: { Args: { p_days: number }; Returns: undefined };
+      set_shopping_bought: { Args: { p_bought: boolean; p_item: string }; Returns: undefined };
+      shopping_to_expense: {
+        Args: {
+          p_amount_pence: number;
+          p_category: string;
+          p_description: string;
+          p_item_ids: string[];
+          p_occurred_on: string;
+          p_paid_by: string;
+          p_profile_ids: string[];
+          p_share_pence: number[];
+        };
+        Returns: string;
+      };
       sign_off_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
       skip_recurring_month: {
         Args: { p_period: string; p_template_id: string };
