@@ -122,7 +122,7 @@ export interface TemplateDetail {
   rooms: { id: string; name: string; rentPence: number }[];
   log: { id: string; change: string; createdAt: string; changedByName: string }[];
   /** Months already created or skipped, as yyyy-mm-dd periods. */
-  months: { period: string; status: "awaiting_amount" | "posted" | "skipped" }[];
+  months: { period: string; status: "awaiting_amount" | "posted" | "skipped" | "cancelled" }[];
 }
 
 const DETAIL_COLUMNS = `

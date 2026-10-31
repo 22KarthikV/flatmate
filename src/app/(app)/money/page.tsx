@@ -6,7 +6,7 @@ import { RequireFlat } from "@/features/household/require-flat";
 import { getMembership } from "@/features/household/membership";
 import { BalancesCard } from "@/features/ledger/balances-card";
 import { getBalancesView } from "@/features/ledger/balances";
-import { ExpenseList } from "@/features/ledger/expense-list";
+import { ExpenseFilter } from "@/features/ledger/expense-filter";
 import { getRecentExpenses } from "@/features/ledger/expenses";
 import { PendingSettlementsCard } from "@/features/ledger/pending-settlements";
 import { getPendingSettlements } from "@/features/ledger/settlements";
@@ -95,7 +95,7 @@ async function MoneyContent() {
       <Card>
         <CardLabel>Recent expenses</CardLabel>
         <div className="mt-4">
-          <ExpenseList items={expenses} viewerId={membership.profileId} />
+          <ExpenseFilter items={expenses} viewerId={membership.profileId} />
         </div>
       </Card>
     </div>

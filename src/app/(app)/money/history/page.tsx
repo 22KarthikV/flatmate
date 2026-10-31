@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Card, CardLabel } from "@/components/ui/card";
 import { RequireFlat } from "@/features/household/require-flat";
 import { getMembership } from "@/features/household/membership";
-import { ExpenseList } from "@/features/ledger/expense-list";
+import { ExpenseFilter } from "@/features/ledger/expense-filter";
 import { HISTORY_LIMIT, getRecentExpenses } from "@/features/ledger/expenses";
 import { getPaymentHistory } from "@/features/ledger/payment-history";
 import { PaymentHistoryList } from "@/features/ledger/payment-history-list";
@@ -45,7 +45,7 @@ async function HistoryContent() {
       <Card>
         <CardLabel>Expenses</CardLabel>
         <div className="mt-4">
-          <ExpenseList items={expenses} viewerId={membership.profileId} />
+          <ExpenseFilter items={expenses} viewerId={membership.profileId} initial="all" />
         </div>
       </Card>
     </div>

@@ -113,6 +113,7 @@ export async function getRentPeriods(): Promise<string[]> {
     .select("period, template:recurring_templates!inner(kind)")
     .eq("template.kind", "rent")
     .neq("status", "skipped")
+    .neq("status", "cancelled")
     .order("period", { ascending: false })
     .limit(24);
   return [...new Set((data ?? []).map((row) => row.period))];
