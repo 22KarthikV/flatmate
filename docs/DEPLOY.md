@@ -331,3 +331,14 @@ No migration, no Edge Function, no new data. The page only reads what Money, Ren
 - [ ] Type a lower number: it is refused and you are asked whether the meter was replaced.
 - [ ] Cancel the second reading: the use line disappears and the first reading stays.
 - [ ] Open the meter list, a meter and the add-a-meter form at 360px: nothing scrolls sideways and the number field opens a numeric keypad.
+
+## Home page: Events and Extras lines
+
+No migration, no job, no Edge Function. The home page gains two short cards for flats of two or more: **Events** ("2 events to vote on", "Next: Quiz night, Fri 6 Nov, 19:30") and **Around the flat** ("4 things on the shopping list", "Tonight: Grey bin out" from 5pm London the evening before, "N problems still open" for admins and the person chasing, "Pinned: ..." for the top pinned note). Each hides itself when it has nothing to say, and a part that cannot be read is left out without hiding the rest. Nothing shows an amount.
+
+### Phone checks for the home lines (owner, once)
+
+- [ ] With a shopping item, a pinned note and a bin collection tomorrow, Home shows "Around the flat" with those lines, each one tap to its screen.
+- [ ] After 5pm the bin line says "Tonight:"; earlier in the day it says "Tomorrow:".
+- [ ] An event waiting for your vote shows "1 event to vote on" under Events; the card disappears when there is nothing.
+- [ ] Home at 360px wide: nothing scrolls sideways.

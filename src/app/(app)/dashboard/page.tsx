@@ -9,6 +9,7 @@ import { SetupChecklist } from "@/features/household/setup-checklist";
 import { buildChecklist } from "@/features/household/setup-steps";
 import { AdminExtras } from "@/features/home/admin-extras-block";
 import { ComingUp } from "@/features/home/coming-up-block";
+import { EventsBlock, ExtrasBlock } from "@/features/home/extras-block";
 import { MoneySummary } from "@/features/home/money-summary";
 import { MyChoresBlock } from "@/features/home/my-chores";
 import { MyRent } from "@/features/home/my-rent";
@@ -82,6 +83,8 @@ async function HomeContent() {
           <MyRent />
           <MoneySummary />
           <ComingUp />
+          <EventsBlock />
+          <ExtrasBlock />
           <Recent />
         </>
       )}

@@ -1,6 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-import { addSessionCookies, createFlat, newTestUser, signUpAndIn } from "./support/session";
+import {
+  addSessionCookies,
+  createFlat,
+  joinFlat,
+  newTestUser,
+  signUpAndIn,
+} from "./support/session";
 
 // One person in the shared local database, so one project only.
 test.beforeEach(() => {
@@ -13,6 +19,8 @@ test("every extras page fits a 360px phone and none is a placeholder", async ({
 }) => {
   const host = await signUpAndIn(newTestUser("extras-layout"));
   await createFlat(host.supabase, "Layout Flat");
+  const flatmate = await signUpAndIn(newTestUser("extras-layout-two"));
+  await joinFlat(host.supabase, flatmate.supabase);
 
   const report = await host.supabase.rpc("report_fix", {
     p_title: "Bathroom extractor fan not working",
@@ -31,7 +39,7 @@ test("every extras page fits a 360px phone and none is a placeholder", async ({
   await host.supabase.rpc("post_to_board", {
     p_body: "Landlord visiting Thursday 10am, please keep the hall clear.",
     p_expires_in_days: 7,
-    p_pin: false,
+    p_pin: true,
   });
 
   const context = await browser.newContext({
@@ -66,6 +74,16 @@ test("every extras page fits a 360px phone and none is a placeholder", async ({
       `${route} is a placeholder`,
     ).toHaveCount(0);
   }
+
+  // Home gets short Extras lines (a flat of two shows the blocks) with no placeholder and no overflow.
+  await page.goto("/dashboard");
+  await expect(page.getByText("Around the flat")).toBeVisible();
+  await expect(page.getByText("1 thing on the shopping list")).toBeVisible();
+  await expect(page.getByText(/Pinned: Landlord visiting Thursday/)).toBeVisible();
+  const homeOverflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(homeOverflow, "home scrolls sideways").toBeLessThanOrEqual(0);
 
   // More lists all five tools.
   await page.goto("/more");
