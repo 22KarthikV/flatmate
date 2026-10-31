@@ -77,6 +77,12 @@ async function MoneyContent() {
         >
           Rent and bills
         </Link>
+        <Link
+          href="/money/totals"
+          className="label-caps border-ink hover:bg-ink hover:text-paper inline-flex min-h-11 min-w-0 flex-1 items-center justify-center border px-3 text-center"
+        >
+          Totals
+        </Link>
       </div>
 
       <PendingSettlementsCard pending={pending} />
