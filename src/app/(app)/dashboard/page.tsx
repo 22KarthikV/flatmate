@@ -7,6 +7,11 @@ import { getMembers } from "@/features/household/members";
 import { getMembership } from "@/features/household/membership";
 import { SetupChecklist } from "@/features/household/setup-checklist";
 import { buildChecklist } from "@/features/household/setup-steps";
+import { ComingUp } from "@/features/home/coming-up-block";
+import { MoneySummary } from "@/features/home/money-summary";
+import { MyChoresBlock } from "@/features/home/my-chores";
+import { MyRent } from "@/features/home/my-rent";
+import { Recent } from "@/features/home/recent-block";
 import { WaitingOnYou } from "@/features/home/waiting-on-you";
 import { OpenInviteForm } from "@/features/household/open-invite-form";
 
@@ -69,7 +74,14 @@ async function HomeContent() {
           </Link>
         </Card>
       ) : (
-        <WaitingOnYou />
+        <>
+          <WaitingOnYou />
+          <MyChoresBlock />
+          <MyRent />
+          <MoneySummary />
+          <ComingUp />
+          <Recent />
+        </>
       )}
     </>
   );
