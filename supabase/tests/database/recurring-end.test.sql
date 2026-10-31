@@ -1,5 +1,5 @@
 begin;
-select plan(19);
+select plan(21);
 
 -- Recurring: ending a rent or bill cancels its upcoming months that nobody has paid, so a replacement
 -- template does not leave the old charges counting too.
@@ -50,6 +50,19 @@ select 'a0000000-0000-0000-0000-000000000001', i.template_id, i.id, i.period, wh
 -- Bob says he has paid the coming month on R1; it is waiting for Sam.
 insert into public.rent_payments (household_id, template_id, payer_id, collector_id, amount_pence, status) values
   ('a0000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001', current_setting('t.bob')::uuid, current_setting('t.sam')::uuid, 60000, 'pending');
+
+-- R3: replaced after an admin closed one charge without payment. A waiver is not money received.
+insert into public.recurring_templates (id, household_id, kind, name, paid_by, due_day, amount_mode, amount_pence, split_mode, created_by) values
+  ('c4000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001', 'rent', 'Replaced rent', current_setting('t.sam')::uuid, 6, 'fixed', null, 'amounts', current_setting('t.sam')::uuid);
+insert into public.recurring_instances (id, template_id, household_id, period, due_on, status) values
+  ('e6000000-0000-0000-0000-000000000006', 'c4000000-0000-0000-0000-000000000004', 'a0000000-0000-0000-0000-000000000001',
+    date_trunc('month', current_setting('t.today')::date + 12)::date, current_setting('t.today')::date + 12, 'posted');
+insert into public.rent_charges (household_id, template_id, instance_id, period, profile_id, collector_id, amount_pence, due_on)
+select 'a0000000-0000-0000-0000-000000000001', 'c4000000-0000-0000-0000-000000000004', 'e6000000-0000-0000-0000-000000000006',
+       date_trunc('month', current_setting('t.today')::date + 12)::date, who.id, current_setting('t.sam')::uuid, 60000, current_setting('t.today')::date + 12
+  from (values (current_setting('t.alice')::uuid), (current_setting('t.bob')::uuid)) as who(id);
+insert into public.rent_payments (household_id, template_id, payer_id, collector_id, kind, amount_pence, status, reason, decided_by, decided_at) values
+  ('a0000000-0000-0000-0000-000000000001', 'c4000000-0000-0000-0000-000000000004', current_setting('t.alice')::uuid, current_setting('t.sam')::uuid, 'waiver', 60000, 'confirmed', 'replaced', current_setting('t.sam')::uuid, now());
 
 select ok(
   not has_function_privilege('anon', 'public.end_recurring_template(uuid)', 'execute')
@@ -104,6 +117,10 @@ select is(public.end_recurring_template('c3000000-0000-0000-0000-000000000003'),
 reset role;
 select is((select status from public.recurring_instances where id = 'e5000000-0000-0000-0000-000000000005'), 'cancelled', 'so nobody is asked for that amount');
 select is(private.recurring_cancel_unpaid('c3000000-0000-0000-0000-000000000003'), 0, 'and nothing is left to cancel');
+
+-- The month with only a waiver against it is cancelled; the waiver stays on record.
+select is(private.recurring_cancel_unpaid('c4000000-0000-0000-0000-000000000004'), 1, 'a month with only a closed-without-payment charge is cancelled');
+select is((select count(*)::int from public.rent_payments where template_id = 'c4000000-0000-0000-0000-000000000004' and kind = 'waiver'), 1, 'and the waiver stays on record');
 
 select * from finish();
 rollback;
