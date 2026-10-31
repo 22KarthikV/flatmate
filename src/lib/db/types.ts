@@ -2106,6 +2106,15 @@ export type Database = {
           still_in_flat: boolean;
         }[];
       };
+      rent_owed_to_me: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          outstanding_pence: number;
+          payer_id: string;
+          payer_name: string;
+          pending_pence: number;
+        }[];
+      };
       reopen_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
       request_swap: {
         Args: { p_assignment_id: string; p_in_return_id?: string; p_to_profile: string };
