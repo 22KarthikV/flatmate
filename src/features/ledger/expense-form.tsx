@@ -56,6 +56,10 @@ export function ExpenseForm({
   viewerId,
   today,
   expense,
+  action,
+  hidden,
+  initial,
+  submitLabel,
 }: {
   people: Person[];
   viewerId: string;
@@ -63,24 +67,33 @@ export function ExpenseForm({
   today: string;
   /** When set, the form corrects this expense instead of adding one. */
   expense?: { id: string; initial: RawExpense };
+  /** Another tool that makes an expense (the shopping list) supplies its own action, with fields to post along. */
+  action?: (previous: ExpenseFormState, formData: FormData) => Promise<ExpenseFormState>;
+  hidden?: Record<string, string>;
+  /** Starting values for the fields; anything left out keeps the usual default. */
+  initial?: Partial<RawExpense>;
+  submitLabel?: string;
 }) {
   const [state, formAction, pending] = useActionState(
-    expense ? editExpense : addExpense,
+    action ?? (expense ? editExpense : addExpense),
     initialState,
   );
 
   const [values, setValues] = useState<RawExpense>(
     expense?.initial ?? {
-      amount: "",
-      description: "",
-      category: "groceries",
-      occurredOn: today,
-      paidBy: viewerId,
-      mode: "equal",
-      who: people.map((person) => person.profileId),
-      exact: {},
-      percent: {},
-      one: "",
+      ...{
+        amount: "",
+        description: "",
+        category: "groceries",
+        occurredOn: today,
+        paidBy: viewerId,
+        mode: "equal",
+        who: people.map((person) => person.profileId),
+        exact: {},
+        percent: {},
+        one: "",
+      },
+      ...initial,
     },
   );
   const set = <K extends keyof RawExpense>(key: K, value: RawExpense[K]) =>
@@ -98,6 +111,9 @@ export function ExpenseForm({
   return (
     <form action={formAction} className="flex flex-col gap-6">
       {expense ? <input type="hidden" name="expenseId" value={expense.id} /> : null}
+      {Object.entries(hidden ?? {}).map(([name, value]) => (
+        <input key={name + value} type="hidden" name={name} value={value} />
+      ))}
 
       <Input
         label="Amount (£)"
@@ -285,7 +301,7 @@ export function ExpenseForm({
 
       <div className="flex min-h-11 flex-wrap items-center gap-4">
         <Button type="submit" disabled={pending}>
-          {pending ? "Saving" : editing ? "Save correction" : "Add expense"}
+          {pending ? "Saving" : (submitLabel ?? (editing ? "Save correction" : "Add expense"))}
         </Button>
         {state.status === "error" ? (
           <p role="alert" className="text-negative text-sm">
