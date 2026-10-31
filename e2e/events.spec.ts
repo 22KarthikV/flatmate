@@ -83,9 +83,15 @@ test.describe("events", () => {
     await hostPage.goto("/notifications");
     await expect(hostPage.getByText(/Pizza night is on:/)).toBeVisible();
 
+    // The calendar shows the confirmed event to the flat, and no money.
+    await hostPage.goto("/events/calendar");
+    await expect(hostPage.getByRole("heading", { name: "Calendar" })).toBeVisible();
+    await expect(hostPage.getByRole("link", { name: /Pizza night/ }).first()).toBeVisible();
+    expect(await hostPage.locator("main").innerText()).not.toMatch(/£|pence/);
+
     // On a 360px phone nothing scrolls sideways and the answer buttons are tall enough to tap.
     await hostPage.setViewportSize({ width: 360, height: 740 });
-    for (const path of ["/events", "/events/new", new URL(eventUrl).pathname]) {
+    for (const path of ["/events", "/events/new", "/events/calendar", new URL(eventUrl).pathname]) {
       await hostPage.goto(path);
       await expect(hostPage.getByRole("heading", { level: 1 })).toBeVisible();
       const overflow = await hostPage.evaluate(
