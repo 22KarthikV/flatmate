@@ -13,11 +13,11 @@ Plan: [events-plan.md](events-plan.md). Spec: [../docs/SPEC-events.md](../docs/S
   - `/events`, `/events/new`, `/events/[id]`, `/events/[id]/edit`, actions, errors, format, bundle budgets.
   - Acceptance: pgTAP `events-voting`; Vitest for format, errors, components.
 
-- [ ] **Task E3: Hourly job and membership changes**
+- [x] **Task E3: Hourly job and membership changes**
   - Migration `20261143000000_events_schedule.sql`: `events_run`, `run_events_hourly`, cron `events-hourly` at minute 47, membership trigger (join notifies, leave re-evaluates and hands over).
   - Acceptance: pgTAP `events-schedule` and `events-membership`.
 
-- [ ] **Task E4: Calendar**
+- [x] **Task E4: Calendar**
   - `/events/calendar`, `calendar.ts`, `calendar-model.ts` with privacy tests, link from `/events`.
 
 - [ ] **Task E5: End to end and rollout**
@@ -26,3 +26,5 @@ Plan: [events-plan.md](events-plan.md). Spec: [../docs/SPEC-events.md](../docs/S
 ## Progress notes
 
 - E1 (PR 83, migration `20261141000000_events.sql`): tables, RLS, guard triggers, the majority rule in TypeScript with shared vectors, form schemas, privacy section. E2 (this PR, migration `20261142000000_events_write.sql`, stacked on E1): the eight notification types, the write functions and the one place the rule lives (`events_evaluate`, `events_decide`), `/events`, `/events/new`, `/events/[id]`, `/events/[id]/edit`, voting by plain server-action forms (no client JS for the buttons), and the first e2e. Next: E3 (job and membership trigger) and E4 (calendar).
+
+- E3 (migration `20261143000000_events_schedule.sql`, stacked on E2): hourly `events-hourly` job at minute 47 (deadline, 48h auto-pick, tie and vote reminders, event reminders), membership join/leave triggers with organiser hand-over. E4 (no migration, PR from a subagent): `/events/calendar`. Next: E5, e2e and rollout notes.
