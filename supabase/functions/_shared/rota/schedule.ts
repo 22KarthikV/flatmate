@@ -111,10 +111,19 @@ export function buildWeek(input: ScheduleInput): ScheduleResult {
       compareText(lastDone[a]![chore.id] ?? "", lastDone[b]![chore.id] ?? "") ||
       compareText(a, b);
 
-    // Who can do it, and on which day. Normally the people around on its day; when nobody is,
+    // Who can do it, and on which day. Normally the people around on its day. Someone who was
+    // passed over for this chore before (it is owed to them) may also take it a day either side, so
+    // being away on its usual day never shuts a person out of it for good. When nobody is around,
     // everyone with any day free, each on the day nearest to it (the earlier day wins a tie).
     const candidates = new Map<string, string>();
     for (const person of members) if (around(person, target)) candidates.set(person, target);
+    for (const person of members) {
+      if (candidates.has(person) || !hasPriority(person)) continue;
+      const beside = [addDays(target, -1), addDays(target, 1)].filter(
+        (date) => dates.includes(date) && around(person, date),
+      );
+      if (beside.length > 0) candidates.set(person, beside[0]!);
+    }
     if (candidates.size === 0) {
       for (const person of members) {
         const free = dates.filter((date) => around(person, date));
