@@ -36,7 +36,8 @@
     "/money/rent/history": 200,
     "/events/new": 200,
     "/events/[id]": 200,
-    "/events/[id]/edit": 200
+    "/events/[id]/edit": 200,
+    "/events/calendar": 200
   },
   "lazyMotionKb": 60
 }

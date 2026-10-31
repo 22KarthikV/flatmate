@@ -48,6 +48,12 @@ async function EventsContent() {
         >
           Propose an event
         </Link>
+        <Link
+          href="/events/calendar"
+          className="label-caps border-ink inline-flex min-h-11 items-center border px-6"
+        >
+          Calendar
+        </Link>
       </div>
 
       {nothing ? (
