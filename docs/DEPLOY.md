@@ -143,6 +143,10 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 - Fair shares are weighted by days around, so away days do not count against anyone and nobody returns to a pile of owed chores.
 - Leaving the flat ends any open period.
 
+### Rota: a chore's usual day is a preference
+
+A weekly chore's usual day is a target. Only people around that day are normally considered. Someone who was passed over for a chore (because they were away on its day) is owed it, and next time can take it a day either side of the usual day, so being away on a fixed weekday never shuts a person out of that chore for good. The assignment's explanation says it was moved. This changes the shared scheduler, so **`rota-generate` must be redeployed** after this merges (`supabase functions deploy rota-generate --no-verify-jwt`). No migration.
+
 ### Rota: rollout summary and phone checks
 
 **What is live.** Migrations `20261116000000_rota` to `20261120000000_rota_swaps`, then `20261121000000_rota_leaving` and `20261126000000_rota_away`. One Edge Function, `rota-generate`, which builds weeks and applies rebuilds after someone leaves or is away. It must be redeployed whenever the shared scheduler code changes (`supabase functions deploy rota-generate --no-verify-jwt`); a test fails if its generated copy in `supabase/functions/_shared/rota` is stale. The version that applies rebuilds (including the `cause` field for away periods) is the one to have deployed.

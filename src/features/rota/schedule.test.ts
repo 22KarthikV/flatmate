@@ -194,6 +194,58 @@ describe("buildWeek: the basics", () => {
     expect(result.owedChanges).toEqual([{ profileId: "a", choreId: "kitchen", delta: -1 }]);
   });
 
+  it("lets someone who is owed a chore take it a day off its usual day, when they are away on it", () => {
+    const input = baseInput({
+      members: ["a", "b"],
+      chores,
+      carriedLoad: { a: 5 },
+      owed: { a: { kitchen: 1 } },
+      availability: { a: { "2026-11-11": false } },
+    });
+    const result = buildWeek(input);
+    expect(result.assignments[0]).toMatchObject({ assignee: "a", dueOn: "2026-11-10" });
+    expect(result.assignments[0]!.explanation).toContain("passed over");
+    expect(result.assignments[0]!.explanation).toContain("Moved to Tuesday");
+    expect(result.owedChanges).toEqual([{ profileId: "a", choreId: "kitchen", delta: -1 }]);
+  });
+
+  it("does not let someone who is not owed the chore shift it to a nearby day", () => {
+    const result = buildWeek(
+      baseInput({
+        members: ["a", "b"],
+        chores,
+        carriedLoad: { a: -5 },
+        availability: { a: { "2026-11-11": false } },
+      }),
+    );
+    expect(result.assignments[0]).toMatchObject({ assignee: "b", dueOn: "2026-11-11" });
+  });
+
+  it("over several weeks, someone always away on the usual day still gets the chore", () => {
+    let owed: Record<string, Record<string, number>> = {};
+    let carried = { a: 0, b: 0 };
+    const gotIt: string[] = [];
+    for (let week = 0; week < 6; week++) {
+      const weekStart = addDays(WEEK, week * 7);
+      const wednesday = addDays(weekStart, 3);
+      const result = buildWeek(
+        baseInput({
+          weekStart,
+          members: ["a", "b"],
+          chores,
+          carriedLoad: carried,
+          owed,
+          availability: { a: { [wednesday]: false } },
+        }),
+      );
+      const assignee = result.assignments[0]!.assignee!;
+      gotIt.push(assignee);
+      carried = { ...carried, [assignee]: carried[assignee as "a" | "b"] + 3 };
+      owed = applyOwedChanges(owed, result.owedChanges);
+    }
+    expect(gotIt).toContain("a");
+  });
+
   it("gives the chore to whoever did it longest ago when load is level", () => {
     const result = buildWeek(
       baseInput({
