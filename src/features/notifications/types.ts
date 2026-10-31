@@ -35,7 +35,8 @@ export type NotificationType =
   | "event_vote_reminder"
   | "event_tiebreak"
   | "event_reminder"
-  | "event_organiser_changed";
+  | "event_organiser_changed"
+  | "bin_reminder";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -333,6 +334,14 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
     defaultInApp: true,
     defaultPush: false,
     snoozable: false,
+  },
+  {
+    type: "bin_reminder",
+    label: "Bins go out tomorrow",
+    description: "The evening before a bin collection.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: true,
   },
 ];
 
