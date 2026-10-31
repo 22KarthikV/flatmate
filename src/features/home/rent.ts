@@ -13,9 +13,15 @@ export interface RentSummary {
   paid: boolean;
 }
 
-/** The row for the month `today` falls in, or null when no rent is set up. */
+/**
+ * The rent to show: the earliest month still not paid (which can be next month, as rent is created
+ * a week ahead, or an older one still owing), else this month's paid row, else null.
+ */
 export function thisMonthsRent(rows: readonly MyRentRow[], today: string): RentSummary | null {
-  const row = rows.find((r) => r.period.slice(0, 7) === today.slice(0, 7));
+  const unpaid = rows
+    .filter((r) => r.status !== "paid")
+    .sort((a, b) => a.dueOn.localeCompare(b.dueOn));
+  const row = unpaid[0] ?? rows.find((r) => r.period.slice(0, 7) === today.slice(0, 7));
   if (!row) return null;
   return {
     amount: formatPence(row.amountPence),

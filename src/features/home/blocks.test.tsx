@@ -3,12 +3,15 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/features/household/membership", () => ({ getMembership: vi.fn() }));
+vi.mock("@/features/household/live-invite", () => ({ getLiveInviteExpiry: vi.fn() }));
+vi.mock("@/features/rota/chores", () => ({ getChores: vi.fn() }));
 vi.mock("@/features/rota/weeks", () => ({ getWeeks: vi.fn() }));
 vi.mock("@/features/recurring/rent", () => ({ getMyRent: vi.fn() }));
 vi.mock("@/features/ledger/balances", () => ({ getBalancesView: vi.fn() }));
 vi.mock("@/features/recurring/months", () => ({ getBillMonths: vi.fn() }));
 vi.mock("@/features/notifications/inbox", () => ({ getInbox: vi.fn() }));
 
+import { AdminList } from "./admin-extras-block";
 import { ComingUpList } from "./coming-up-block";
 import { ChoresList } from "./my-chores";
 import { MoneyLine } from "./money-summary";
@@ -46,6 +49,17 @@ describe("home blocks", () => {
     expect(html).toContain("Due today");
     expect(html).toContain("2 of 5 steps");
     expect(html).toContain("2 done");
+  });
+
+  it("chores: admins are pointed at the chore manager, members see nothing", () => {
+    const html = renderToStaticMarkup(<ChoresList chores={{ kind: "add_chores" }} />);
+    expect(html).toContain("Add your chores");
+    expect(html).toContain('href="/rota/chores"');
+    expect(renderToStaticMarkup(<ChoresList chores={{ kind: "hidden" }} />)).toBe("");
+  });
+
+  it("admin section is hidden when empty", () => {
+    expect(renderToStaticMarkup(<AdminList items={[]} />)).toBe("");
   });
 
   it("rent: shows the viewer's own amount and status as words", () => {

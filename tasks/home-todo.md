@@ -7,4 +7,4 @@ Plan: [home-plan.md](home-plan.md). Spec: [../docs/SPEC-home.md](../docs/SPEC-ho
   - Verify: `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm check:bundle`
 
 - [x] **Task 2: Chores, rent, money, coming up, recent**
-- [ ] **Task 3: Admin extras, empty states, e2e, DEPLOY checklist**
+- [x] **Task 3: Admin extras, empty states, e2e, DEPLOY checklist**
