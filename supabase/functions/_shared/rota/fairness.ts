@@ -78,7 +78,10 @@ export function catchUpLimited(
   const load = (id: string) => carried[id] ?? 0;
   const limited: Record<string, number> = {};
   for (const id of members) {
-    const others = members.filter((other) => other !== id).map(load).sort((a, b) => a - b);
+    const others = members
+      .filter((other) => other !== id)
+      .map(load)
+      .sort((a, b) => a - b);
     if (others.length === 0) {
       limited[id] = load(id);
       continue;
