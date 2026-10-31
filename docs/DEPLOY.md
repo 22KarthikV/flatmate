@@ -123,7 +123,7 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 ### Rota generation and reminders
 
 - **The `rota-generate` Edge Function must be deployed by the owner** (`supabase functions deploy rota-generate --no-verify-jwt`). Until it is, nothing breaks, but weeks are not built automatically; an owner or admin can still use "Give out a week now" on the Chores screen. It runs the same pure scheduler as the app, from a generated copy in `supabase/functions/_shared/rota` (`node scripts/sync-rota-edge.mts` refreshes it; a test fails if it is stale).
-- **Jobs** (all hourly, each at its own minute): `rota-generate` at :07 (the Edge Function, registered with `private.register_edge_job` in `20261119000000_rota_schedule.sql`), `rota-availability` at :17, `rota-reminders` at :37. Rows appear in `job_runs`. They only touch flats that have at least one active chore.
+- **Jobs** (all hourly, each at its own minute): `rota-generate` at :07 (the Edge Function, registered with `private.register_edge_job` in `20261119000000_rota_schedule.sql`), `rota-availability` at :17, `rota-reminders` at :37, plus `rota-rebalance` every ten minutes (see below). Rows appear in `job_runs`. They only touch flats that have at least one active chore.
 - A week is generated once, shortly after Saturday 18:00 London for the week starting the next day. People who did not answer are filled in as around and marked "assumed".
 - Push text for rota types is fixed in the database and never names a chore or a person.
 
@@ -142,6 +142,27 @@ If a push never arrives, check in this order: `deliver-push` rows in `job_runs` 
 - A period set or extended over days that already have chores queues a rebuild of kind `away` (same table, same job, same 24-hour lock and 24-hour undo as a leaver). No new job and **no further Edge Function deploy** beyond the `rota-generate` redeploy for the leaver rebuild: the redeployed function reads the new `cause` field. Deploy that function after this migration is applied, not before.
 - Fair shares are weighted by days around, so away days do not count against anyone and nobody returns to a pile of owed chores.
 - Leaving the flat ends any open period.
+
+### Rota: rollout summary and phone checks
+
+**What is live.** Migrations `20261116000000_rota` to `20261120000000_rota_swaps`, then `20261121000000_rota_leaving` and `20261126000000_rota_away`. One Edge Function, `rota-generate`, which builds weeks and applies rebuilds after someone leaves or is away. It must be redeployed whenever the shared scheduler code changes (`supabase functions deploy rota-generate --no-verify-jwt`); a test fails if its generated copy in `supabase/functions/_shared/rota` is stale. The version that applies rebuilds (including the `cause` field for away periods) is the one to have deployed.
+
+**Jobs** (rows in `job_runs` or `cron.job_run_details`): `rota-generate` hourly at :07, `rota-availability` at :17, `rota-reminders` at :37, `rota-rebalance` every ten minutes (calls the same function). They only touch flats that have at least one active chore. If nothing seems to happen, check in this order: the function is deployed, the Vault secrets exist, then `select * from cron.job where jobname like 'rota%'`.
+
+**Checking it works without waiting for a Saturday.** An owner or admin can press "Give out the week" on Edit chores. To see a rebuild: have a test flatmate leave, then within ten minutes the admin sees "After someone left" on the Rota (a `rota_rebuilds` row moves from `pending` to `applied`). A row stuck at `pending` for longer means the function is not deployed or failed; its logs say why, and nothing is lost.
+
+**Owner phone checklist** (two phones, two flatmates in one flat; the second can be a test account):
+
+1. Install the app on both phones and allow notifications.
+2. Admin: open Rota, Edit chores, load the usual five, give out the week. Both phones show chores with a reason on each.
+3. On the other phone, open one chore, tick its steps one by one, and finish it. Untick one and check it can be undone.
+4. Ask for a swap from one phone; the other phone gets a notification and can accept or decline. The old chore shows as replaced.
+5. Open Which days are you around and read the deadline sentence. On one phone, mark next week as away with a note. Check the other phone sees the dates and note, the chores skip that person, and the wording says rent and bills still apply. Check the Money tab is unchanged.
+6. Fairness: open Who has done what and check the numbers match what you did, with away days shown as away.
+7. Have the test flatmate leave the flat. Within ten minutes the remaining phone gets "Some chores were moved" and the Rota shows who has them; the admin sees the undo for 24 hours. Try the undo.
+8. Check a push never names a chore or a person (lock screen text is fixed wording).
+
+**Left for later** (not built, by design or by scope): "Rebuild from here" for joiners beyond the manual regenerate, rent-free periods (away never touches money), admin alerts for long absences, and any notification when an undo expires.
 
 ## Rent and bills (recurring)
 
