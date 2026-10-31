@@ -27,7 +27,15 @@ export type NotificationType =
   | "chore_overdue"
   | "swap_requested"
   | "swap_decided"
-  | "rota_rebuilt";
+  | "rota_rebuilt"
+  | "event_proposed"
+  | "event_changed"
+  | "event_confirmed"
+  | "event_cancelled"
+  | "event_vote_reminder"
+  | "event_tiebreak"
+  | "event_reminder"
+  | "event_organiser_changed";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -260,6 +268,70 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
       "When a flatmate leaves and their chores are given to others, or an admin undoes it.",
     defaultInApp: true,
     defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "event_proposed",
+    label: "A flatmate proposes an event",
+    description: "When someone suggests an event for the flat to vote on.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "event_changed",
+    label: "An event is updated",
+    description: "When the organiser changes an event's title, place or dates.",
+    defaultInApp: true,
+    defaultPush: false,
+    snoozable: false,
+  },
+  {
+    type: "event_confirmed",
+    label: "An event is confirmed",
+    description: "When enough of the flat say yes to one date.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "event_cancelled",
+    label: "An event is cancelled",
+    description: "When an event is cancelled, by a flatmate or because nobody could make it.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "event_vote_reminder",
+    label: "A vote is about to close",
+    description: "A day before voting closes, if you have not voted yet.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: true,
+  },
+  {
+    type: "event_tiebreak",
+    label: "You need to pick a date",
+    description: "When your event is tied and you, as its organiser, must choose.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: false,
+  },
+  {
+    type: "event_reminder",
+    label: "An event is coming up",
+    description: "About a day before and a couple of hours before an event you are not ruling out.",
+    defaultInApp: true,
+    defaultPush: true,
+    snoozable: true,
+  },
+  {
+    type: "event_organiser_changed",
+    label: "You become an event's organiser",
+    description: "When an event is passed to you because its organiser left.",
+    defaultInApp: true,
+    defaultPush: false,
     snoozable: false,
   },
 ];

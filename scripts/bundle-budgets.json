@@ -33,7 +33,10 @@
     "/money/recurring/[id]/edit": 200,
     "/money/rent": 200,
     "/money/rent/pay": 200,
-    "/money/rent/history": 200
+    "/money/rent/history": 200,
+    "/events/new": 200,
+    "/events/[id]": 200,
+    "/events/[id]/edit": 200
   },
   "lazyMotionKb": 60
 }
