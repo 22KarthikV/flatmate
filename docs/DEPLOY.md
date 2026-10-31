@@ -214,4 +214,19 @@ No migration, no Edge Function, no new data. The page only reads what Money, Ren
 - Flatmates see each other's answers by name; the privacy page says so.
 - Push text for events is fixed in the database and never names an event, a place or a person.
 
-(Job, reminders and phone checklist are added with the later events tasks.)
+### Events: the hourly job
+
+- **Job:** `events-hourly` at minute 47 (`20261143000000_events_schedule.sql`). A row appears in `job_runs` every hour with status `succeeded`; a second run in the same hour does nothing. It confirms events whose voting has closed, picks the earliest tied date after 48 hours, and sends reminders (a day and two hours before an event, a day before voting closes, and a tie nudge after 24 hours). Closed flats are skipped.
+- To see what it would do at a given moment (SQL editor only, idempotent): `select private.events_run('2026-11-30 12:00:00+00')`.
+- Joins and leaves (including removal and account deletion) are handled by triggers on `memberships`; none of the existing leaving functions was edited. An organiser who leaves hands their open and upcoming events to the longest-standing owner or admin.
+- Push text is fixed in the database; the inbox row may name the event.
+
+### Phone checks for events (owner, once)
+
+- [ ] Propose an event from one phone. The other phone gets a push saying only "A new event to vote on" (no title, no name).
+- [ ] Vote yes on the same date from enough phones (more than half the flat). Every phone gets "An event is confirmed", and the event moves to Coming up.
+- [ ] Open the event link on a phone that is not in the flat: it says "We couldn't find that event."
+- [ ] A reminder arrives about a day before and about two hours before with no event name on the lock screen; the inbox row names the event.
+- [ ] `/events`, the event page, the propose form and `/events/calendar` at 360px wide: nothing scrolls sideways, and the Yes / Maybe / No buttons are easy to tap.
+- [ ] The calendar shows your own chores, bill names and dates (no amounts), "Your rent is due" for you only, and nothing about anyone else's rent.
+- [ ] Cancel an event as its organiser: flatmates get "An event was cancelled".

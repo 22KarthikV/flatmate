@@ -20,7 +20,7 @@ Plan: [events-plan.md](events-plan.md). Spec: [../docs/SPEC-events.md](../docs/S
 - [x] **Task E4: Calendar**
   - `/events/calendar`, `calendar.ts`, `calendar-model.ts` with privacy tests, link from `/events`.
 
-- [ ] **Task E5: End to end and rollout**
+- [x] **Task E5: End to end and rollout**
   - `e2e/events.spec.ts` for a three-person flat, DEPLOY phone checklist, final report.
 
 ## Progress notes
@@ -28,3 +28,4 @@ Plan: [events-plan.md](events-plan.md). Spec: [../docs/SPEC-events.md](../docs/S
 - E1 (PR 83, migration `20261141000000_events.sql`): tables, RLS, guard triggers, the majority rule in TypeScript with shared vectors, form schemas, privacy section. E2 (this PR, migration `20261142000000_events_write.sql`, stacked on E1): the eight notification types, the write functions and the one place the rule lives (`events_evaluate`, `events_decide`), `/events`, `/events/new`, `/events/[id]`, `/events/[id]/edit`, voting by plain server-action forms (no client JS for the buttons), and the first e2e. Next: E3 (job and membership trigger) and E4 (calendar).
 
 - E3 (migration `20261143000000_events_schedule.sql`, stacked on E2): hourly `events-hourly` job at minute 47 (deadline, 48h auto-pick, tie and vote reminders, event reminders), membership join/leave triggers with organiser hand-over. E4 (no migration, PR from a subagent): `/events/calendar`. Next: E5, e2e and rollout notes.
+- E5 (this PR, no migration, includes E4 until #85 merges): e2e journey extended with the calendar and 360px checks; DEPLOY.md events job and phone checklist. Full e2e: 184 passed; 6 account-deletion specs fail locally because the delete-account Edge Function is not served here (unrelated).
