@@ -1,6 +1,6 @@
 # Spec: events
 
-Status: DRAFT, awaiting owner approval. Depends on: `household`, `notifications` (both built), and for the calendar only, read-only, on `rota`, `recurring` and `ledger` (all built). It does not change any of them. Unlocks: nothing; `extras` is independent.
+Status: approved by owner, all recommended defaults accepted. Depends on: `household`, `notifications` (both built), and for the calendar only, read-only, on `rota`, `recurring` and `ledger` (all built). It does not change any of them. Unlocks: nothing; `extras` is independent.
 
 ## Objective
 
@@ -410,7 +410,7 @@ Small and append-only, per `PARALLEL-WORK.md`; whoever merges second rebases.
 | The Home page change stalls                                   | Events ships fully without it; Home reads `getEventsForHome()` whenever its owner takes it.                                                      |
 | Migration range collides with another module                  | Range is fixed to 20261141..20261160; checked against `supabase/migrations` before each PR.                                                      |
 
-## Open questions for the owner
+## Owner decisions (all defaults accepted)
 
 1. **How should the "more than half" rule handle the awkward cases?** Recommended default: only "yes" counts (a "maybe" is shown but does not confirm); if the top dates are tied at the deadline the organiser picks, and if they do nothing for 48 hours the earliest tied date wins; if nobody said yes the event is cancelled. In a flat of 4, 2 yes is not enough, 3 is.
 2. **When should voting close by default?** Recommended default: three days after the proposal, or one day before the earliest date if that comes sooner. The proposer can change it. Does that suit your flat?

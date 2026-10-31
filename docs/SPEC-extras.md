@@ -1,6 +1,6 @@
 # Spec: extras
 
-Status: DRAFT, awaiting owner approval. Depends on: `household`, `notifications` and `ledger` (all built). It reuses, and does not change, `recurring` and `rota` code. Unlocks: nothing; it is a leaf module. Runs alongside `events` (its own spec) and shares no tables or screens with it.
+Status: approved by owner, all recommended defaults accepted. Depends on: `household`, `notifications` and `ledger` (all built). It reuses, and does not change, `recurring` and `rota` code. Unlocks: nothing; it is a leaf module. Runs alongside `events` (its own spec) and shares no tables or screens with it.
 
 ## Objective
 
@@ -856,7 +856,7 @@ Each tool is three PRs, tests first, merged when CI is green. A tool's PR set ne
 | A trigger on `profiles` is unfamiliar                                          | Documented above; the fallback is a two-line orchestrator request into `anonymise_profile`                                                                              |
 | Two tools add cron jobs at the same minute                                     | Minutes are allocated here and listed against the ones already taken                                                                                                    |
 
-## Open questions for the owner
+## Owner decisions (all defaults accepted)
 
 Each has a recommended default. If you say nothing, the default is used.
 
