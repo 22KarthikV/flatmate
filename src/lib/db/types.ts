@@ -367,6 +367,204 @@ export type Database = {
           },
         ];
       };
+      event_options: {
+        Row: {
+          created_at: string;
+          ends_at: string | null;
+          event_id: string;
+          household_id: string;
+          id: string;
+          removed_at: string | null;
+          starts_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          ends_at?: string | null;
+          event_id: string;
+          household_id: string;
+          id?: string;
+          removed_at?: string | null;
+          starts_at: string;
+        };
+        Update: {
+          created_at?: string;
+          ends_at?: string | null;
+          event_id?: string;
+          household_id?: string;
+          id?: string;
+          removed_at?: string | null;
+          starts_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_options_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_options_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      event_votes: {
+        Row: {
+          answer: string;
+          created_at: string;
+          event_id: string;
+          household_id: string;
+          option_id: string;
+          profile_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answer: string;
+          created_at?: string;
+          event_id: string;
+          household_id: string;
+          option_id: string;
+          profile_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          answer?: string;
+          created_at?: string;
+          event_id?: string;
+          household_id?: string;
+          option_id?: string;
+          profile_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "event_votes_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "event_votes_option_id_event_id_fkey";
+            columns: ["option_id", "event_id"];
+            isOneToOne: false;
+            referencedRelation: "event_options";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "event_votes_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      events: {
+        Row: {
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          cancelled_reason: string | null;
+          confirmed_at: string | null;
+          confirmed_by: string | null;
+          confirmed_option_id: string | null;
+          created_at: string;
+          description: string;
+          edit_number: number;
+          ends_at: string | null;
+          household_id: string;
+          id: string;
+          location: string | null;
+          organiser_id: string;
+          starts_at: string | null;
+          status: string;
+          tiebreak_since: string | null;
+          title: string;
+          updated_at: string;
+          vote_deadline: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          cancelled_at?: string | null;
+          cancelled_by?: string | null;
+          cancelled_reason?: string | null;
+          confirmed_at?: string | null;
+          confirmed_by?: string | null;
+          confirmed_option_id?: string | null;
+          created_at?: string;
+          description?: string;
+          edit_number?: number;
+          ends_at?: string | null;
+          household_id: string;
+          id?: string;
+          location?: string | null;
+          organiser_id: string;
+          starts_at?: string | null;
+          status?: string;
+          tiebreak_since?: string | null;
+          title: string;
+          updated_at?: string;
+          vote_deadline: string;
+        };
+        Update: {
+          cancelled_at?: string | null;
+          cancelled_by?: string | null;
+          cancelled_reason?: string | null;
+          confirmed_at?: string | null;
+          confirmed_by?: string | null;
+          confirmed_option_id?: string | null;
+          created_at?: string;
+          description?: string;
+          edit_number?: number;
+          ends_at?: string | null;
+          household_id?: string;
+          id?: string;
+          location?: string | null;
+          organiser_id?: string;
+          starts_at?: string | null;
+          status?: string;
+          tiebreak_since?: string | null;
+          title?: string;
+          updated_at?: string;
+          vote_deadline?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "events_cancelled_by_fkey";
+            columns: ["cancelled_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "events_confirmed_option_fk";
+            columns: ["confirmed_option_id", "id"];
+            isOneToOne: false;
+            referencedRelation: "event_options";
+            referencedColumns: ["id", "event_id"];
+          },
+          {
+            foreignKeyName: "events_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "events_organiser_id_fkey";
+            columns: ["organiser_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       expense_shares: {
         Row: {
           expense_id: string;
