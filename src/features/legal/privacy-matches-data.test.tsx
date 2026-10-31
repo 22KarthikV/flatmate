@@ -494,6 +494,43 @@ describe("privacy notice", () => {
     }
   });
 
+  it("covers every column of the fix-it tables and explains them", () => {
+    expect(columnsOf("fix_reports")).toEqual([
+      "chaser_id",
+      "created_at",
+      "details",
+      "fixed_at",
+      "hidden_at",
+      "household_id",
+      "id",
+      "last_activity_at",
+      "location",
+      "reported_by",
+      "status",
+      "status_changed_at",
+      "title",
+    ]);
+    expect(columnsOf("fix_updates")).toEqual([
+      "author_id",
+      "body",
+      "created_at",
+      "household_id",
+      "id",
+      "kind",
+      "report_id",
+    ]);
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+    for (const phrase of [
+      "What we store about the fix-it log",
+      "problems your flat reports",
+      "We do not store photos",
+      "you stop being the person chasing",
+    ]) {
+      expect(text).toContain(phrase);
+    }
+  });
+
   it("explains events: what is stored, that flatmates see answers, and that pushes name nothing", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";

@@ -292,3 +292,23 @@ No migration, no Edge Function, no new data. The page only reads what Money, Ren
 - [ ] A member sees Delete on their own post only; an admin sees Delete on all and Pin on all.
 - [ ] Pin a post as an admin: it moves under "Pinned and house rules" and says "stays up". A fourth pin is refused with a clear message.
 - [ ] Delete a post as its author: it vanishes at once.
+
+## Extras: fix-it log
+
+**Rollout order** (range `20261161..20261200`, each extras tool independent): the orchestrating session applies `20261185000000_fixes.sql`, `20261186000000_fixes_status.sql` and `20261187000000_fixes_reminders.sql` to the hosted project before the pull requests that need them merge, then fixes the recorded versions. No Edge Function and no new environment variable, so the owner deploys nothing. Photos are not part of this version (slot `20261192` stays free).
+
+**Things to know**
+
+- Anyone reports a problem (title, optional details and room). Status is Open, In progress or Fixed. The reporter, the person chasing and admins change it; anyone adds notes; anyone takes the chase while nobody has it; the chaser or an admin hands it over; an admin removes a report. Every change is written to a timeline that is never edited.
+- If the person chasing leaves the flat, the chase is cleared, the timeline says so and the admins are told.
+- Job: `fix-stale` at 09:32 UTC daily (`20261187000000_fixes_reminders.sql`). A report with no activity for 7 days nudges its chaser (or the admins if nobody is chasing), at most once a week, until someone adds a note or changes the status. It also removes reports hidden more than 30 days ago and fixed ones more than 2 years old. A row appears in `job_runs` each day.
+- Push text is fixed and never carries a problem title: "New fix-it report" is inbox only; "Fix-it update" and "Fix-it reminder" push.
+
+### Phone checks for the fix-it log (owner, once)
+
+- [ ] More shows "Fix-it log". Open the list, the report form and a report at 360px wide: nothing scrolls sideways.
+- [ ] Report a problem from one phone; the other phone has an inbox entry that says who reported it, not what.
+- [ ] On the other phone tap "I'll chase this", then set it In progress. The first phone gets "Fix-it update" with no problem text on the lock screen.
+- [ ] Mark it Fixed from the first phone; both phones show the timeline in order and "Fixed" in words.
+- [ ] A plain member sees no "Remove report"; an admin does.
+- [ ] After a week with no news on an open problem, the person chasing (or the admins) gets one "Fix-it reminder".
