@@ -280,6 +280,18 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
+      <Section title="What we store about meter readings">
+        <p>
+          When your flat records meter readings, FlatMate stores the <strong>meters</strong> (gas,
+          electricity or water, and an optional label), each <strong>reading</strong> (a number and
+          a date), an optional note, and who recorded it and who cancelled it. Everyone in your flat
+          can see them, and nobody outside it can. Readings can show when a home is occupied, so
+          they are visible only to your flat. Please do not put account numbers in the note.
+          Readings stay with the flat if you delete your account, shown as &ldquo;Deleted
+          user&rdquo;. We show no costs and store no photos.
+        </p>
+      </Section>
+
       <Section title="Why we use it">
         <p>
           Only to run the service you asked for: signing you in, showing your flatmates who you are,

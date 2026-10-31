@@ -531,6 +531,42 @@ describe("privacy notice", () => {
     }
   });
 
+  it("covers every column of the meter tables and explains them", () => {
+    expect(columnsOf("meters")).toEqual([
+      "archived_at",
+      "created_at",
+      "created_by",
+      "household_id",
+      "id",
+      "kind",
+      "label",
+      "unit",
+    ]);
+    expect(columnsOf("meter_readings")).toEqual([
+      "created_at",
+      "household_id",
+      "id",
+      "is_reset",
+      "meter_id",
+      "note",
+      "read_on",
+      "recorded_by",
+      "value",
+      "voided_at",
+      "voided_by",
+    ]);
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+    for (const phrase of [
+      "What we store about meter readings",
+      "Readings can show when a home is occupied",
+      "do not put account numbers in the note",
+      "store no photos",
+    ]) {
+      expect(text).toContain(phrase);
+    }
+  });
+
   it("explains events: what is stored, that flatmates see answers, and that pushes name nothing", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";

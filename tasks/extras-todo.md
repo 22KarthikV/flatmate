@@ -22,7 +22,7 @@ Plan: [extras-plan.md](extras-plan.md). Spec: [../docs/SPEC-extras.md](../docs/S
 
 ## C. Meter readings (after D)
 
-- [x] C-X1 db (177, 178, PR below) · [ ] C-X2 app (`usageBetween`) · [ ] C-X3 e2e/docs
+- [x] C-X1 db (177, 178, PR 100) · [x] C-X2 app (`usageBetween`) · [x] C-X3 e2e/docs (one PR; also removes the More placeholder)
 
 ## Progress notes
 
