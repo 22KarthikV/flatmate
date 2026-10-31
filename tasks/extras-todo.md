@@ -14,7 +14,7 @@ Plan: [extras-plan.md](extras-plan.md). Spec: [../docs/SPEC-extras.md](../docs/S
 
 ## E. Noticeboard (after B)
 
-- [ ] E-X1 db (193, 194) · [ ] E-X2 app · [ ] E-X3 e2e/docs
+- [x] E-X1 db (193, 194, PR 95) · [x] E-X2 app · [x] E-X3 e2e/docs (one PR for X2 and X3)
 
 ## D. Fix-it log (after E)
 
