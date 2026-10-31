@@ -245,6 +245,18 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
+      <Section title="What we store about bin days">
+        <p>
+          When your flat sets up bin days, FlatMate stores the{" "}
+          <strong>names, colours and repeat pattern of your flat&rsquo;s bins</strong>, one real
+          collection date to count from, and any skipped or moved collections an admin adds, with
+          who added them. Everyone in your flat can see them, and nobody outside it can. A reminder
+          appears in your inbox the evening before a collection; it can be turned off. A push to
+          your phone only says that a bin collection is tomorrow. FlatMate does not look anything up
+          from your council.
+        </p>
+      </Section>
+
       <Section title="Why we use it">
         <p>
           Only to run the service you asked for: signing you in, showing your flatmates who you are,

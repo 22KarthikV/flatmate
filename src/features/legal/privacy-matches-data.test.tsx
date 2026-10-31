@@ -430,6 +430,41 @@ describe("privacy notice", () => {
     }
   });
 
+  it("covers every column of the bin tables and explains them", () => {
+    expect(columnsOf("bin_streams")).toEqual([
+      "anchor_on",
+      "archived_at",
+      "colour",
+      "created_at",
+      "created_by",
+      "every_weeks",
+      "household_id",
+      "id",
+      "name",
+    ]);
+    expect(columnsOf("bin_exceptions")).toEqual([
+      "created_at",
+      "created_by",
+      "household_id",
+      "id",
+      "kind",
+      "moved_to",
+      "note",
+      "original_on",
+      "stream_id",
+    ]);
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+    for (const phrase of [
+      "What we store about bin days",
+      "repeat pattern of your flat’s bins",
+      "it can be turned off",
+      "does not look anything up from your council",
+    ]) {
+      expect(text).toContain(phrase);
+    }
+  });
+
   it("explains events: what is stored, that flatmates see answers, and that pushes name nothing", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";
