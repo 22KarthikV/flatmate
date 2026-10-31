@@ -465,6 +465,31 @@ describe("privacy notice", () => {
     }
   });
 
+  it("covers every column of the noticeboard table and explains it", () => {
+    expect(columnsOf("board_posts")).toEqual([
+      "author_id",
+      "body",
+      "created_at",
+      "deleted_at",
+      "deleted_by",
+      "expires_at",
+      "household_id",
+      "id",
+      "pinned_at",
+      "pinned_by",
+    ]);
+    render(<PrivacyPage />);
+    const text = document.body.textContent ?? "";
+    for (const phrase of [
+      "What we store about the noticeboard",
+      "short posts your flatmates write",
+      "Posts you wrote are deleted if you delete your account",
+      "never carries them",
+    ]) {
+      expect(text).toContain(phrase);
+    }
+  });
+
   it("explains events: what is stored, that flatmates see answers, and that pushes name nothing", () => {
     render(<PrivacyPage />);
     const text = document.body.textContent ?? "";

@@ -257,6 +257,16 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
+      <Section title="What we store about the noticeboard">
+        <p>
+          When your flat uses the noticeboard, FlatMate stores the{" "}
+          <strong>short posts your flatmates write</strong>, who posted them, when, and when they
+          expire. Everyone in your flat can see them, and nobody outside it can. Posts you wrote are
+          deleted if you delete your account; others disappear when they expire. A new post appears
+          in your inbox without its words, and a push to your phone never carries them.
+        </p>
+      </Section>
+
       <Section title="Why we use it">
         <p>
           Only to run the service you asked for: signing you in, showing your flatmates who you are,

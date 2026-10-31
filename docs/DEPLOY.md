@@ -267,3 +267,22 @@ No migration, no Edge Function, no new data. The page only reads what Money, Ren
 - [ ] Skip one collection: it disappears from the other phone's list. Move one: it shows "(moved)" on the new day.
 - [ ] A plain member opening "Set up bins" is told only admins set up bins.
 - [ ] The evening before a collection (about 6pm), the inbox shows "Bins out tonight: ..." and the phone push says only "A bin collection is tomorrow".
+
+## Extras: noticeboard
+
+**Rollout order** (range `20261161..20261200`, each extras tool independent): the orchestrating session applies `20261193000000_board.sql` and `20261194000000_board_retention.sql` to the hosted project before the pull requests that need them merge, then fixes the recorded versions. No Edge Function and no new environment variable, so the owner deploys nothing.
+
+**Things to know**
+
+- A post expires after 1 day, 3 days, 1 week (the default) or 1 month. An admin can pin up to three posts; a pinned post stays until unpinned, which is how the flat keeps its house rules. Unpinning gives the post 7 more days.
+- The author deletes their own post; an admin deletes any. Deleted and expired posts are hidden by the database itself and wiped after 30 days.
+- Job: `board-retention` at 03:37 UTC daily; one `job_runs` row a day.
+- A new post puts "Sam posted on the noticeboard" in the inbox with no post text, and no push by default. If someone turns push on, the lock screen says only "A flatmate posted a note on the noticeboard."
+
+### Phone checks for the noticeboard (owner, once)
+
+- [ ] More shows "Noticeboard". Open it at 360px wide: nothing scrolls sideways and the post box is easy to use.
+- [ ] Post a note from one phone; the other phone sees it after a refresh and has an inbox entry that does not repeat the note.
+- [ ] A member sees Delete on their own post only; an admin sees Delete on all and Pin on all.
+- [ ] Pin a post as an admin: it moves under "Pinned and house rules" and says "stays up". A fourth pin is refused with a clear message.
+- [ ] Delete a post as its author: it vanishes at once.
