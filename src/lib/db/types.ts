@@ -1148,6 +1148,120 @@ export type Database = {
           },
         ];
       };
+      meter_readings: {
+        Row: {
+          created_at: string;
+          household_id: string;
+          id: string;
+          is_reset: boolean;
+          meter_id: string;
+          note: string | null;
+          read_on: string;
+          recorded_by: string;
+          value: number;
+          voided_at: string | null;
+          voided_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          household_id: string;
+          id?: string;
+          is_reset?: boolean;
+          meter_id: string;
+          note?: string | null;
+          read_on: string;
+          recorded_by: string;
+          value: number;
+          voided_at?: string | null;
+          voided_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          household_id?: string;
+          id?: string;
+          is_reset?: boolean;
+          meter_id?: string;
+          note?: string | null;
+          read_on?: string;
+          recorded_by?: string;
+          value?: number;
+          voided_at?: string | null;
+          voided_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "meter_readings_meter_id_household_id_fkey";
+            columns: ["meter_id", "household_id"];
+            isOneToOne: false;
+            referencedRelation: "meters";
+            referencedColumns: ["id", "household_id"];
+          },
+          {
+            foreignKeyName: "meter_readings_recorded_by_fkey";
+            columns: ["recorded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "meter_readings_voided_by_fkey";
+            columns: ["voided_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      meters: {
+        Row: {
+          archived_at: string | null;
+          created_at: string;
+          created_by: string;
+          household_id: string;
+          id: string;
+          kind: string;
+          label: string | null;
+          unit: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          created_at?: string;
+          created_by: string;
+          household_id: string;
+          id?: string;
+          kind: string;
+          label?: string | null;
+          unit: string;
+        };
+        Update: {
+          archived_at?: string | null;
+          created_at?: string;
+          created_by?: string;
+          household_id?: string;
+          id?: string;
+          kind?: string;
+          label?: string | null;
+          unit?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "meters_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "meters_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       notification_preferences: {
         Row: {
           in_app: boolean;
@@ -2328,6 +2442,7 @@ export type Database = {
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
       archive_bin_stream: { Args: { p_id: string }; Returns: undefined };
       archive_chore: { Args: { p_chore_id: string }; Returns: undefined };
+      archive_meter: { Args: { p_id: string }; Returns: undefined };
       cancel_event: { Args: { p_event: string; p_reason?: string }; Returns: undefined };
       cancel_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       cancel_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
@@ -2455,6 +2570,16 @@ export type Database = {
         Args: { p_assignment_id: string; p_to_profile: string };
         Returns: string;
       };
+      record_meter_reading: {
+        Args: {
+          p_is_reset?: boolean;
+          p_meter: string;
+          p_note?: string;
+          p_read_on: string;
+          p_value: number;
+        };
+        Returns: string;
+      };
       record_rent_payment: { Args: { p_amount_pence: number }; Returns: string };
       record_settlement: { Args: { p_amount_pence: number; p_to: string }; Returns: string };
       remove_event_option: { Args: { p_option: string }; Returns: undefined };
@@ -2551,6 +2676,10 @@ export type Database = {
         };
         Returns: string;
       };
+      save_meter: {
+        Args: { p_id: string; p_kind: string; p_label: string; p_unit: string };
+        Returns: string;
+      };
       save_push_subscription: {
         Args: { p_auth: string; p_endpoint: string; p_p256dh: string; p_user_agent: string };
         Returns: string;
@@ -2633,6 +2762,7 @@ export type Database = {
       };
       verify_scheduler_secret: { Args: { candidate: string }; Returns: boolean };
       void_expense: { Args: { p_expense_id: string }; Returns: undefined };
+      void_meter_reading: { Args: { p_id: string }; Returns: undefined };
       void_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       waive_rent: {
         Args: { p_amount_pence: number; p_payer_id: string; p_reason: string };
