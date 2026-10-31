@@ -168,6 +168,110 @@ export type Database = {
           },
         ];
       };
+      bin_exceptions: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          household_id: string;
+          id: string;
+          kind: string;
+          moved_to: string | null;
+          note: string | null;
+          original_on: string;
+          stream_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          household_id: string;
+          id?: string;
+          kind: string;
+          moved_to?: string | null;
+          note?: string | null;
+          original_on: string;
+          stream_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          household_id?: string;
+          id?: string;
+          kind?: string;
+          moved_to?: string | null;
+          note?: string | null;
+          original_on?: string;
+          stream_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "bin_exceptions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "bin_exceptions_stream_id_household_id_fkey";
+            columns: ["stream_id", "household_id"];
+            isOneToOne: false;
+            referencedRelation: "bin_streams";
+            referencedColumns: ["id", "household_id"];
+          },
+        ];
+      };
+      bin_streams: {
+        Row: {
+          anchor_on: string;
+          archived_at: string | null;
+          colour: string;
+          created_at: string;
+          created_by: string;
+          every_weeks: number;
+          household_id: string;
+          id: string;
+          name: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          anchor_on: string;
+          archived_at?: string | null;
+          colour?: string;
+          created_at?: string;
+          created_by: string;
+          every_weeks?: number;
+          household_id: string;
+          id?: string;
+          name: string;
+        };
+        Update: {
+          anchor_on?: string;
+          archived_at?: string | null;
+          colour?: string;
+          created_at?: string;
+          created_by?: string;
+          every_weeks?: number;
+          household_id?: string;
+          id?: string;
+          name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "bin_streams_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "bin_streams_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       chore_assignments: {
         Row: {
           assignee: string | null;
@@ -2035,6 +2139,7 @@ export type Database = {
       };
       add_shopping_item: { Args: { p_name: string; p_note?: string }; Returns: string };
       anonymise_profile: { Args: { p_user_id: string }; Returns: undefined };
+      archive_bin_stream: { Args: { p_id: string }; Returns: undefined };
       archive_chore: { Args: { p_chore_id: string }; Returns: undefined };
       cancel_event: { Args: { p_event: string; p_reason?: string }; Returns: undefined };
       cancel_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
@@ -2054,6 +2159,7 @@ export type Database = {
           title: string;
         }[];
       };
+      clear_bin_exception: { Args: { p_id: string }; Returns: undefined };
       clear_bought_items: { Args: Record<PropertyKey, never>; Returns: number };
       close_household: { Args: Record<PropertyKey, never>; Returns: undefined };
       complete_assignment: { Args: { p_assignment_id: string }; Returns: undefined };
@@ -2224,6 +2330,16 @@ export type Database = {
         }[];
       };
       rota_rebuild_input: { Args: { p_rebuild: string }; Returns: Json };
+      save_bin_stream: {
+        Args: {
+          p_anchor_on: string;
+          p_colour: string;
+          p_every_weeks: number;
+          p_id: string;
+          p_name: string;
+        };
+        Returns: string;
+      };
       save_chore: {
         Args: {
           p_cadence?: string;
@@ -2248,6 +2364,16 @@ export type Database = {
       set_availability: { Args: { p_days: boolean[]; p_week_start: string }; Returns: undefined };
       set_away: {
         Args: { p_ends: string; p_note?: string; p_profile?: string; p_starts: string };
+        Returns: string;
+      };
+      set_bin_exception: {
+        Args: {
+          p_kind: string;
+          p_moved_to: string;
+          p_note?: string;
+          p_original_on: string;
+          p_stream: string;
+        };
         Returns: string;
       };
       set_member_role: {
