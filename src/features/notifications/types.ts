@@ -36,7 +36,8 @@ export type NotificationType =
   | "event_tiebreak"
   | "event_reminder"
   | "event_organiser_changed"
-  | "bin_reminder";
+  | "bin_reminder"
+  | "board_posted";
 
 export interface NotificationTypeInfo {
   type: NotificationType;
@@ -342,6 +343,14 @@ export const NOTIFICATION_TYPES: readonly NotificationTypeInfo[] = [
     defaultInApp: true,
     defaultPush: true,
     snoozable: true,
+  },
+  {
+    type: "board_posted",
+    label: "A note on the noticeboard",
+    description: "When a flatmate posts on the noticeboard. Inbox only unless you turn push on.",
+    defaultInApp: true,
+    defaultPush: false,
+    snoozable: false,
   },
 ];
 

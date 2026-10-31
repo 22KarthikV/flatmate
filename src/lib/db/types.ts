@@ -272,6 +272,75 @@ export type Database = {
           },
         ];
       };
+      board_posts: {
+        Row: {
+          author_id: string;
+          body: string;
+          created_at: string;
+          deleted_at: string | null;
+          deleted_by: string | null;
+          expires_at: string | null;
+          household_id: string;
+          id: string;
+          pinned_at: string | null;
+          pinned_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          author_id: string;
+          body: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          expires_at?: string | null;
+          household_id: string;
+          id?: string;
+          pinned_at?: string | null;
+          pinned_by?: string | null;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          created_at?: string;
+          deleted_at?: string | null;
+          deleted_by?: string | null;
+          expires_at?: string | null;
+          household_id?: string;
+          id?: string;
+          pinned_at?: string | null;
+          pinned_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "board_posts_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "board_posts_deleted_by_fkey";
+            columns: ["deleted_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "board_posts_household_id_fkey";
+            columns: ["household_id"];
+            isOneToOne: false;
+            referencedRelation: "households";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "board_posts_pinned_by_fkey";
+            columns: ["pinned_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       chore_assignments: {
         Row: {
           assignee: string | null;
@@ -2180,6 +2249,7 @@ export type Database = {
       decide_swap: { Args: { p_accept: boolean; p_swap_id: string }; Returns: string };
       decline_rent_payment: { Args: { p_payment_id: string }; Returns: undefined };
       decline_settlement: { Args: { p_settlement_id: string }; Returns: undefined };
+      delete_board_post: { Args: { p_post: string }; Returns: undefined };
       edit_expense: {
         Args: {
           p_amount_pence: number;
@@ -2239,6 +2309,11 @@ export type Database = {
         Returns: string;
       };
       pause_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
+      pin_board_post: { Args: { p_pinned: boolean; p_post: string }; Returns: undefined };
+      post_to_board: {
+        Args: { p_body: string; p_expires_in_days?: number; p_pin?: boolean };
+        Returns: string;
+      };
       preview_invite: {
         Args: { p_token: string };
         Returns: {
