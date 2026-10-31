@@ -312,3 +312,22 @@ No migration, no Edge Function, no new data. The page only reads what Money, Ren
 - [ ] Mark it Fixed from the first phone; both phones show the timeline in order and "Fixed" in words.
 - [ ] A plain member sees no "Remove report"; an admin does.
 - [ ] After a week with no news on an open problem, the person chasing (or the admins) gets one "Fix-it reminder".
+
+## Extras: meter readings
+
+**Rollout order** (range `20261161..20261200`, each extras tool independent): the orchestrating session applies `20261177000000_meters.sql` and `20261178000000_meters_readings.sql` to the hosted project before the pull requests that need them merge, then fixes the recorded versions. No Edge Function, no new environment variable, no cron job and no notifications, so the owner deploys nothing.
+
+**Things to know**
+
+- An admin adds each meter once (electricity is kWh; gas and water kWh or m³). Anyone records a reading with its date. Each meter page shows readings newest first with "Used 214 kWh in 31 days, about 7 a day." between them. No money, no costs, no photos.
+- A reading is never edited. A mistake is cancelled (by whoever entered it, or an admin) and entered again; a cancelled reading never counts towards use. A reading lower than the one before it is refused with the question "Was the meter replaced or did it roll over?"; answering yes records it as a reset and use is not worked out across it.
+- Once a meter has readings only its label can change. "Remove this meter" hides it but keeps its readings.
+
+### Phone checks for meter readings (owner, once)
+
+- [ ] More no longer shows a "Coming soon" card and lists Shopping list, Bin days, Noticeboard, Fix-it log and Meter readings. Open More at 360px wide: nothing scrolls sideways.
+- [ ] Add a meter as an admin; a plain member opening Add a meter is told only admins add meters.
+- [ ] Record a reading on the 1st of one month and the 1st of the next: the second shows the use between them in words.
+- [ ] Type a lower number: it is refused and you are asked whether the meter was replaced.
+- [ ] Cancel the second reading: the use line disappears and the first reading stays.
+- [ ] Open the meter list, a meter and the add-a-meter form at 360px: nothing scrolls sideways and the number field opens a numeric keypad.
