@@ -59,5 +59,6 @@ describe("formatting", () => {
     expect(instanceStatusLabel("awaiting_amount")).toBe("Waiting for the amount");
     expect(instanceStatusLabel("posted")).toBe("Created");
     expect(instanceStatusLabel("skipped")).toBe("Skipped");
+    expect(instanceStatusLabel("cancelled")).toBe("Cancelled");
   });
 });

@@ -71,6 +71,10 @@ export function TemplateActions({
           </Button>
         </form>
       </div>
+      <p className="text-muted max-w-md text-sm">
+        Ending stops new months. It also cancels coming months that nobody has paid; a month that is
+        already due, or has a payment, stays.
+      </p>
       <ErrorLine state={pauseState} />
       <ErrorLine state={resumeState} />
       <ErrorLine state={endState} />

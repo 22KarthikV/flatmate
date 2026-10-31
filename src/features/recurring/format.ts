@@ -54,7 +54,7 @@ export function describeSchedule(input: ScheduleInput): string {
   ].join(" · ");
 }
 
-export type InstanceStatus = "awaiting_amount" | "posted" | "skipped";
+export type InstanceStatus = "awaiting_amount" | "posted" | "skipped" | "cancelled";
 
 export function instanceStatusLabel(status: InstanceStatus): string {
   switch (status) {
@@ -64,5 +64,7 @@ export function instanceStatusLabel(status: InstanceStatus): string {
       return "Created";
     case "skipped":
       return "Skipped";
+    case "cancelled":
+      return "Cancelled";
   }
 }
