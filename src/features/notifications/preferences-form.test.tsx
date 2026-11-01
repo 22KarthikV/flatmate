@@ -1,7 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("./actions", () => ({ savePreference: vi.fn() }));
+vi.mock("./actions", () => ({ savePreferences: vi.fn() }));
 
 import { PreferencesForm } from "./preferences-form";
 import type { PreferenceView } from "./preferences";
@@ -13,29 +13,48 @@ const view = (type: string, inApp: boolean, push: boolean): PreferenceView => ({
   push,
 });
 
+const everything = () => NOTIFICATION_TYPES.map(({ type }) => view(type, true, false));
+
 describe("PreferencesForm", () => {
-  it("shows one form per type with the current choices ticked", () => {
+  it("shows the current choices ticked", () => {
     render(
       <PreferencesForm
         preferences={[view("member_joined", true, false), view("role_changed", false, true)]}
       />,
     );
 
-    const joined = screen.getByRole("form", { name: "Someone joins the flat" });
-    expect(within(joined).getByLabelText("In the app")).toBeChecked();
-    expect(within(joined).getByLabelText("Push to my phone")).not.toBeChecked();
-
-    const role = screen.getByRole("form", { name: "Your role changes" });
-    expect(within(role).getByLabelText("In the app")).not.toBeChecked();
-    expect(within(role).getByLabelText("Push to my phone")).toBeChecked();
+    expect(screen.getByLabelText("In the app: Someone joins the flat")).toBeChecked();
+    expect(screen.getByLabelText("Push to my phone: Someone joins the flat")).not.toBeChecked();
+    expect(screen.getByLabelText("In the app: Your role changes")).not.toBeChecked();
+    expect(screen.getByLabelText("Push to my phone: Your role changes")).toBeChecked();
   });
 
-  it("sends the type with the form and names its checkboxes as the action expects", () => {
+  it("is one form with exactly one Save button, however many types there are", () => {
+    render(<PreferencesForm preferences={everything()} />);
+    expect(screen.getAllByRole("form")).toHaveLength(1);
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Save changes" })).toBeInTheDocument();
+  });
+
+  it("groups the types under category headings", () => {
+    render(<PreferencesForm preferences={everything()} />);
+    const flat = screen.getByRole("region", { name: "Your flat" });
+    expect(within(flat).getByText("Someone joins the flat")).toBeInTheDocument();
+    expect(within(flat).queryByText("An event is confirmed")).toBeNull();
+    const events = screen.getByRole("region", { name: "Events" });
+    expect(within(events).getByText("An event is confirmed")).toBeInTheDocument();
+  });
+
+  it("names every checkbox the way the action reads it", () => {
+    const { container } = render(
+      <PreferencesForm preferences={[view("member_left", true, false)]} />,
+    );
+    expect(container.querySelector('input[name="in_app.member_left"]')).not.toBeNull();
+    expect(container.querySelector('input[name="push.member_left"]')).not.toBeNull();
+  });
+
+  it("leaves out a category when none of its types are shown", () => {
     render(<PreferencesForm preferences={[view("member_left", true, false)]} />);
-    const form = screen.getByRole("form", { name: "Someone leaves the flat" });
-    expect(form.querySelector('input[name="type"]')).toHaveValue("member_left");
-    expect(form.querySelector('input[name="in_app"]')).not.toBeNull();
-    expect(form.querySelector('input[name="push"]')).not.toBeNull();
-    expect(within(form).getByRole("button", { name: "Save" })).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Events" })).toBeNull();
   });
 });

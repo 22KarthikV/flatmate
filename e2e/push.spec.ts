@@ -54,7 +54,7 @@ test.describe("push on this device", () => {
     await expect(page.getByRole("button", { name: /turn on push/i })).toHaveCount(0);
     await expect(page.getByRole("switch")).toHaveCount(0);
     // The rest of the page still works.
-    await expect(page.getByRole("form", { name: "Your role changes" })).toBeVisible();
+    await expect(page.getByLabel("In the app: Your role changes")).toBeVisible();
   });
 
   test("an iPhone in Safari is told to install the app first", async ({

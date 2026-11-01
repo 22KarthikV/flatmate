@@ -11,12 +11,12 @@ import {
   coarseDeviceLabel,
   isSafeInternalPath,
   parseNotificationId,
-  parsePreferenceForm,
+  parsePreferencesForm,
   parsePushSubscription,
   parseSnoozeChoice,
   snoozeUntil,
 } from "./schemas";
-import { isNotificationType } from "./types";
+import { NOTIFICATION_TYPES, resolvePreference, type SavePreferencesState } from "./types";
 
 /** Marks one notification read and goes to the screen it points at. */
 export async function openNotification(formData: FormData): Promise<void> {
@@ -51,23 +51,55 @@ export async function markAllRead(): Promise<void> {
   revalidatePath("/", "layout");
 }
 
-/** Saves this person's in-app and push choice for one type. Their own row only (the function uses their id). */
-export async function savePreference(formData: FormData): Promise<void> {
-  const input = parsePreferenceForm(formData, isNotificationType);
-  if (!input) return;
-
+/**
+ * Saves every choice on the settings page at once. Only the types that differ from what the person
+ * already has are written, and each write is for their own row (the database function uses their id).
+ */
+export async function savePreferences(
+  _previous: SavePreferencesState,
+  formData: FormData,
+): Promise<SavePreferencesState> {
   const supabase = await createSupabaseServerClient();
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims.sub) redirect("/sign-in?next=%2Fmore%2Fnotifications");
 
-  const { error } = await supabase.rpc("set_notification_preference", {
-    p_type: input.type,
-    p_in_app: input.inApp,
-    p_push: input.push,
+  const wanted = parsePreferencesForm(
+    formData,
+    NOTIFICATION_TYPES.map((entry) => entry.type),
+  );
+  const { data: saved } = await supabase
+    .from("notification_preferences")
+    .select("type, in_app, push");
+
+  const changes = wanted.filter((choice) => {
+    const info = NOTIFICATION_TYPES.find((entry) => entry.type === choice.type);
+    if (!info) return false;
+    const current = resolvePreference(
+      info,
+      (saved ?? []).find((row) => row.type === choice.type),
+    );
+    return current.inApp !== choice.inApp || current.push !== choice.push;
   });
-  if (error) logger.error("notifications.save_preference_failed", { error });
+
+  const results = await Promise.all(
+    changes.map((choice) =>
+      supabase.rpc("set_notification_preference", {
+        p_type: choice.type,
+        p_in_app: choice.inApp,
+        p_push: choice.push,
+      }),
+    ),
+  );
+  if (results.some((result) => result.error)) {
+    logger.error("notifications.save_preferences_failed", {
+      error: results.find((result) => result.error)?.error,
+    });
+    revalidatePath("/more/notifications");
+    return { status: "error", message: "We couldn’t save all your choices. Please try again." };
+  }
 
   revalidatePath("/more/notifications");
+  return { status: "saved", changed: changes.length };
 }
 
 export type PushActionResult = { ok: true; id: string } | { ok: false; message: string };
