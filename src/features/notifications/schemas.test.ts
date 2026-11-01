@@ -5,7 +5,7 @@ import {
   coarseDeviceLabel,
   isSafeInternalPath,
   parseNotificationId,
-  parsePreferenceForm,
+  parsePreferencesForm,
   parsePushSubscription,
   parseSnoozeChoice,
   snoozeUntil,
@@ -144,29 +144,27 @@ describe("parseSnoozeChoice", () => {
   });
 });
 
-describe("parsePreferenceForm", () => {
-  const known = (value: unknown) => value === "role_changed";
+describe("parsePreferencesForm", () => {
   const form = (entries: Record<string, string>) => {
     const data = new FormData();
     for (const [key, value] of Object.entries(entries)) data.set(key, value);
     return data;
   };
 
-  it("reads the checkboxes, absent meaning off", () => {
-    expect(parsePreferenceForm(form({ type: "role_changed", in_app: "on" }), known)).toEqual({
-      type: "role_changed",
-      inApp: true,
-      push: false,
-    });
-    expect(parsePreferenceForm(form({ type: "role_changed" }), known)).toEqual({
-      type: "role_changed",
-      inApp: false,
-      push: false,
-    });
+  it("reads both checkboxes for every known type, absent meaning off", () => {
+    const result = parsePreferencesForm(
+      form({ "in_app.role_changed": "on", "push.role_changed": "on", "in_app.member_left": "on" }),
+      ["role_changed", "member_left", "member_joined"],
+    );
+    expect(result).toEqual([
+      { type: "role_changed", inApp: true, push: true },
+      { type: "member_left", inApp: true, push: false },
+      { type: "member_joined", inApp: false, push: false },
+    ]);
   });
 
-  it("refuses an unknown or missing type", () => {
-    expect(parsePreferenceForm(form({ type: "nonsense", in_app: "on" }), known)).toBeNull();
-    expect(parsePreferenceForm(form({ in_app: "on" }), known)).toBeNull();
+  it("ignores fields for types it was not told about", () => {
+    const result = parsePreferencesForm(form({ "in_app.nonsense": "on" }), ["role_changed"]);
+    expect(result).toEqual([{ type: "role_changed", inApp: false, push: false }]);
   });
 });

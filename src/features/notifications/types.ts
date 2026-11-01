@@ -401,3 +401,82 @@ export function resolvePreference(
 export function isNotificationType(value: unknown): value is NotificationType {
   return typeof value === "string" && getNotificationType(value) !== undefined;
 }
+
+export interface NotificationCategory {
+  id: string;
+  /** The heading on the settings page. */
+  label: string;
+  types: readonly NotificationType[];
+}
+
+/**
+ * How the settings page groups the types. Every type belongs to exactly one category (a test
+ * checks), so a new module adds its types here as well as to the list above.
+ */
+export const NOTIFICATION_CATEGORIES: readonly NotificationCategory[] = [
+  { id: "flat", label: "Your flat", types: ["member_joined", "member_left", "role_changed"] },
+  {
+    id: "expenses",
+    label: "Shared expenses",
+    types: [
+      "expense_added",
+      "expense_changed",
+      "expense_voided",
+      "settlement_pending",
+      "settlement_confirmed",
+      "settlement_declined",
+      "payment_nudge",
+    ],
+  },
+  {
+    id: "rent",
+    label: "Rent and bills",
+    types: [
+      "rent_charged",
+      "recurring_posted",
+      "recurring_reminder",
+      "bill_amount_needed",
+      "rent_payment_pending",
+      "rent_payment_decided",
+      "recurring_attention",
+    ],
+  },
+  {
+    id: "chores",
+    label: "Chores and the rota",
+    types: [
+      "availability_open",
+      "availability_nudge",
+      "rota_week_ready",
+      "chore_assigned",
+      "chore_unassigned",
+      "chore_due",
+      "chore_overdue",
+      "swap_requested",
+      "swap_decided",
+      "rota_rebuilt",
+    ],
+  },
+  {
+    id: "events",
+    label: "Events",
+    types: [
+      "event_proposed",
+      "event_changed",
+      "event_confirmed",
+      "event_cancelled",
+      "event_vote_reminder",
+      "event_tiebreak",
+      "event_reminder",
+      "event_organiser_changed",
+    ],
+  },
+  {
+    id: "household",
+    label: "Bins, noticeboard and fixes",
+    types: ["bin_reminder", "board_posted", "fix_reported", "fix_status", "fix_stale"],
+  },
+];
+
+export type SavePreferencesState =
+  { status: "idle" } | { status: "saved"; changed: number } | { status: "error"; message: string };

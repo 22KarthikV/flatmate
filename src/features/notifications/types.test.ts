@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  NOTIFICATION_CATEGORIES,
   NOTIFICATION_TYPES,
   getNotificationType,
   isNotificationType,
@@ -63,5 +64,11 @@ describe("notification types", () => {
       );
       expect(sql, `migration row for ${entry.type}`).toMatch(row);
     }
+  });
+
+  it("puts every type in exactly one settings category", () => {
+    const listed = NOTIFICATION_CATEGORIES.flatMap((category) => category.types);
+    expect([...listed].sort()).toEqual(NOTIFICATION_TYPES.map((entry) => entry.type).sort());
+    expect(new Set(listed).size).toBe(listed.length);
   });
 });

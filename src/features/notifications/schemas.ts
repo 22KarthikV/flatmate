@@ -138,12 +138,17 @@ export interface PreferenceInput {
   push: boolean;
 }
 
-/** A preference form: a known type and two checkboxes (absent means off). Null if the type is bad. */
-export function parsePreferenceForm(
+/**
+ * The settings form: for every known type, two checkboxes named `in_app.<type>` and `push.<type>`
+ * (a box that is not ticked is absent, which means off). Types the form does not know are ignored.
+ */
+export function parsePreferencesForm(
   formData: FormData,
-  isKnownType: (value: unknown) => boolean,
-): PreferenceInput | null {
-  const type = formData.get("type");
-  if (typeof type !== "string" || !isKnownType(type)) return null;
-  return { type, inApp: formData.get("in_app") === "on", push: formData.get("push") === "on" };
+  knownTypes: readonly string[],
+): PreferenceInput[] {
+  return knownTypes.map((type) => ({
+    type,
+    inApp: formData.get(`in_app.${type}`) === "on",
+    push: formData.get(`push.${type}`) === "on",
+  }));
 }

@@ -121,20 +121,19 @@ test.describe("preferences and snooze", () => {
     await page.locator('a[href="/more/notifications"]').click();
     await expect(page).toHaveURL(/\/more\/notifications$/);
 
-    const form = page.getByRole("form", { name: "Someone joins the flat" });
-    await expect(form.getByLabel("In the app")).toBeChecked();
-    await form.getByLabel("In the app").uncheck();
+    const joined = page.getByLabel("In the app: Someone joins the flat");
+    await expect(joined).toBeChecked();
+    await joined.uncheck();
     await Promise.all([
       page.waitForResponse((response) => response.request().method() === "POST"),
-      form.getByRole("button", { name: "Save" }).click(),
+      page.getByRole("button", { name: "Save changes" }).click(),
     ]);
+    await expect(page.getByRole("status")).toHaveText("Saved.");
 
     await page.reload();
-    await expect(form.getByLabel("In the app")).not.toBeChecked();
+    await expect(page.getByLabel("In the app: Someone joins the flat")).not.toBeChecked();
     // Other types are untouched.
-    await expect(
-      page.getByRole("form", { name: "Your role changes" }).getByLabel("In the app"),
-    ).toBeChecked();
+    await expect(page.getByLabel("In the app: Your role changes")).toBeChecked();
 
     // B joins: nothing reaches A's inbox.
     const b = await signUpAndIn(newTestUser("pref-b"));
