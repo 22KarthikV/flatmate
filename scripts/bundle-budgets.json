@@ -11,6 +11,7 @@
     "/money/add": 200,
     "/money/history": 200,
     "/money/settle": 200,
+    "/money/people/[id]": 200,
     "/money/expenses/[id]": 200,
     "/money/expenses/[id]/edit": 200,
     "/events": 200,

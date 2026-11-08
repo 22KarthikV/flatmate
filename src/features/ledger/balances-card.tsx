@@ -22,11 +22,18 @@ function PeopleList({ rows }: { rows: PersonRow[] }) {
   return (
     <ul className="divide-line divide-y">
       {rows.map((row) => (
-        <li key={row.profileId} className="flex min-h-11 items-center justify-between gap-4 py-2">
-          <span>{row.isYou ? `${row.displayName} (you)` : row.displayName}</span>
-          <span className={row.status === "square" ? "text-muted" : undefined}>
-            {position(row)}
-          </span>
+        <li key={row.profileId}>
+          <Link
+            href={`/money/people/${row.profileId}`}
+            className="flex min-h-11 items-center justify-between gap-4 py-2"
+          >
+            <span className="underline-offset-4 hover:underline">
+              {row.isYou ? `${row.displayName} (you)` : row.displayName}
+            </span>
+            <span className={row.status === "square" ? "text-muted" : undefined}>
+              {position(row)}
+            </span>
+          </Link>
         </li>
       ))}
     </ul>
@@ -49,6 +56,7 @@ export function BalancesCard({ view }: { view: BalancesView }) {
 
       <div className="mt-4">
         <PeopleList rows={view.people} />
+        <p className="text-muted mt-2 text-sm">Tap a name to see what adds up to it.</p>
       </div>
 
       {view.payments.length > 0 ? (
