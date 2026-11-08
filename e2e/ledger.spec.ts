@@ -131,7 +131,7 @@ test.describe("history", () => {
     await expect(hostPage.getByText("Everyone is square")).toBeVisible();
 
     // From the Money screen, the history icon next to "Record a payment".
-    await hostPage.getByRole("link", { name: "History" }).click();
+    await hostPage.getByRole("link", { name: "History", exact: true }).click();
     await expect(hostPage).toHaveURL(/\/money\/history$/);
     await expect(hostPage.getByRole("heading", { level: 1, name: "History" })).toBeVisible();
 
@@ -166,7 +166,7 @@ test.describe("history", () => {
 
     await page.goto("/money");
     const record = await page.getByRole("link", { name: "Record a payment" }).boundingBox();
-    const history = await page.getByRole("link", { name: "History" }).boundingBox();
+    const history = await page.getByRole("link", { name: "History", exact: true }).boundingBox();
     expect(history?.width ?? 0).toBeGreaterThanOrEqual(44);
     expect(history?.height ?? 0).toBeGreaterThanOrEqual(44);
     // Next to it on the same row, not pushed under.

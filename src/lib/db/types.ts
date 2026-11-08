@@ -2574,6 +2574,23 @@ export type Database = {
         Returns: string;
       };
       pause_recurring_template: { Args: { p_template_id: string }; Returns: undefined };
+      person_ledger: {
+        Args: { p_person: string };
+        Returns: {
+          amount_pence: number;
+          counts: boolean;
+          created_at: string;
+          description: string;
+          effect_pence: number;
+          item_id: string;
+          kind: string;
+          occurred_on: string;
+          other_id: string;
+          other_name: string;
+          share_pence: number;
+          status: string;
+        }[];
+      };
       pin_board_post: { Args: { p_pinned: boolean; p_post: string }; Returns: undefined };
       post_to_board: {
         Args: { p_body: string; p_expires_in_days?: number; p_pin?: boolean };
